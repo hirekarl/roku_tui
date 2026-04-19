@@ -5,7 +5,6 @@ import contextlib
 from pathlib import Path
 from typing import ClassVar
 
-from platformdirs import user_data_dir
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -50,9 +49,7 @@ TOKYO_NIGHT = Theme(
 
 
 def _get_db_path() -> Path:
-    data_dir = Path(user_data_dir("roku-tui", appauthor=False))
-    data_dir.mkdir(parents=True, exist_ok=True)
-    return data_dir / "roku_tui.db"
+    return Path(__file__).resolve().parent.parent / "roku_tui.db"
 
 
 class RokuTuiApp(App):
