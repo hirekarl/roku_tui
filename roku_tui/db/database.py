@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -52,7 +52,7 @@ class Database:
         with self._engine.connect() as conn:
             self._migrate(conn)
             if macros_table_is_empty(conn):
-                now = datetime.utcnow()
+                now = datetime.now(UTC)
                 for m in BUILTIN_MACROS:
                     insert_macro(
                         conn,
@@ -108,7 +108,7 @@ class Database:
 
     def log_command(self, line: str, success: bool, device_id: int | None) -> None:
         with self._engine.connect() as conn:
-            insert_command(conn, line, success, device_id, datetime.utcnow())
+            insert_command(conn, line, success, device_id, datetime.now(UTC))
 
     def recent_commands(self, limit: int = 20) -> list[dict]:
         with self._engine.connect() as conn:
@@ -161,7 +161,7 @@ class Database:
 
     def record_macro_run(self, name: str) -> None:
         with self._engine.connect() as conn:
-            update_macro_run_stats(conn, name, datetime.utcnow())
+            update_macro_run_stats(conn, name, datetime.now(UTC))
 
     def set_macro_abort_flag(self, name: str, abort_on_fail: bool) -> None:
         with self._engine.connect() as conn:
@@ -171,7 +171,7 @@ class Database:
 
     def log_app_launch(self, app: AppInfo, device_id: int | None) -> None:
         with self._engine.connect() as conn:
-            insert_app_launch(conn, app.id, app.name, datetime.utcnow(), device_id)
+            insert_app_launch(conn, app.id, app.name, datetime.now(UTC), device_id)
 
     def app_launch_frequencies(self) -> dict[str, int]:
         with self._engine.connect() as conn:

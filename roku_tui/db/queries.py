@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Connection, func, select, update
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 # ── devices ──────────────────────────────────────────────────────────────────
 
 def upsert_device(conn: Connection, ip: str, info: DeviceInfo) -> int:
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     conn.execute(
         devices.insert().prefix_with("OR IGNORE").values(
             ip=ip,
@@ -174,7 +174,7 @@ def upsert_user_macro(
     description: str,
     commands_text: str,
 ) -> None:
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     existing = select_macro_by_name(conn, name)
     if existing:
         conn.execute(
@@ -286,7 +286,7 @@ def count_command_days(conn: Connection) -> int:
 
 def sync_device_apps(conn: Connection, device_id: int, apps: list) -> None:
     """Replace all app rows for a device with the current list."""
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     conn.execute(device_apps.delete().where(device_apps.c.device_id == device_id))
     if apps:
         conn.execute(
