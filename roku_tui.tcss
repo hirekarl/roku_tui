@@ -1,0 +1,145 @@
+/* ── Global ──────────────────────────────────────────────────────────────── */
+
+Screen {
+    background: #1a1b26;
+    color: #c0caf5;
+}
+
+Header {
+    background: #1f2335;
+    color: #7aa2f7;
+    text-style: bold;
+    height: 1;
+}
+
+Footer {
+    background: #1f2335;
+    color: #565f89;
+    height: 1;
+}
+
+/* ── Status Bar ──────────────────────────────────────────────────────────── */
+
+StatusBar {
+    dock: top;
+    height: 1;
+    background: #16161e;
+    layout: horizontal;
+    padding: 0 2;
+    color: #c0caf5;
+}
+
+#status-device {
+    width: 1fr;
+    color: #c0caf5;
+}
+
+#status-indicator {
+    width: auto;
+    color: #9ece6a;
+}
+
+/* ── Main Area ───────────────────────────────────────────────────────────── */
+
+#main-area {
+    layout: horizontal;
+    height: 1fr;
+}
+
+/* ── REPL Panel ──────────────────────────────────────────────────────────── */
+
+#repl-panel {
+    width: 65%;
+    height: 100%;
+    layout: vertical;
+    background: #1a1b26;
+    border-right: tall #292e42;
+}
+
+#repl-panel.full-width {
+    width: 100%;
+    border-right: none;
+}
+
+#history-scroll {
+    height: 1fr;
+    padding: 1 2;
+    scrollbar-color: #414868;
+    scrollbar-background: #1a1b26;
+    scrollbar-size: 1 1;
+}
+
+.history-entry {
+    padding: 0 0 1 0;
+    color: #c0caf5;
+}
+
+.banner {
+    color: #565f89;
+}
+
+.spacer {
+    height: 1;
+}
+
+.cmd-echo {
+    color: #7aa2f7;
+}
+
+.cmd-output {
+    color: #c0caf5;
+    padding: 0 0 1 2;
+}
+
+.cmd-error {
+    color: #f7768e;
+}
+
+.cmd-system {
+    color: #565f89;
+    text-style: italic;
+}
+
+#command-input {
+    dock: bottom;
+    height: 3;
+    background: #16161e;
+    color: #c0caf5;
+    border: tall #414868;
+    padding: 0 1;
+    margin: 0 0 0 0;
+}
+
+#command-input:focus {
+    border: tall #7aa2f7;
+}
+
+/* ── Network Panel ───────────────────────────────────────────────────────── */
+
+#network-panel {
+    width: 35%;
+    height: 100%;
+    layout: vertical;
+    background: #1f2335;
+}
+
+#network-panel.hidden {
+    display: none;
+}
+
+#network-title {
+    height: 1;
+    background: #16161e;
+    color: #bb9af7;
+    text-style: bold;
+    padding: 0 1;
+}
+
+#network-log {
+    height: 1fr;
+    background: #1f2335;
+    padding: 0 1;
+    scrollbar-color: #414868;
+    scrollbar-background: #1f2335;
+    scrollbar-size: 1 1;
+}

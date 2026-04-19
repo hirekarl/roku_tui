@@ -1,0 +1,25 @@
+[project]
+name = "roku-tui"
+version = "0.1.0"
+description = "Roku remote control as a terminal REPL — learn the terminal and HTTP at the same time"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "textual>=8.2.3",
+]
+
+[project.scripts]
+roku-tui = "roku_tui.__main__:main"
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "hatchling>=1.29.0",
+]
