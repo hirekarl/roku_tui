@@ -49,7 +49,7 @@ StatusBar {
 /* ── Tabbed Content ──────────────────────────────────────────────────────── */
 
 TabbedContent {
-    width: 65%;
+    width: 1fr;
     height: 100%;
     background: $background;
     border-right: tall $bg-highlight;
@@ -154,7 +154,9 @@ TabPane {
 /* ── Network Panel ───────────────────────────────────────────────────────── */
 
 #network-panel {
-    width: 35%;
+    width: 44;
+    min-width: 44;
+    max-width: 44;
     height: 100%;
     layout: vertical;
     background: $panel;
@@ -175,7 +177,7 @@ TabPane {
 #network-log {
     height: 1fr;
     background: $panel;
-    padding: 0 1;
+    padding: 0;
     scrollbar-color: $muted-border;
     scrollbar-background: $panel;
     scrollbar-size: 1 1;
@@ -196,20 +198,20 @@ TabPane {
 }
 
 .remote-row {
-    width: auto;
+    width: 100%;
     height: auto;
     align: center middle;
     margin: 0 0 1 0;
 }
 
 .dpad {
-    width: 27;
+    width: 100%;
     height: auto;
     align: center middle;
     margin: 0 0 1 0;
 }
 
-.btn-power   { width: 14; min-width: 14; }
+.btn-power   { width: 14; min-width: 14; margin: 0; }
 .btn-nav     { width: 11; min-width: 11; margin: 0 1; }
 .btn-dpad    { width: 7;  min-width: 7;  margin: 0 1; }
 .btn-ok      { width: 7;  min-width: 7;  margin: 0 1; }
@@ -245,17 +247,18 @@ HelpScreen {
 #help-title {
     padding: 1 2 0 2;
     color: $foreground;
+    text-align: center;
 }
 
 #help-cols {
     height: auto;
-    padding: 1 1 0 1;
+    padding: 0 2;
 }
 
 .help-col {
     width: 1fr;
     height: auto;
-    padding: 0 1;
+    padding: 1 2;
     color: $foreground;
 }
 

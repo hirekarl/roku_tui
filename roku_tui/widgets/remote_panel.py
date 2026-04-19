@@ -61,9 +61,9 @@ class RemotePanel(Widget):
                 yield Button("▶  ⏸", id="btn-play", classes="btn-media")
                 yield Button("▶▶", id="btn-fwd", classes="btn-media")
             with Horizontal(classes="remote-row"):
-                yield Button("+ Vol", id="btn-vol-up", classes="btn-volume")
-                yield Button("⊗ Mute", id="btn-mute", classes="btn-volume")
                 yield Button("- Vol", id="btn-vol-down", classes="btn-volume")
+                yield Button("⊗ Mute", id="btn-mute", classes="btn-volume")
+                yield Button("+ Vol", id="btn-vol-up", classes="btn-volume")
 
     def flash_button(self, btn_id: str) -> None:
         try:
