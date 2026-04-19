@@ -130,6 +130,7 @@ class RokuTuiApp(App):
             "[dim]Running in [bold]mock mode[/bold] — "
             "HTTP requests are simulated.[/dim]"
         )
+        self._prefetch_info()
 
     def _connect(self, url: str) -> None:
         if "://" not in url:
@@ -155,10 +156,20 @@ class RokuTuiApp(App):
             info = await self.client.query_device_info()
             if info:
                 self.query_one("#status-bar", StatusBar).set_connected(info.friendly_name)
-                await asyncio.to_thread(self.db.upsert_device, info, self._current_ip)
+                device_id = await asyncio.to_thread(self.db.upsert_device, info, self._current_ip)
 
+                # Warm the suggester immediately from cached DB apps (no network wait)
+                cached_apps = await asyncio.to_thread(self.db.get_device_apps, device_id)
+                if cached_apps:
+                    freq = await asyncio.to_thread(self.db.app_launch_frequencies)
+                    self.suggester.update_launch_frequencies(freq)
+                    self.suggester.update_app_names([a["app_name"] for a in cached_apps])
+
+            # Fetch live app list and write through to DB
             apps = await self.client.query_apps()
             self.app_cache = apps
+            if info:
+                await asyncio.to_thread(self.db.sync_device_apps, apps, device_id)
 
             freq = await asyncio.to_thread(self.db.app_launch_frequencies)
             self.suggester.update_launch_frequencies(freq)

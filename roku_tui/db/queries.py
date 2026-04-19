@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Connection, func, select, text, update
 
-from .schema import app_launches, commands, devices, macros, network_requests
+from .schema import app_launches, commands, device_apps, devices, macros, network_requests
 
 if TYPE_CHECKING:
     from ..ecp.models import AppInfo, DeviceInfo, NetworkEvent
@@ -265,3 +265,33 @@ def count_command_days(conn: Connection) -> int:
         select(func.count(func.distinct(func.date(commands.c.executed_at))))
     ).one()
     return row[0]
+
+
+# ── device_apps ───────────────────────────────────────────────────────────────
+
+def sync_device_apps(conn: Connection, device_id: int, apps: list) -> None:
+    """Replace all app rows for a device with the current list."""
+    now = datetime.utcnow()
+    conn.execute(device_apps.delete().where(device_apps.c.device_id == device_id))
+    if apps:
+        conn.execute(
+            device_apps.insert(),
+            [
+                {
+                    "device_id": device_id,
+                    "app_id": a.id,
+                    "app_name": a.name,
+                    "version": a.version,
+                    "subtype": a.subtype,
+                    "last_seen_at": now,
+                }
+                for a in apps
+            ],
+        )
+    conn.commit()
+
+
+def select_apps_for_device(conn: Connection, device_id: int) -> list:
+    return conn.execute(
+        select(device_apps).where(device_apps.c.device_id == device_id).order_by(device_apps.c.app_name)
+    ).fetchall()

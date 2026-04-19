@@ -61,6 +61,18 @@ macros = Table(
     Column("is_builtin", Boolean, nullable=False, server_default="0"),
 )
 
+device_apps = Table(
+    "device_apps",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("device_id", Integer, ForeignKey("devices.id"), nullable=False),
+    Column("app_id", Text, nullable=False),
+    Column("app_name", Text, nullable=False),
+    Column("version", Text),
+    Column("subtype", Text),
+    Column("last_seen_at", DateTime, nullable=False),
+)
+
 app_launches = Table(
     "app_launches",
     metadata,

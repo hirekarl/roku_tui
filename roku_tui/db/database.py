@@ -19,11 +19,13 @@ from .queries import (
     select_all_devices,
     select_all_macros,
     select_app_launch_frequencies,
+    select_apps_for_device,
     select_macro_by_name,
     select_recent_commands,
     select_top_app_launches,
     select_top_commands,
     search_commands_by_term,
+    sync_device_apps,
     update_macro_run_stats,
     upsert_device,
     upsert_user_macro,
@@ -75,6 +77,15 @@ class Database:
     def list_devices(self) -> list[dict]:
         with self._engine.connect() as conn:
             rows = select_all_devices(conn)
+        return [dict(r._mapping) for r in rows]
+
+    def sync_device_apps(self, apps: list, device_id: int) -> None:
+        with self._engine.connect() as conn:
+            sync_device_apps(conn, device_id, apps)
+
+    def get_device_apps(self, device_id: int) -> list[dict]:
+        with self._engine.connect() as conn:
+            rows = select_apps_for_device(conn, device_id)
         return [dict(r._mapping) for r in rows]
 
     # ── commands ─────────────────────────────────────────────────────────────
