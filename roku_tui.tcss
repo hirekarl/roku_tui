@@ -112,7 +112,7 @@ TabPane {
 }
 
 .banner {
-    color: $comment;
+    color: $foreground;
 }
 
 .spacer {
@@ -133,7 +133,7 @@ TabPane {
 }
 
 .cmd-system {
-    color: $comment;
+    color: $foreground;
     text-style: italic;
 }
 
@@ -190,7 +190,7 @@ TabPane {
 }
 
 #remote-body {
-    width: auto;
+    width: 33;
     height: auto;
     align: center middle;
 }
@@ -203,7 +203,8 @@ TabPane {
 }
 
 .dpad {
-    width: auto;
+    width: 27;
+    height: auto;
     align: center middle;
     margin: 0 0 1 0;
 }
@@ -234,7 +235,7 @@ HelpScreen {
 }
 
 #help-body {
-    width: 72;
+    width: 78;
     height: auto;
     max-height: 90%;
     background: $panel;

@@ -35,15 +35,14 @@ class ReplPanel(Widget):
 
     def _show_banner(self) -> None:
         self._append(
-            "[bold #7aa2f7]roku-tui[/bold #7aa2f7]  "
-            "[dim]Roku Remote · REPL Edition[/dim]",
+            "[bold #7aa2f7]roku-tui[/bold #7aa2f7]  Roku Remote · REPL Edition",
             css_class="banner",
         )
         self._append(
-            "[dim]Press [bold]F1[/bold] for the guide · "
+            "Press [bold]F1[/bold] for the guide · "
             "[bold]Tab[/bold] to complete · "
             "[bold]↑↓[/bold] for history · "
-            "[bold]u d l r s[/bold] quick keys[/dim]",
+            "[bold]u d l r s[/bold] quick keys",
             css_class="banner",
         )
         self._append("", css_class="spacer")
