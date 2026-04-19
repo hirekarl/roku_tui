@@ -33,22 +33,12 @@ uv run pytest tests/test_handlers.py::test_launch_fuzzy_match
 
 ### Layout
 
-- **Left panel (65%)** — `ReplPanel`: command input with tab completion, history navigation (↑↓), and scrollable output
-- **Right panel (35%)** — `NetworkPanel`: live HTTP request/response log
+- **Left panel (Fluid)** — `ReplPanel`: command input with tab completion, history navigation (↑↓), and scrollable output. Uses `width: 1fr`.
+- **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses a fixed width for consistent alignment.
 - **Top** — `StatusBar`: connected device info
 - **F1** — `HelpScreen` modal
 
-### Command Flow
-
-```
-User input → ReplPanel → CommandSubmitted message
-  → RokuTuiApp._dispatch()
-  → CommandRegistry.parse()         # lookup by name or alias
-  → handler (async)                 # in commands/handlers.py or db_commands.py
-  → EcpClient / MockEcpClient       # HTTP to Roku port 8060
-  → NetworkEvent callback           # routed to NetworkPanel + DB
-  → output rendered in ReplPanel
-```
+... (rest of Command Flow section) ...
 
 ### Key modules
 
@@ -67,7 +57,7 @@ User input → ReplPanel → CommandSubmitted message
 | `db/schema.py` | SQLAlchemy tables: devices, commands, network_requests, macros, device_apps, app_launches |
 | `db/seeds.py` | 6 builtin macros |
 | `widgets/` | `ReplPanel`, `NetworkPanel`, `StatusBar`, `HelpScreen` |
-| `roku_tui.tcss` | Textual CSS — 65/35 split, Tokyo Night theme |
+| `roku_tui.tcss` | Textual CSS — Tokyo Night theme, fixed-width network panel |
 
 ### ECP Client contract
 

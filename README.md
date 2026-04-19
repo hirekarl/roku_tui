@@ -20,23 +20,21 @@ uv run roku-tui
 ```
 
 ---
-
 ## Interface
 
 ```
 ┌─────────────────────────────┬──────────────────────────────┐
 │  REPL                        │  HTTP Inspector              │
 │                              │                              │
-│  > launch Netflix            │  POST /keypress/Home         │
-│  ↵ Launched Netflix          │    200 · 48ms               │
-│                              │  GET  /query/apps            │
-│  > up 3                      │    200 · 61ms               │
+│  > launch Netflix            │  POST /keypress/Home   200 48ms
+│  ↵ Launched Netflix          │  GET  /query/apps      200 61ms
+│                              │                              │
+│  > up 3                      │                              │
 │  ↵ Up ×3                     │                              │
 │                              │                              │
 │  [Tab] autocomplete          │                              │
 └─────────────────────────────┴──────────────────────────────┘
 ```
-
 The left panel is a command REPL with tab-completion and persistent history. The right panel shows every ECP HTTP request in real time — method, path, status code, and latency.
 
 ---

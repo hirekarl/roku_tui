@@ -62,22 +62,28 @@ TabbedContent.full-width {
 
 TabbedContent > Tabs {
     background: $bg-dark;
-    height: 2;
+    height: 3;
+    padding: 0 1;
+    border-bottom: solid $bg-highlight;
 }
 
 TabbedContent > Tabs > Tab {
     background: $bg-dark;
     color: $comment;
-    padding: 0 2;
+    padding: 1 4;
+    height: 100%;
+    border: none;
 }
 
 TabbedContent > Tabs > Tab.-active {
     background: $background;
     color: $primary;
     text-style: bold;
+    border-top: tall $primary;
 }
 
 TabbedContent > Tabs > Tab:hover {
+    background: $bg-highlight;
     color: $foreground;
 }
 
