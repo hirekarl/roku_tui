@@ -83,3 +83,17 @@ app_launches = Table(
     Column("launched_at", DateTime, nullable=False),
     Column("device_id", Integer, ForeignKey("devices.id"), nullable=True),
 )
+
+deep_links = Table(
+    "deep_links",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("alias", Text, nullable=False, unique=True),
+    Column("app_id", Text, nullable=False),
+    Column("app_name", Text),
+    Column("content_id", Text, nullable=False),
+    Column("media_type", Text),
+    Column("created_at", DateTime, nullable=False),
+    Column("last_launched_at", DateTime),
+    Column("launch_count", Integer, nullable=False, server_default="0"),
+)

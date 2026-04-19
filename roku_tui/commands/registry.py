@@ -1,19 +1,21 @@
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
+from rich.table import Table
+
 
 @dataclass
 class Command:
     name: str
     aliases: list[str]
     args: list[str]
-    handler: Callable[..., Awaitable[str]]
+    handler: Callable[..., Awaitable[str | Table]]
     help_text: str
     dynamic_args: bool = False
 
 
 class CommandRegistry:
-    def __init__(self):
+    def __init__(self) -> None:
         self._commands: dict[str, Command] = {}
         self._alias_map: dict[str, str] = {}
 

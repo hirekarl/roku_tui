@@ -12,7 +12,9 @@ from roku_tui.widgets.status_bar import StatusBar
 @pytest.fixture
 def app(monkeypatch, tmp_path):
     monkeypatch.setattr("roku_tui.app._get_db_path", lambda: tmp_path / "test.db")
-    return RokuTuiApp(mock=True)
+    app = RokuTuiApp(mock=True)
+    app.db.initialize()
+    return app
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────
@@ -106,5 +108,3 @@ async def test_disconnected_allows_help(app):
         app.client = None
         result = await app._dispatch("help")
         assert result is True
-
-

@@ -13,8 +13,7 @@ BUILTIN_MACROS = [
         "name": "sleep-timer",
         "description": "Lower volume five times then power off",
         "commands": (
-            "volume down\nvolume down\nvolume down\n"
-            "volume down\nvolume down\npower"
+            "volume down\nvolume down\nvolume down\nvolume down\nvolume down\npower"
         ),
     },
     {

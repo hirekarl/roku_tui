@@ -3,7 +3,7 @@ import argparse
 from .app import RokuTuiApp
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         prog="roku-tui",
         description="Roku remote control as a terminal REPL",

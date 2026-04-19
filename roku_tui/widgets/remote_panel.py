@@ -7,29 +7,29 @@ from textual.widget import Widget
 from textual.widgets import Button
 
 BUTTON_MAP: dict[str, str] = {
-    "btn-power":    "Power",
-    "btn-back":     "Back",
-    "btn-home":     "Home",
-    "btn-up":       "Up",
-    "btn-down":     "Down",
-    "btn-left":     "Left",
-    "btn-right":    "Right",
-    "btn-select":   "Select",
-    "btn-play":     "Play",
-    "btn-rev":      "Rev",
-    "btn-fwd":      "Fwd",
-    "btn-vol-up":   "VolumeUp",
-    "btn-mute":     "VolumeMute",
+    "btn-power": "Power",
+    "btn-back": "Back",
+    "btn-home": "Home",
+    "btn-up": "Up",
+    "btn-down": "Down",
+    "btn-left": "Left",
+    "btn-right": "Right",
+    "btn-select": "Select",
+    "btn-play": "Play",
+    "btn-rev": "Rev",
+    "btn-fwd": "Fwd",
+    "btn-vol-up": "VolumeUp",
+    "btn-mute": "VolumeMute",
     "btn-vol-down": "VolumeDown",
 }
 
 HOTKEY_TO_BUTTON: dict[str, str] = {
-    "up":        "btn-up",
-    "down":      "btn-down",
-    "left":      "btn-left",
-    "right":     "btn-right",
-    "enter":     "btn-select",
-    "space":     "btn-play",
+    "up": "btn-up",
+    "down": "btn-down",
+    "left": "btn-left",
+    "right": "btn-right",
+    "enter": "btn-select",
+    "space": "btn-play",
     "backspace": "btn-back",
 }
 

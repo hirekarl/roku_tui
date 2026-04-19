@@ -28,6 +28,12 @@ class _MockDb:
     def log_app_launch(self, app, device_id):
         pass
 
+    def get_deep_link(self, alias):
+        return None
+
+    def record_deep_link_launch(self, alias):
+        pass
+
 
 class MockContext:
     def __init__(self):

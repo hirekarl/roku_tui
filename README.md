@@ -54,12 +54,16 @@ The left panel is a command REPL with tab-completion and persistent history. The
 
 Add a count to repeat: `up 3`, `volume down 5`, `right 10`.
 
-### Apps
+### Apps & Deep Links
 | Command | Description |
 |---|---|
-| `launch <name>` | Fuzzy-match and launch an app |
+| `launch <name | alias>` | Fuzzy-match launch an app or a saved shortcut |
 | `apps` | List installed channels |
 | `active` | Show currently playing app |
+| `link save <alias> <app> <id>` | Save a content shortcut (e.g., `link save lofi youtube dCmq...`) |
+| `link list` | List all saved shortcuts |
+| `yt search <query>` | Search YouTube directly from the REPL |
+| `yt launch <id | index>` | Launch a YouTube video by ID or search result index |
 
 ### Device
 | Command | Description |
@@ -77,7 +81,7 @@ Add a count to repeat: `up 3`, `volume down 5`, `right 10`.
 | `macro show <name>` | Preview a macro's steps |
 | `macro delete <name>` | Delete a user macro |
 
-Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mute-toggle`, `channel-surf`.
+Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mute-toggle`, `channel-surf`. Macros now support deep links!
 
 ### History & stats
 | Command | Description |
@@ -91,6 +95,7 @@ Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mu
 |---|---|
 | `help` | Command reference |
 | `clear` | Clear the REPL |
+| `theme [name]` | Switch between `roku-night`, `catppuccin`, `nord`, `gruvbox` |
 
 ---
 
@@ -98,12 +103,13 @@ Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mu
 
 | Key | Action |
 |---|---|
-| `Tab` | Autocomplete command or app name |
+| `Tab` | Autocomplete command, app name, or subcommand |
 | `↑` / `↓` | Walk command history |
 | Arrow keys | D-pad (when not typing) |
 | `Enter` | Select (when not typing) |
 | `Space` | Play/Pause (when not typing) |
 | `Backspace` | Back (when not typing) |
+| `Ctrl+T` | Toggle between REPL and Remote mode |
 | `Ctrl+N` | Toggle network inspector |
 | `Ctrl+L` | Clear REPL |
 | `Ctrl+Q` | Quit |
@@ -113,7 +119,7 @@ Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mu
 
 ## How it works
 
-Roku devices expose the **ECP (External Control Protocol)** — a plain HTTP API on port 8060. Every remote-control action is a `POST /keypress/{key}`. App queries are `GET /query/apps`. Device info is `GET /query/device-info`.
+Roku devices expose the **ECP (External Control Protocol)** — a plain HTTP API on port 8060. Every remote-control action is a `POST /keypress/{key}`. App queries are `GET /query/apps`. Device info is `GET /query/device-info`. Deep linking uses `POST /launch/{app_id}?contentId={id}`.
 
 This app wraps that API in a Textual TUI, logs every call to a local SQLite database, and renders the request/response in the network panel so you can watch the HTTP happen.
 

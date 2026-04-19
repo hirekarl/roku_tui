@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
 
 from .registry import Command, CommandRegistry
+
+if TYPE_CHECKING:
+    pass
 
 META_PREFIXES = ("macro ", "history", "stats", "devices", "help", "clear", "cls")
 _SLEEP_MAX = 30.0
@@ -13,7 +16,9 @@ _SLEEP_MAX = 30.0
 
 # ── macro sub-handlers ────────────────────────────────────────────────────────
 
-async def _macro_list(client: Any, args: list[str], context: Any):
+
+async def _macro_list(client: Any, args: list[str], context: Any) -> Table | str:
+    """List all available macros."""
     macros = context.db.list_macros()
     if not macros:
         return "[dim]No macros defined.[/dim]"
@@ -35,7 +40,8 @@ async def _macro_list(client: Any, args: list[str], context: Any):
     return table
 
 
-async def _macro_run(client: Any, args: list[str], context: Any):
+async def _macro_run(client: Any, args: list[str], context: Any) -> str:
+    """Execute a macro by name."""
     if not args:
         return "[red]Usage:[/red] macro run <name>"
     name = args[0]
@@ -61,7 +67,8 @@ async def _macro_run(client: Any, args: list[str], context: Any):
     return f"[dim]Macro[/dim] [bold]{name}[/bold] [dim]{done}.[/dim]"
 
 
-async def _macro_save(client: Any, args: list[str], context: Any):
+async def _macro_save(client: Any, args: list[str], context: Any) -> str:
+    """Save the last 10 successful commands as a new macro."""
     if not args:
         return "[red]Usage:[/red] macro save <name> [description]"
     name = args[0]
@@ -69,7 +76,8 @@ async def _macro_save(client: Any, args: list[str], context: Any):
 
     recent = context.db.recent_commands(limit=20)
     lines = [
-        r["line"] for r in reversed(recent)
+        r["line"]
+        for r in reversed(recent)
         if r["success"] and not any(r["line"].startswith(p) for p in META_PREFIXES)
     ][:10]
 
@@ -87,7 +95,8 @@ async def _macro_save(client: Any, args: list[str], context: Any):
     return f"[bold]{name}[/bold] {saved}: {steps_preview}"
 
 
-async def _macro_show(client: Any, args: list[str], context: Any):
+async def _macro_show(client: Any, args: list[str], context: Any) -> Table | str:
+    """Show the steps of a specific macro."""
     if not args:
         return "[red]Usage:[/red] macro show <name>"
     macro = context.db.get_macro(args[0])
@@ -108,7 +117,8 @@ async def _macro_show(client: Any, args: list[str], context: Any):
     return table
 
 
-async def _macro_set(client: Any, args: list[str], context: Any):
+async def _macro_set(client: Any, args: list[str], context: Any) -> str:
+    """Modify macro properties like 'abort on fail'."""
     # args: ["<name>", "abort", "on|off"]
     if len(args) < 3 or args[1] != "abort" or args[2] not in ("on", "off"):
         return "[red]Usage:[/red] macro set <name> abort on|off"
@@ -124,7 +134,8 @@ async def _macro_set(client: Any, args: list[str], context: Any):
     return f"[bold]{name}[/bold] → {state}"
 
 
-async def _macro_delete(client: Any, args: list[str], context: Any):
+async def _macro_delete(client: Any, args: list[str], context: Any) -> str:
+    """Delete a user-defined macro."""
     if not args:
         return "[red]Usage:[/red] macro delete <name>"
     try:
@@ -144,7 +155,8 @@ _MACRO_SUBS = {
 }
 
 
-async def handle_macro(client: Any, args: list[str], context: Any):
+async def handle_macro(client: Any, args: list[str], context: Any) -> Table | str:
+    """Route macro subcommands."""
     sub = args[0] if args else ""
     fn = _MACRO_SUBS.get(sub)
     if fn is None:
@@ -160,7 +172,9 @@ async def handle_macro(client: Any, args: list[str], context: Any):
 
 # ── history ───────────────────────────────────────────────────────────────────
 
-async def handle_history(client: Any, args: list[str], context: Any):
+
+async def handle_history(client: Any, args: list[str], context: Any) -> Table | str:
+    """Display or search command history."""
     if args and args[0] == "search":
         term = " ".join(args[1:])
         if not term:
@@ -186,7 +200,9 @@ async def handle_history(client: Any, args: list[str], context: Any):
 
 # ── stats ─────────────────────────────────────────────────────────────────────
 
-async def handle_stats(client: Any, args: list[str], context: Any):
+
+async def handle_stats(client: Any, args: list[str], context: Any) -> Table:
+    """Display application usage statistics."""
     stats = context.db.usage_stats()
 
     table = Table(box=None, show_header=False, padding=(0, 2, 0, 0))
@@ -211,7 +227,9 @@ async def handle_stats(client: Any, args: list[str], context: Any):
 
 # ── devices ───────────────────────────────────────────────────────────────────
 
-async def handle_devices(client: Any, args: list[str], context: Any):
+
+async def handle_devices(client: Any, args: list[str], context: Any) -> Table | str:
+    """List all Roku devices found in the database history."""
     devs = context.db.list_devices()
     if not devs:
         return "[dim]No devices seen yet.[/dim]"
@@ -241,7 +259,9 @@ async def handle_devices(client: Any, args: list[str], context: Any):
 
 # ── sleep ─────────────────────────────────────────────────────────────────────
 
-async def handle_sleep(client: Any, args: list[str], context: Any):
+
+async def handle_sleep(client: Any, args: list[str], context: Any) -> str:
+    """Pause execution for a specified duration."""
     if not args:
         return f"[red]Usage:[/red] sleep <seconds> (max {_SLEEP_MAX:.0f})"
     try:
@@ -256,42 +276,54 @@ async def handle_sleep(client: Any, args: list[str], context: Any):
 
 # ── registration ──────────────────────────────────────────────────────────────
 
+
 def register_db_commands(registry: CommandRegistry) -> None:
-    registry.register(Command(
-        name="macro",
-        aliases=[],
-        args=["list", "run", "save", "show", "delete", "set"],
-        handler=handle_macro,
-        help_text=(
-            "macro list | run <name> | save <name> [desc]"
-            " | show <name> | delete <name> | set <name> abort on|off"
-        ),
-    ))
-    registry.register(Command(
-        name="sleep",
-        aliases=[],
-        args=[],
-        handler=handle_sleep,
-        help_text="sleep <seconds> — pause for N seconds (usable in macros)",
-    ))
-    registry.register(Command(
-        name="history",
-        aliases=["hist"],
-        args=["search"],
-        handler=handle_history,
-        help_text="history [N] | history search <term>",
-    ))
-    registry.register(Command(
-        name="stats",
-        aliases=[],
-        args=[],
-        handler=handle_stats,
-        help_text="Show usage statistics",
-    ))
-    registry.register(Command(
-        name="devices",
-        aliases=["devs"],
-        args=[],
-        handler=handle_devices,
-        help_text="List known Roku devices",
-    ))
+    """Register all database-backed commands into the registry."""
+    registry.register(
+        Command(
+            name="macro",
+            aliases=[],
+            args=["list", "run", "save", "show", "delete", "set"],
+            handler=handle_macro,
+            help_text=(
+                "macro list | run <name> | save <name> [desc]"
+                " | show <name> | delete <name> | set <name> abort on|off"
+            ),
+        )
+    )
+    registry.register(
+        Command(
+            name="sleep",
+            aliases=[],
+            args=[],
+            handler=handle_sleep,
+            help_text="sleep <seconds> — pause for N seconds (usable in macros)",
+        )
+    )
+    registry.register(
+        Command(
+            name="history",
+            aliases=["hist"],
+            args=["search"],
+            handler=handle_history,
+            help_text="history [N] | history search <term>",
+        )
+    )
+    registry.register(
+        Command(
+            name="stats",
+            aliases=[],
+            args=[],
+            handler=handle_stats,
+            help_text="Show usage statistics",
+        )
+    )
+    registry.register(
+        Command(
+            name="devices",
+            aliases=["devs"],
+            args=[],
+            handler=handle_devices,
+            help_text="List known Roku devices",
+        )
+    )

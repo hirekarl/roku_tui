@@ -1,4 +1,6 @@
-from typing import ClassVar
+from __future__ import annotations
+
+from typing import Any, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -6,9 +8,7 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Static
 
-_TITLE = (
-    "[bold #7aa2f7]roku-tui[/bold #7aa2f7] [dim]user guide[/dim]"
-)
+_TITLE = "[bold #7aa2f7]roku-tui[/bold #7aa2f7] [dim]user guide[/dim]"
 
 _LEFT = """\
 [bold]Hotkeys[/bold] [dim](when not typing)[/dim]
@@ -41,12 +41,12 @@ _RIGHT = """\
  [bold #7aa2f7]launch[/bold #7aa2f7] [dim]<name>[/dim]   fuzzy launch
  [bold #7aa2f7]apps[/bold #7aa2f7]             channel list
  [bold #7aa2f7]active[/bold #7aa2f7]           now playing
- [bold #7aa2f7]info[/bold #7aa2f7]             device info
+ [bold #7aa2f7]link[/bold #7aa2f7] [dim]<sub|alias>[/dim]  deep shortcuts
+ [bold #7aa2f7]yt[/bold #7aa2f7] [dim]<sub|query>[/dim]    YouTube search
  [bold #7aa2f7]connect[/bold #7aa2f7] [dim]<ip>[/dim]     connect Roku
  [bold #7aa2f7]macro[/bold #7aa2f7] [dim]<sub>[/dim]      manage macros
  [bold #7aa2f7]history[/bold #7aa2f7] [dim]<N>[/dim]      command log
  [bold #7aa2f7]stats[/bold #7aa2f7]            usage stats
- [bold #7aa2f7]sleep[/bold #7aa2f7] [dim]<s>[/dim]        pause N sec
  [bold #7aa2f7]theme[/bold #7aa2f7] [dim]<name>[/dim]     switch palette
 
 [bold]Shortcuts[/bold]
@@ -63,10 +63,15 @@ _RIGHT = """\
 _FOOTER = "[dim]Escape or any key to close[/dim]"
 
 
-class HelpScreen(ModalScreen):
-    BINDINGS: ClassVar[list[Binding]] = [Binding("escape", "dismiss", show=False)]
+class HelpScreen(ModalScreen[None]):
+    """A modal screen that displays the user guide and command reference."""
+
+    BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
+        Binding("escape", "dismiss", show=False)
+    ]
 
     def compose(self) -> ComposeResult:
+        """Compose the user guide layout."""
         with Vertical(id="help-body"):
             yield Static(_TITLE, id="help-title", markup=True)
             with Horizontal(id="help-cols"):
@@ -74,6 +79,7 @@ class HelpScreen(ModalScreen):
                 yield Static(_RIGHT, classes="help-col", markup=True)
             yield Static(_FOOTER, id="help-foot", markup=True)
 
-    def on_key(self, event) -> None:
+    def on_key(self, event: Any) -> None:
+        """Handle key events to dismiss the help screen."""
         if event.key != "escape":
             self.dismiss()

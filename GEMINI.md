@@ -11,62 +11,63 @@ uv run roku-tui --mock
 # Run against real device
 uv run roku-tui --ip 192.168.1.X
 
-# Lint
-uv run ruff check .
+# Lint & Format
+uv run ruff check . --fix
+uv run ruff format .
 
 # Type check
 uv run mypy roku_tui/
 
 # Tests
 uv run pytest
-
-# Single test file
-uv run pytest tests/test_registry.py
-
-# Single test
-uv run pytest tests/test_handlers.py::test_launch_fuzzy_match
 ```
 
 ## Architecture
 
-**roku-tui** is a two-panel Textual TUI that acts as a Roku remote control while logging all ECP HTTP traffic in real time.
+**roku-tui** is a two-panel Textual TUI acting as a Roku remote and real-time ECP network logger.
 
 ### Layout
 
-- **Left panel (Fluid)** — `ReplPanel`: command input with tab completion, history navigation (↑↓), and scrollable output. Uses `width: 1fr`.
-- **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses a fixed width for consistent alignment.
-- **Top** — `StatusBar`: connected device info
-- **F1** — `HelpScreen` modal
+- **Left panel (Fluid)** — `TabbedContent` with `ReplPanel` and `RemotePanel`. Uses `width: 1fr`.
+- **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses fixed width for data visibility.
+- **Top** — `StatusBar`: connected device info.
+- **F1** — `HelpScreen` modal.
 
-... (rest of Command Flow section) ...
+### Command Flow
 
-### Key modules
+```
+User input → ReplPanel → CommandSubmitted message
+  → RokuTuiApp._dispatch()
+  → CommandRegistry.parse()         # lookup by name or alias
+  → handler (async)                 # in handlers.py or db_commands.py
+  → EcpClient / MockEcpClient       # HTTP to Roku port 8060
+  → NetworkEvent callback           # routed to NetworkPanel + DB
+  → output rendered in ReplPanel
+```
+
+### Key Modules
 
 | Path | Role |
 |------|------|
-| `app.py` | Textual `App` — lifecycle, device discovery, routes network events |
-| `commands/registry.py` | Registers commands and aliases; parses raw input |
-| `commands/handlers.py` | ~20 command handlers: navigation, apps, device info, help |
-| `commands/db_commands.py` | Macro management, history search, stats |
-| `commands/suggester.py` | Tab completion (commands + fuzzy app names) |
-| `ecp/client.py` | Async HTTP client for Roku ECP protocol (port 8060) |
-| `ecp/mock.py` | `MockEcpClient` — fake responses when `--mock` is passed |
-| `ecp/discovery.py` | SSDP multicast discovery for Roku devices |
-| `ecp/models.py` | `NetworkEvent`, `AppInfo`, `DeviceInfo` dataclasses |
-| `db/database.py` | Public DB API |
-| `db/schema.py` | SQLAlchemy tables: devices, commands, network_requests, macros, device_apps, app_launches |
-| `db/seeds.py` | 6 builtin macros |
-| `widgets/` | `ReplPanel`, `NetworkPanel`, `StatusBar`, `HelpScreen` |
-| `roku_tui.tcss` | Textual CSS — Tokyo Night theme, fixed-width network panel |
+| `app.py` | Textual `App` — lifecycle, theme management, messaging. |
+| `commands/handlers.py` | ~25 handlers: navigation, apps, deep links, YouTube. |
+| `commands/db_commands.py` | Macro management, history, stats, sleep. |
+| `commands/suggester.py` | Tab completion (commands + fuzzy app names). |
+| `ecp/client.py` | Async HTTP client for Roku ECP (port 8060). |
+| `ecp/mock.py` | `MockEcpClient` — simulation for development. |
+| `service.py` | `YouTubeClient` using InnerTube for search. |
+| `db/database.py` | SQLite API wrapper with SQLAlchemy Core. |
+| `db/schema.py` | Tables: devices, commands, requests, macros, links. |
+| `widgets/` | `ReplPanel`, `NetworkPanel`, `RemotePanel`, `StatusBar`. |
 
-### ECP Client contract
+### Engineering Standards
 
-Both `EcpClient` and `MockEcpClient` accept a `network_callback: Callable[[NetworkEvent], None]` at construction. Every HTTP call fires that callback so the UI and DB can record it without polling.
-
-### Database
-
-SQLite file at `roku_tui.db` (repo root). SQLAlchemy Core (not ORM). Tracks commands, network requests, macro definitions, app launches, and device history. Used by `db_commands.py` handlers for `history`, `stats`, `macro *` commands.
+- **Type Safety:** `mypy --strict` compliance required. Use `Row[Any]` for DB rows.
+- **Linting:** Ruff for both linting and formatting.
+- **Async:** Use Textual workers (`@work`) for non-blocking UI tasks.
+- **Documentation:** Google-style docstrings for all functions/classes.
+- **Testing:** Always maintain 100% passing rate in `pytest`.
 
 ### Styling
 
-Tokyo Night palette, defined as a custom Textual `Theme` in `app.py` and applied in `roku_tui.tcss`. Rich markup (`[bold]`, `[green]`, etc.) is used in `ReplPanel` output via `RichLog`.
+Custom themes (Tokyo Night, Nord, etc.) defined in `app.py` and applied via `roku_tui.tcss`. Tabbed content uses custom active-state indicators.

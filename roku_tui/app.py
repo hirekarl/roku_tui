@@ -4,7 +4,7 @@ import asyncio
 import contextlib
 import difflib
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from textual import work
 from textual.app import App, ComposeResult
@@ -22,7 +22,7 @@ from .db import Database
 from .ecp.client import EcpClient
 from .ecp.discovery import discover_rokus
 from .ecp.mock import MockEcpClient
-from .ecp.models import NetworkEvent
+from .ecp.models import AppInfo, NetworkEvent
 from .widgets.help_screen import HelpScreen
 from .widgets.network_panel import NetworkPanel
 from .widgets.remote_panel import HOTKEY_TO_BUTTON, RemotePanel
@@ -37,98 +37,95 @@ TOKYO_NIGHT = Theme(
     background="#1a1b26",
     dark=True,
     variables={
-        "surface":      "#24283b",
-        "panel":        "#1f2335",
-        "success":      "#9ece6a",
-        "warning":      "#e0af68",
-        "error":        "#f7768e",
-        "accent":       "#73daca",
-        "comment":      "#565f89",
-        "bg-dark":      "#16161e",
+        "surface": "#24283b",
+        "panel": "#1f2335",
+        "success": "#9ece6a",
+        "warning": "#e0af68",
+        "error": "#f7768e",
+        "accent": "#73daca",
+        "comment": "#565f89",
+        "bg-dark": "#16161e",
         "bg-highlight": "#292e42",
         "muted-border": "#414868",
     },
 )
 
-CATPPUCCIN_MOCHA = Theme(
-    name="catppuccin",
-    primary="#89b4fa",
-    secondary="#cba6f7",
-    foreground="#cdd6f4",
-    background="#1e1e2e",
-    dark=True,
-    variables={
-        "surface":      "#313244",
-        "panel":        "#181825",
-        "success":      "#a6e3a1",
-        "warning":      "#fab387",
-        "error":        "#f38ba8",
-        "accent":       "#94e2d5",
-        "comment":      "#6c7086",
-        "bg-dark":      "#11111b",
-        "bg-highlight": "#45475a",
-        "muted-border": "#585b70",
-    },
-)
-
-NORD = Theme(
-    name="nord",
-    primary="#88c0d0",
-    secondary="#b48ead",
-    foreground="#d8dee9",
-    background="#2e3440",
-    dark=True,
-    variables={
-        "surface":      "#434c5e",
-        "panel":        "#3b4252",
-        "success":      "#a3be8c",
-        "warning":      "#ebcb8b",
-        "error":        "#bf616a",
-        "accent":       "#8fbcbb",
-        "comment":      "#4c566a",
-        "bg-dark":      "#242933",
-        "bg-highlight": "#3b4252",
-        "muted-border": "#434c5e",
-    },
-)
-
-GRUVBOX = Theme(
-    name="gruvbox",
-    primary="#83a598",
-    secondary="#d3869b",
-    foreground="#ebdbb2",
-    background="#282828",
-    dark=True,
-    variables={
-        "surface":      "#3c3836",
-        "panel":        "#1d2021",
-        "success":      "#b8bb26",
-        "warning":      "#fabd2f",
-        "error":        "#fb4934",
-        "accent":       "#8ec07c",
-        "comment":      "#928374",
-        "bg-dark":      "#1d2021",
-        "bg-highlight": "#504945",
-        "muted-border": "#665c54",
-    },
-)
-
 _THEMES: dict[str, Theme] = {
     "roku-night": TOKYO_NIGHT,
-    "catppuccin": CATPPUCCIN_MOCHA,
-    "nord":       NORD,
-    "gruvbox":    GRUVBOX,
+    "catppuccin": Theme(
+        name="catppuccin",
+        primary="#89b4fa",
+        secondary="#cba6f7",
+        foreground="#cdd6f4",
+        background="#1e1e2e",
+        dark=True,
+        variables={
+            "surface": "#313244",
+            "panel": "#181825",
+            "success": "#a6e3a1",
+            "warning": "#fab387",
+            "error": "#f38ba8",
+            "accent": "#94e2d5",
+            "comment": "#6c7086",
+            "bg-dark": "#11111b",
+            "bg-highlight": "#45475a",
+            "muted-border": "#585b70",
+        },
+    ),
+    "nord": Theme(
+        name="nord",
+        primary="#88c0d0",
+        secondary="#b48ead",
+        foreground="#d8dee9",
+        background="#2e3440",
+        dark=True,
+        variables={
+            "surface": "#434c5e",
+            "panel": "#3b4252",
+            "success": "#a3be8c",
+            "warning": "#ebcb8b",
+            "error": "#bf616a",
+            "accent": "#8fbcbb",
+            "comment": "#4c566a",
+            "bg-dark": "#242933",
+            "bg-highlight": "#3b4252",
+            "muted-border": "#434c5e",
+        },
+    ),
+    "gruvbox": Theme(
+        name="gruvbox",
+        primary="#83a598",
+        secondary="#d3869b",
+        foreground="#ebdbb2",
+        background="#282828",
+        dark=True,
+        variables={
+            "surface": "#3c3836",
+            "panel": "#1d2021",
+            "success": "#b8bb26",
+            "warning": "#fabd2f",
+            "error": "#fb4934",
+            "accent": "#8ec07c",
+            "comment": "#928374",
+            "bg-dark": "#1d2021",
+            "bg-highlight": "#504945",
+            "muted-border": "#665c54",
+        },
+    ),
 }
 
 
 def _get_db_path() -> Path:
+    """Return the absolute path to the SQLite database file."""
     return Path(__file__).resolve().parent.parent / "roku_tui.db"
 
 
-class RokuTuiApp(App):
+class RokuTuiApp(App[None]):
+    """The main Textual application class for roku-tui."""
+
     CSS_PATH = "../roku_tui.tcss"
     TITLE = "roku-tui"
-    BINDINGS: ClassVar[list[Binding]] = [
+    BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         Binding("ctrl+q", "quit", "Quit"),
         Binding("ctrl+t", "toggle_tab", "Mode"),
         Binding("ctrl+n", "toggle_network", "Network"),
@@ -147,17 +144,25 @@ class RokuTuiApp(App):
     }
 
     class NetworkEventReceived(Message):
+        """Internal message sent when an ECP network event occurs."""
+
         def __init__(self, event: NetworkEvent):
             super().__init__()
             self.event = event
 
     def __init__(self, mock: bool = False, initial_ip: str | None = None):
+        """Initialize the application.
+
+        Args:
+            mock: If True, run in mock mode with simulated HTTP calls.
+            initial_ip: Optional IP address to connect to on startup.
+        """
         super().__init__()
         self.mock = mock
         self.initial_ip = initial_ip
         self.client: EcpClient | MockEcpClient | None = None
-        self.registry = CommandRegistry()
-        self.app_cache = []
+        self.registry: CommandRegistry = CommandRegistry()
+        self.app_cache: list[AppInfo] = []
         self._current_ip: str | None = None
         self.db = Database(_get_db_path())
         register_all(self.registry)
@@ -165,14 +170,14 @@ class RokuTuiApp(App):
         self._register_tui_commands()
 
     def get_css_variables(self) -> dict[str, str]:
+        """Inject Tokyo Night variables into the global CSS scope."""
         variables = super().get_css_variables()
-        # Provide Tokyo Night fallbacks for our custom variables so the CSS
-        # file can reference them even before our themes are registered/applied.
         for key, value in TOKYO_NIGHT.variables.items():
             variables.setdefault(key, value)
         return variables
 
     def compose(self) -> ComposeResult:
+        """Compose the main application layout."""
         yield Header()
         yield StatusBar(id="status-bar")
         with Horizontal(id="main-area"):
@@ -185,6 +190,7 @@ class RokuTuiApp(App):
         yield Footer()
 
     async def on_mount(self) -> None:
+        """Initialize themes, database, and start device discovery."""
         for t in _THEMES.values():
             self.register_theme(t)
         self.theme = "roku-night"
@@ -199,6 +205,7 @@ class RokuTuiApp(App):
 
     @work(thread=True)
     def _start_discovery(self) -> None:
+        """Start SSDP discovery for Roku devices in a background thread."""
         repl = self.query_one("#repl-panel", ReplPanel)
         self.call_from_thread(
             repl.system_message,
@@ -220,6 +227,7 @@ class RokuTuiApp(App):
             )
 
     def _init_mock(self) -> None:
+        """Initialize mock mode with a simulated ECP client."""
         self._current_ip = "mock-roku"
         self.client = MockEcpClient(on_network_event=self._on_network_event)
         self.query_one("#status-bar", StatusBar).set_connected(
@@ -232,6 +240,11 @@ class RokuTuiApp(App):
         self._prefetch_info()
 
     def _connect(self, url: str) -> None:
+        """Connect to a Roku device at the specified URL.
+
+        Args:
+            url: The IP address or base URL of the Roku device.
+        """
         if "://" not in url:
             url = f"http://{url}:8060"
         base_url = url.rstrip("/")
@@ -251,6 +264,7 @@ class RokuTuiApp(App):
 
     @work
     async def _prefetch_info(self) -> None:
+        """Prefetch device info and app list to warm the suggester cache."""
         if not self.client or not self._current_ip:
             return
         try:
@@ -266,21 +280,17 @@ class RokuTuiApp(App):
                     self.db.upsert_device, info, self._current_ip
                 )
 
-                # Warm the suggester immediately from cached DB apps (no network wait)
-                cached_apps = await asyncio.to_thread(
-                    self.db.get_device_apps, device_id
-                )
-                if cached_apps:
-                    freq = await asyncio.to_thread(self.db.app_launch_frequencies)
+                db = self.db
+                cached = await asyncio.to_thread(db.get_device_apps, device_id)
+                if cached:
+                    freq = await asyncio.to_thread(db.app_launch_frequencies)
                     self.suggester.update_launch_frequencies(freq)
-                    self.suggester.update_app_names(
-                        [a["app_name"] for a in cached_apps]
-                    )
+                    names = [a["app_name"] for a in cached]
+                    self.suggester.update_app_names(names)
 
-            # Fetch live app list and write through to DB
             apps = await self.client.query_apps()
             self.app_cache = apps
-            if info:
+            if info and device_id:
                 await asyncio.to_thread(self.db.sync_device_apps, apps, device_id)
 
             freq = await asyncio.to_thread(self.db.app_launch_frequencies)
@@ -292,10 +302,14 @@ class RokuTuiApp(App):
             )
 
     def _on_network_event(self, event: NetworkEvent) -> None:
+        """Internal callback passed to the ECP client to route network traffic."""
         self.post_message(self.NetworkEventReceived(event))
 
     def on_roku_tui_app_network_event_received(self, msg: NetworkEventReceived) -> None:
-        self.query_one("#network-panel", NetworkPanel).add_event(msg.event)
+        """Handle network event messages by updating the UI and database."""
+        with contextlib.suppress(Exception):
+            self.query_one("#network-panel", NetworkPanel).add_event(msg.event)
+
         device_id = self._current_device_id()
         with contextlib.suppress(Exception):
             self.db.log_network_request(msg.event, device_id)
@@ -303,11 +317,13 @@ class RokuTuiApp(App):
     async def on_repl_panel_command_submitted(
         self, msg: ReplPanel.CommandSubmitted
     ) -> None:
+        """Handle command submission from the REPL panel."""
         await self._dispatch(msg.line)
 
     async def on_remote_panel_button_activated(
         self, msg: RemotePanel.ButtonActivated
     ) -> None:
+        """Handle virtual button presses from the Remote panel."""
         if self.client:
             await self.client.keypress(msg.ecp_key)
             self.db.log_command(
@@ -317,14 +333,26 @@ class RokuTuiApp(App):
             )
 
     async def _dispatch(self, line: str) -> bool:
+        """Parse and route a command string to its appropriate handler."""
         repl = self.query_one("#repl-panel", ReplPanel)
         success = False
 
-        no_client_allowed = {
-            "connect", "help", "?", "h", "clear", "cls",
-            "macro", "history", "stats", "devices", "sleep",
+        no_client = {
+            "connect",
+            "help",
+            "?",
+            "h",
+            "clear",
+            "cls",
+            "macro",
+            "history",
+            "stats",
+            "devices",
+            "sleep",
+            "link",
+            "yt",
         }
-        if self.client is None and line.split()[0] not in no_client_allowed:
+        if self.client is None and line.split()[0] not in no_client:
             repl.error(
                 "[yellow]Not connected.[/yellow] "
                 "Use [bold]connect <ip>[/bold] or run with [bold]--mock[/bold]."
@@ -344,9 +372,8 @@ class RokuTuiApp(App):
                 else " — try [bold]help[/bold]"
             )
             repl.error(f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold]{hint}")
-            self.db.log_command(
-                line, success=False, device_id=self._current_device_id()
-            )
+            dev_id = self._current_device_id()
+            self.db.log_command(line, success=False, device_id=dev_id)
             return False
 
         cmd, args = result
@@ -358,12 +385,12 @@ class RokuTuiApp(App):
         except Exception as e:
             repl.error(f"[red]Error:[/red] {e}")
         finally:
-            self.db.log_command(
-                line, success=success, device_id=self._current_device_id()
-            )
+            dev_id = self._current_device_id()
+            self.db.log_command(line, success=success, device_id=dev_id)
         return success
 
     def _current_device_id(self) -> int | None:
+        """Return the database ID of the currently connected device."""
         if not self._current_ip:
             return None
         try:
@@ -371,7 +398,8 @@ class RokuTuiApp(App):
         except Exception:
             return None
 
-    async def on_key(self, event) -> None:
+    async def on_key(self, event: Any) -> None:
+        """Handle global hotkeys for remote control navigation."""
         if isinstance(self.focused, Input):
             return
         ecp_key = self._HOTKEYS.get(event.key)
@@ -385,13 +413,16 @@ class RokuTuiApp(App):
             await self.client.keypress(ecp_key)
 
     def action_show_guide(self) -> None:
+        """Toggle the F1 user guide screen."""
         self.push_screen(HelpScreen())
 
     def action_toggle_tab(self) -> None:
+        """Toggle between REPL and Remote tabs (Ctrl+T)."""
         tabs = self.query_one("#main-tabs", TabbedContent)
         tabs.active = "tab-remote" if tabs.active == "tab-repl" else "tab-repl"
 
     def action_toggle_network(self) -> None:
+        """Show or hide the network inspector panel (Ctrl+N)."""
         panel = self.query_one("#network-panel", NetworkPanel)
         tabs = self.query_one("#main-tabs", TabbedContent)
         if "hidden" in panel.classes:
@@ -402,26 +433,27 @@ class RokuTuiApp(App):
             tabs.add_class("full-width")
 
     def action_clear_repl(self) -> None:
+        """Clear the REPL history scrollback."""
         self.query_one("#repl-panel", ReplPanel).clear_history()
 
     def _register_tui_commands(self) -> None:
-        async def _handle_clear(
-            client: object, args: list[str], context: object
-        ) -> str:
+        """Register built-in TUI-specific commands like 'clear' and 'theme'."""
+
+        async def _handle_clear(client: Any, args: list[str], context: Any) -> str:
             self.query_one("#repl-panel", ReplPanel).clear_history()
             return ""
 
-        self.registry.register(Command(
-            name="clear",
-            aliases=["cls"],
-            args=[],
-            handler=_handle_clear,
-            help_text="Clear the REPL history",
-        ))
+        self.registry.register(
+            Command(
+                name="clear",
+                aliases=["cls"],
+                args=[],
+                handler=_handle_clear,
+                help_text="Clear the REPL history",
+            )
+        )
 
-        async def _handle_theme(
-            client: object, args: list[str], context: object
-        ) -> str:
+        async def _handle_theme(client: Any, args: list[str], context: Any) -> str:
             if not args:
                 options = "  ".join(
                     f"[bold]{n}[/bold]" if n == self.theme else f"[dim]{n}[/dim]"
@@ -435,24 +467,30 @@ class RokuTuiApp(App):
             self.theme = name
             return f"[green]✓[/green] Theme → [bold]{name}[/bold]"
 
-        self.registry.register(Command(
-            name="theme",
-            aliases=[],
-            args=["name"],
-            handler=_handle_theme,
-            help_text="Switch color theme (roku-night | catppuccin | nord | gruvbox)",
-        ))
+        self.registry.register(
+            Command(
+                name="theme",
+                aliases=[],
+                args=["name"],
+                handler=_handle_theme,
+                help_text="Switch color theme",
+            )
+        )
 
     def emit_message(self, text: str) -> None:
+        """Display a system message in the REPL (external API)."""
         self.query_one("#repl-panel", ReplPanel).system_message(text)
 
     async def dispatch(self, line: str) -> bool:
+        """Dispatch a command string (external API)."""
         return await self._dispatch(line)
 
     async def connect(self, ip: str) -> None:
+        """Manually initiate a connection (external API)."""
         self._connect(ip)
 
     async def on_unmount(self) -> None:
+        """Dispose of resources on application exit."""
         if self.client and hasattr(self.client, "close"):
             await self.client.close()
         self.db.close()
