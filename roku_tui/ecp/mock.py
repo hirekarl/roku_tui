@@ -51,6 +51,9 @@ class MockEcpClient:
     async def keypress(self, key: str) -> None:
         await self._fake_request("POST", f"/keypress/{key}", body="")
 
+    async def launch(self, app_id: str) -> None:
+        await self._fake_request("POST", f"/launch/{app_id}", body="")
+
     async def query_apps(self) -> list[AppInfo]:
         await self._fake_request("GET", "/query/apps", body=MOCK_APPS_XML)
         return list(MOCK_APPS)

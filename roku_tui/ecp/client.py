@@ -16,6 +16,9 @@ class EcpClient:
     async def keypress(self, key: str) -> None:
         await self._request("POST", f"/keypress/{key}")
 
+    async def launch(self, app_id: str) -> None:
+        await self._request("POST", f"/launch/{app_id}")
+
     async def query_apps(self) -> list[AppInfo]:
         resp = await self._request("GET", "/query/apps")
         return _parse_apps(resp.text) if resp else []

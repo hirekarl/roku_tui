@@ -27,11 +27,23 @@ KEYMAP: dict[str, str] = {
     "replay": "InstantReplay",
     "info": "Info",
     "mute": "VolumeMute",
-    "power": "PowerOff",
+    "power": "Power",
     "search": "Search",
     "enter": "Enter",
     "backspace": "Backspace",
 }
+
+_HELP_SECTIONS: list[tuple[str, list[str]]] = [
+    ("Navigation", [
+        "home", "back", "select", "up", "down", "left", "right",
+        "play", "pause", "rev", "fwd", "replay", "mute", "power",
+    ]),
+    ("Volume",            ["volume"]),
+    ("Apps",              ["launch", "apps", "active"]),
+    ("Device",            ["info", "connect", "devices"]),
+    ("Macros & History",  ["macro", "history", "stats", "sleep"]),
+    ("Session",           ["help", "clear"]),
+]
 
 VOLUME_MAP: dict[str, str] = {
     "up": "VolumeUp",
@@ -107,7 +119,7 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
 
     matched_name = matches[0]
     app = next(a for a in app_cache if a.name.lower() == matched_name)
-    await client.keypress(f"launch/{app.id}")
+    await client.launch(app.id)
     with contextlib.suppress(Exception):
         context.db.log_app_launch(app, context._current_device_id())
     return f"[dim]↵[/dim] Launched [bold #7aa2f7]{app.name}[/bold #7aa2f7]"
@@ -159,13 +171,25 @@ async def handle_connect(client: Any, args: list[str], context: Any) -> str:
     return f"[dim]Connecting to[/dim] [bold]{args[0]}[/bold]..."
 
 
-async def handle_help(client: Any, args: list[str], context: Any) -> str:
-    table = Table(box=None, show_header=False, padding=(0, 2, 0, 0))
-    table.add_column(style="bold #7aa2f7", width=20)
+async def handle_help(client: Any, args: list[str], context: Any) -> Table:
+    table = Table(box=None, show_header=False, padding=(0, 1, 0, 0))
+    table.add_column(width=26)
     table.add_column(style="dim")
-    for cmd in sorted(context.registry.all_commands(), key=lambda c: c.name):
-        aliases = f"  [{', '.join(cmd.aliases)}]" if cmd.aliases else ""
-        table.add_row(cmd.name + aliases, cmd.help_text)
+    for i, (section, names) in enumerate(_HELP_SECTIONS):
+        if i > 0:
+            table.add_row("", "")
+        table.add_row(f"[bold #bb9af7]{section}[/bold #bb9af7]", "")
+        for name in names:
+            cmd = context.registry.lookup(name)
+            if cmd is None:
+                continue
+            aliases = (
+                f" [dim][{', '.join(cmd.aliases)}][/dim]" if cmd.aliases else ""
+            )
+            table.add_row(
+                f"  [bold #7aa2f7]{cmd.name}[/bold #7aa2f7]{aliases}",
+                cmd.help_text,
+            )
     return table
 
 

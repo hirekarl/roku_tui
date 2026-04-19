@@ -151,11 +151,33 @@ HelpScreen {
 }
 
 #help-body {
-    width: 64;
+    width: 66;
     height: auto;
     max-height: 90%;
     background: #1f2335;
     border: tall #414868;
+}
+
+#help-title {
+    padding: 1 2 0 2;
+    color: #c0caf5;
+}
+
+#help-cols {
+    height: auto;
+    padding: 1 1 0 1;
+}
+
+.help-col {
+    width: 1fr;
+    height: auto;
     padding: 0 1;
     color: #c0caf5;
+}
+
+#help-foot {
+    padding: 1 2;
+    color: #565f89;
+    text-align: center;
+    border-top: solid #292e42;
 }
