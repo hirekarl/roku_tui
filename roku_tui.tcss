@@ -46,19 +46,56 @@ StatusBar {
     height: 1fr;
 }
 
-/* ── REPL Panel ──────────────────────────────────────────────────────────── */
+/* ── Tabbed Content ──────────────────────────────────────────────────────── */
 
-#repl-panel {
+TabbedContent {
     width: 65%;
     height: 100%;
-    layout: vertical;
     background: #1a1b26;
     border-right: tall #292e42;
 }
 
-#repl-panel.full-width {
+TabbedContent.full-width {
     width: 100%;
     border-right: none;
+}
+
+TabbedContent > Tabs {
+    background: #16161e;
+    height: 2;
+}
+
+TabbedContent > Tabs > Tab {
+    background: #16161e;
+    color: #565f89;
+    padding: 0 2;
+}
+
+TabbedContent > Tabs > Tab.-active {
+    background: #1a1b26;
+    color: #7aa2f7;
+    text-style: bold;
+}
+
+TabbedContent > Tabs > Tab:hover {
+    color: #c0caf5;
+}
+
+TabbedContent > ContentSwitcher {
+    height: 1fr;
+}
+
+TabPane {
+    padding: 0;
+    height: 1fr;
+}
+
+/* ── REPL Panel ──────────────────────────────────────────────────────────── */
+
+#repl-panel {
+    height: 100%;
+    layout: vertical;
+    background: #1a1b26;
 }
 
 #history-scroll {
@@ -142,6 +179,52 @@ StatusBar {
     scrollbar-color: #414868;
     scrollbar-background: #1f2335;
     scrollbar-size: 1 1;
+}
+
+/* ── Remote Panel ────────────────────────────────────────────────────────── */
+
+#remote-panel {
+    align: center middle;
+    background: #1a1b26;
+    height: 100%;
+}
+
+#remote-body {
+    width: auto;
+    height: auto;
+    align: center middle;
+}
+
+.remote-row {
+    width: auto;
+    height: auto;
+    align: center middle;
+    margin: 0 0 1 0;
+}
+
+.dpad {
+    width: auto;
+    align: center middle;
+    margin: 0 0 1 0;
+}
+
+.btn-power   { width: 14; min-width: 14; }
+.btn-nav     { width: 11; min-width: 11; margin: 0 1; }
+.btn-dpad    { width: 7;  min-width: 7;  margin: 0 1; }
+.btn-ok      { width: 7;  min-width: 7;  margin: 0 1; }
+.btn-media   { width: 8;  min-width: 8;  margin: 0 1; }
+.btn-volume  { width: 9;  min-width: 9;  margin: 0 1; }
+
+Button.btn-power  { color: #f7768e; }
+Button.btn-nav    { color: #c0caf5; }
+Button.btn-dpad   { color: #7aa2f7; }
+Button.btn-ok     { background: #bb9af7; color: #1a1b26; }
+Button.btn-media  { color: #73daca; }
+Button.btn-volume { color: #9ece6a; }
+
+Button.btn-flash {
+    background: $primary;
+    color: $background;
 }
 
 /* ── Help Modal ──────────────────────────────────────────────────────────── */

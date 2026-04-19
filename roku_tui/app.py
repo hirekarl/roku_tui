@@ -12,7 +12,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.message import Message
 from textual.theme import Theme
-from textual.widgets import Footer, Header, Input
+from textual.widgets import Footer, Header, Input, TabbedContent, TabPane
 
 from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
@@ -25,6 +25,7 @@ from .ecp.mock import MockEcpClient
 from .ecp.models import NetworkEvent
 from .widgets.help_screen import HelpScreen
 from .widgets.network_panel import NetworkPanel
+from .widgets.remote_panel import HOTKEY_TO_BUTTON, RemotePanel
 from .widgets.repl_panel import ReplPanel
 from .widgets.status_bar import StatusBar
 
@@ -58,6 +59,7 @@ class RokuTuiApp(App):
     TITLE = "roku-tui"
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("ctrl+q", "quit", "Quit"),
+        Binding("ctrl+t", "toggle_tab", "Mode"),
         Binding("ctrl+n", "toggle_network", "Network"),
         Binding("ctrl+l", "clear_repl", "Clear"),
         Binding("f1", "show_guide", "Guide", key_display="F1"),
@@ -95,7 +97,11 @@ class RokuTuiApp(App):
         yield Header()
         yield StatusBar(id="status-bar")
         with Horizontal(id="main-area"):
-            yield ReplPanel(suggester=self.suggester, id="repl-panel")
+            with TabbedContent(id="main-tabs", initial="tab-repl"):
+                with TabPane("REPL", id="tab-repl"):
+                    yield ReplPanel(suggester=self.suggester, id="repl-panel")
+                with TabPane("Remote", id="tab-remote"):
+                    yield RemotePanel(id="remote-panel")
             yield NetworkPanel(id="network-panel")
         yield Footer()
 
@@ -219,6 +225,17 @@ class RokuTuiApp(App):
     ) -> None:
         await self._dispatch(msg.line)
 
+    async def on_remote_panel_button_activated(
+        self, msg: RemotePanel.ButtonActivated
+    ) -> None:
+        if self.client:
+            await self.client.keypress(msg.ecp_key)
+            self.db.log_command(
+                f"remote:{msg.ecp_key}",
+                success=True,
+                device_id=self._current_device_id(),
+            )
+
     async def _dispatch(self, line: str) -> bool:
         repl = self.query_one("#repl-panel", ReplPanel)
         success = False
@@ -280,20 +297,29 @@ class RokuTuiApp(App):
         ecp_key = self._HOTKEYS.get(event.key)
         if ecp_key and self.client:
             event.prevent_default()
+            tabs = self.query_one("#main-tabs", TabbedContent)
+            if tabs.active == "tab-remote":
+                btn_id = HOTKEY_TO_BUTTON.get(event.key)
+                if btn_id:
+                    self.query_one("#remote-panel", RemotePanel).flash_button(btn_id)
             await self.client.keypress(ecp_key)
 
     def action_show_guide(self) -> None:
         self.push_screen(HelpScreen())
 
+    def action_toggle_tab(self) -> None:
+        tabs = self.query_one("#main-tabs", TabbedContent)
+        tabs.active = "tab-remote" if tabs.active == "tab-repl" else "tab-repl"
+
     def action_toggle_network(self) -> None:
         panel = self.query_one("#network-panel", NetworkPanel)
-        repl = self.query_one("#repl-panel", ReplPanel)
+        tabs = self.query_one("#main-tabs", TabbedContent)
         if "hidden" in panel.classes:
             panel.remove_class("hidden")
-            repl.remove_class("full-width")
+            tabs.remove_class("full-width")
         else:
             panel.add_class("hidden")
-            repl.add_class("full-width")
+            tabs.add_class("full-width")
 
     def action_clear_repl(self) -> None:
         self.query_one("#repl-panel", ReplPanel).clear_history()

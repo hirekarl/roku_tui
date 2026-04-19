@@ -52,6 +52,7 @@ _RIGHT = """\
 
  [bold #bb9af7]Tab[/bold #bb9af7]      autocomplete
  [bold #bb9af7]↑ ↓[/bold #bb9af7]      history
+ [bold #bb9af7]Ctrl+T[/bold #bb9af7]   REPL / Remote mode
  [bold #bb9af7]Ctrl+N[/bold #bb9af7]   toggle network
  [bold #bb9af7]Ctrl+L[/bold #bb9af7]   clear REPL
  [bold #bb9af7]Ctrl+Q[/bold #bb9af7]   quit

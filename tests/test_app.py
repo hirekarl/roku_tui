@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pytest
 
+from textual.widgets import TabbedContent
+
 from roku_tui.app import RokuTuiApp
 from roku_tui.widgets.network_panel import NetworkPanel
 from roku_tui.widgets.repl_panel import ReplPanel
@@ -44,27 +46,27 @@ async def test_ctrl_n_hides_network_panel(app):
         assert panel.has_class("hidden")
 
 
-async def test_ctrl_n_expands_repl_panel(app):
+async def test_ctrl_n_expands_tabs(app):
     async with app.run_test() as pilot:
         await pilot.pause()
-        repl = app.query_one("#repl-panel", ReplPanel)
-        assert not repl.has_class("full-width")
+        tabs = app.query_one("#main-tabs", TabbedContent)
+        assert not tabs.has_class("full-width")
 
         await pilot.press("ctrl+n")
-        assert repl.has_class("full-width")
+        assert tabs.has_class("full-width")
 
 
 async def test_ctrl_n_twice_restores_layout(app):
     async with app.run_test() as pilot:
         await pilot.pause()
         panel = app.query_one("#network-panel", NetworkPanel)
-        repl = app.query_one("#repl-panel", ReplPanel)
+        tabs = app.query_one("#main-tabs", TabbedContent)
 
         await pilot.press("ctrl+n")
         await pilot.press("ctrl+n")
 
         assert not panel.has_class("hidden")
-        assert not repl.has_class("full-width")
+        assert not tabs.has_class("full-width")
 
 
 # ── Command dispatch ──────────────────────────────────────────────────────────
