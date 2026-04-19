@@ -16,6 +16,7 @@ from .queries import (
     insert_macro,
     insert_network_request,
     macros_table_is_empty,
+    search_commands_by_term,
     select_all_devices,
     select_all_macros,
     select_app_launch_frequencies,
@@ -24,7 +25,6 @@ from .queries import (
     select_recent_commands,
     select_top_app_launches,
     select_top_commands,
-    search_commands_by_term,
     sync_device_apps,
     update_macro_run_stats,
     upsert_device,
@@ -162,7 +162,9 @@ class Database:
 
     def usage_stats(self) -> dict:
         with self._engine.connect() as conn:
-            top_apps = [dict(r._mapping) for r in select_top_app_launches(conn, limit=5)]
+            top_apps = [
+                dict(r._mapping) for r in select_top_app_launches(conn, limit=5)
+            ]
             top_cmds = [dict(r._mapping) for r in select_top_commands(conn, limit=5)]
             total_days = count_command_days(conn)
         return {

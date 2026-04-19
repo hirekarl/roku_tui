@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from rich.table import Table
-from rich.text import Text
 
 from .registry import Command, CommandRegistry
 
@@ -16,7 +15,9 @@ async def _macro_list(client: Any, args: list[str], context: Any):
     macros = context.db.list_macros()
     if not macros:
         return "[dim]No macros defined.[/dim]"
-    table = Table(box=None, show_header=True, header_style="bold #7aa2f7", padding=(0, 2, 0, 0))
+    table = Table(
+        box=None, show_header=True, header_style="bold #7aa2f7", padding=(0, 2, 0, 0)
+    )
     table.add_column("Name", width=16)
     table.add_column("Description")
     table.add_column("Runs", justify="right", width=5)
@@ -42,7 +43,9 @@ async def _macro_run(client: Any, args: list[str], context: Any):
         await context._dispatch(line)
 
     context.db.record_macro_run(name)
-    return f"[dim]Macro[/dim] [bold]{name}[/bold] [dim]done ({len(steps)} step{'s' if len(steps) != 1 else ''}).[/dim]"
+    plural = "s" if len(steps) != 1 else ""
+    done = f"done ({len(steps)} step{plural})"
+    return f"[dim]Macro[/dim] [bold]{name}[/bold] [dim]{done}.[/dim]"
 
 
 async def _macro_save(client: Any, args: list[str], context: Any):
@@ -65,8 +68,10 @@ async def _macro_save(client: Any, args: list[str], context: Any):
     except ValueError as e:
         return f"[red]Error:[/red] {e}"
 
-    steps_preview = ", ".join(f"[italic]{l}[/italic]" for l in lines)
-    return f"[bold]{name}[/bold] saved ([dim]{len(lines)} step{'s' if len(lines) != 1 else ''}[/dim]): {steps_preview}"
+    plural = "s" if len(lines) != 1 else ""
+    steps_preview = ", ".join(f"[italic]{ln}[/italic]" for ln in lines)
+    saved = f"saved ([dim]{len(lines)} step{plural}[/dim])"
+    return f"[bold]{name}[/bold] {saved}: {steps_preview}"
 
 
 async def _macro_show(client: Any, args: list[str], context: Any):
@@ -123,11 +128,9 @@ async def handle_history(client: Any, args: list[str], context: Any):
         if not term:
             return "[red]Usage:[/red] history search <term>"
         rows = context.db.search_commands(term)
-        label = f"search: [bold]{term}[/bold]"
     else:
         limit = int(args[0]) if args and args[0].isdigit() else 20
         rows = context.db.recent_commands(limit)
-        label = f"last {len(rows)}"
 
     if not rows:
         return "[dim]No command history yet.[/dim]"
@@ -174,15 +177,27 @@ async def handle_devices(client: Any, args: list[str], context: Any):
     devs = context.db.list_devices()
     if not devs:
         return "[dim]No devices seen yet.[/dim]"
-    table = Table(box=None, show_header=True, header_style="bold #7aa2f7", padding=(0, 2, 0, 0))
+    table = Table(
+        box=None, show_header=True, header_style="bold #7aa2f7", padding=(0, 2, 0, 0)
+    )
     table.add_column("IP")
     table.add_column("Name")
     table.add_column("Model")
     table.add_column("Last seen")
     table.add_column("Connects", justify="right")
     for d in devs:
-        ts = d["last_connected_at"].strftime("%Y-%m-%d %H:%M") if d["last_connected_at"] else "—"
-        table.add_row(d["ip"], d["friendly_name"] or "—", d["model_name"] or "—", ts, str(d["connect_count"]))
+        ts = (
+            d["last_connected_at"].strftime("%Y-%m-%d %H:%M")
+            if d["last_connected_at"]
+            else "—"
+        )
+        table.add_row(
+            d["ip"],
+            d["friendly_name"] or "—",
+            d["model_name"] or "—",
+            ts,
+            str(d["connect_count"]),
+        )
     return table
 
 
@@ -194,7 +209,10 @@ def register_db_commands(registry: CommandRegistry) -> None:
         aliases=[],
         args=["list", "run", "save", "show", "delete"],
         handler=handle_macro,
-        help_text="macro list | run <name> | save <name> [desc] | show <name> | delete <name>",
+        help_text=(
+            "macro list | run <name> | save <name> [desc]"
+            " | show <name> | delete <name>"
+        ),
     ))
     registry.register(Command(
         name="history",

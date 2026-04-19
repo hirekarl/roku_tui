@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import difflib
 from typing import TYPE_CHECKING, Any
 
@@ -89,7 +90,9 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
         context.suggester.update_app_names([a.name for a in app_cache])
 
     names = [a.name for a in app_cache]
-    matches = difflib.get_close_matches(query, [n.lower() for n in names], n=1, cutoff=0.4)
+    matches = difflib.get_close_matches(
+        query, [n.lower() for n in names], n=1, cutoff=0.4
+    )
     if not matches:
         for app in app_cache:
             if query in app.name.lower():
@@ -97,15 +100,16 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
                 break
 
     if not matches:
-        return f"[red]No app matching[/red] '{query}'. Try [bold]apps[/bold] to see installed apps."
+        return (
+            f"[red]No app matching[/red] '{query}'. "
+            "Try [bold]apps[/bold] to see installed apps."
+        )
 
     matched_name = matches[0]
     app = next(a for a in app_cache if a.name.lower() == matched_name)
     await client.keypress(f"launch/{app.id}")
-    try:
+    with contextlib.suppress(Exception):
         context.db.log_app_launch(app, context._current_device_id())
-    except Exception:
-        pass
     return f"[dim]↵[/dim] Launched [bold #7aa2f7]{app.name}[/bold #7aa2f7]"
 
 
@@ -178,7 +182,7 @@ def register_all(registry: CommandRegistry) -> None:
 
     for key in nav_keys:
         async def _handler(client, args, context, k=key):
-            return await handle_key(client, [k] + args, context)
+            return await handle_key(client, [k, *args], context)
 
         registry.register(Command(
             name=key,

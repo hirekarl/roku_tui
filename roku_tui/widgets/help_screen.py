@@ -1,8 +1,10 @@
+import re
+from typing import ClassVar
+
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import ModalScreen
 from textual.widgets import Static
-
 
 DPAD = """\
 [dim]─────────────────────────────[/dim]
@@ -72,7 +74,7 @@ FOOTER_TEXT = "[dim]press [bold]Escape[/bold] or any key to close[/dim]"
 
 
 class HelpScreen(ModalScreen):
-    BINDINGS = [Binding("escape", "dismiss", show=False)]
+    BINDINGS: ClassVar[list[Binding]] = [Binding("escape", "dismiss", show=False)]
 
     def compose(self) -> ComposeResult:
         yield Static(self._build_layout(), id="help-body", markup=True)
@@ -108,7 +110,7 @@ class HelpScreen(ModalScreen):
 
 
 def _pad_lines(text: str, width: int) -> list[str]:
-    """Split text into lines; each line is a raw markup string (no padding needed for zip)."""
+    """Split text into markup lines."""
     return text.split("\n")
 
 
@@ -120,10 +122,8 @@ def _zip_columns(left: list[str], right: list[str]) -> list[str]:
     # We can't measure Rich markup width accurately here, so use a fixed visual offset.
     # Left column content is kept at ~31 visible chars; pad with spaces on plain text.
     result = []
-    for l, r in zip(left, right):
-        # Strip markup for width estimation (rough)
-        import re
-        plain = re.sub(r"\[.*?\]", "", l)
+    for left_line, right_line in zip(left, right, strict=False):
+        plain = re.sub(r"\[.*?\]", "", left_line)
         pad = max(0, 31 - len(plain))
-        result.append(l + " " * pad + r)
+        result.append(left_line + " " * pad + right_line)
     return result

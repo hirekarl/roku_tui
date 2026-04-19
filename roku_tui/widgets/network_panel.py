@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from textual.app import ComposeResult
-from textual.widget import Widget
-from textual.widgets import Label, RichLog
 from rich.console import Group
 from rich.table import Table
 from rich.text import Text
+from textual.app import ComposeResult
+from textual.widget import Widget
+from textual.widgets import Label, RichLog
 
 from ..ecp.models import NetworkEvent
 

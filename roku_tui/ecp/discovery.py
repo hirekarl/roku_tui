@@ -27,7 +27,7 @@ def discover_rokus(timeout: float = 3.0) -> list[str]:
                 url = m.group(1).strip()
                 if url not in results:
                     results.append(url)
-    except (socket.timeout, OSError):
+    except (TimeoutError, OSError):
         pass
     finally:
         sock.close()

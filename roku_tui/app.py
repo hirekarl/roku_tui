@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from pathlib import Path
+from typing import ClassVar
 
 from platformdirs import user_data_dir
 from textual import work
@@ -10,7 +12,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.message import Message
 from textual.theme import Theme
-from textual.widgets import Footer, Header
+from textual.widgets import Footer, Header, Input
 
 from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
@@ -56,14 +58,14 @@ def _get_db_path() -> Path:
 class RokuTuiApp(App):
     CSS_PATH = "../roku_tui.tcss"
     TITLE = "roku-tui"
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("ctrl+q", "quit", "Quit"),
         Binding("ctrl+n", "toggle_network", "Network"),
         Binding("ctrl+l", "clear_repl", "Clear"),
         Binding("f1", "show_guide", "Guide", key_display="F1"),
     ]
 
-    _HOTKEYS: dict[str, str] = {
+    _HOTKEYS: ClassVar[dict[str, str]] = {
         "up": "Up",
         "down": "Down",
         "left": "Left",
@@ -157,7 +159,9 @@ class RokuTuiApp(App):
         if self.client and hasattr(self.client, "close"):
             self.run_worker(self.client.close())
 
-        self.client = EcpClient(base_url=base_url, on_network_event=self._on_network_event)
+        self.client = EcpClient(
+            base_url=base_url, on_network_event=self._on_network_event
+        )
         self._prefetch_info()
 
     @work
@@ -167,15 +171,23 @@ class RokuTuiApp(App):
         try:
             info = await self.client.query_device_info()
             if info:
-                self.query_one("#status-bar", StatusBar).set_connected(info.friendly_name)
-                device_id = await asyncio.to_thread(self.db.upsert_device, info, self._current_ip)
+                self.query_one("#status-bar", StatusBar).set_connected(
+                    info.friendly_name
+                )
+                device_id = await asyncio.to_thread(
+                    self.db.upsert_device, info, self._current_ip
+                )
 
                 # Warm the suggester immediately from cached DB apps (no network wait)
-                cached_apps = await asyncio.to_thread(self.db.get_device_apps, device_id)
+                cached_apps = await asyncio.to_thread(
+                    self.db.get_device_apps, device_id
+                )
                 if cached_apps:
                     freq = await asyncio.to_thread(self.db.app_launch_frequencies)
                     self.suggester.update_launch_frequencies(freq)
-                    self.suggester.update_app_names([a["app_name"] for a in cached_apps])
+                    self.suggester.update_app_names(
+                        [a["app_name"] for a in cached_apps]
+                    )
 
             # Fetch live app list and write through to DB
             apps = await self.client.query_apps()
@@ -195,19 +207,22 @@ class RokuTuiApp(App):
     def on_roku_tui_app_network_event_received(self, msg: NetworkEventReceived) -> None:
         self.query_one("#network-panel", NetworkPanel).add_event(msg.event)
         device_id = self._current_device_id()
-        try:
+        with contextlib.suppress(Exception):
             self.db.log_network_request(msg.event, device_id)
-        except Exception:
-            pass
 
-    async def on_repl_panel_command_submitted(self, msg: ReplPanel.CommandSubmitted) -> None:
+    async def on_repl_panel_command_submitted(
+        self, msg: ReplPanel.CommandSubmitted
+    ) -> None:
         await self._dispatch(msg.line)
 
     async def _dispatch(self, line: str) -> None:
         repl = self.query_one("#repl-panel", ReplPanel)
         success = False
 
-        no_client_allowed = {"connect", "help", "?", "h", "clear", "cls", "macro", "history", "stats", "devices"}
+        no_client_allowed = {
+            "connect", "help", "?", "h", "clear", "cls",
+            "macro", "history", "stats", "devices",
+        }
         if self.client is None and line.split()[0] not in no_client_allowed:
             repl.error(
                 "[yellow]Not connected.[/yellow] "
@@ -223,7 +238,9 @@ class RokuTuiApp(App):
                 f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold] — "
                 f"try [bold]help[/bold]"
             )
-            self.db.log_command(line, success=False, device_id=self._current_device_id())
+            self.db.log_command(
+                line, success=False, device_id=self._current_device_id()
+            )
             return
 
         cmd, args = result
@@ -235,7 +252,9 @@ class RokuTuiApp(App):
         except Exception as e:
             repl.error(f"[red]Error:[/red] {e}")
         finally:
-            self.db.log_command(line, success=success, device_id=self._current_device_id())
+            self.db.log_command(
+                line, success=success, device_id=self._current_device_id()
+            )
 
     def _current_device_id(self) -> int | None:
         if not self._current_ip:
@@ -246,7 +265,6 @@ class RokuTuiApp(App):
             return None
 
     async def on_key(self, event) -> None:
-        from textual.widgets import Input
         if isinstance(self.focused, Input):
             return
         ecp_key = self._HOTKEYS.get(event.key)

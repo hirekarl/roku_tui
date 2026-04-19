@@ -31,7 +31,6 @@ class RokuSuggester(Suggester):
         # Complete the first token (command name)
         if len(parts) == 1 and not has_trailing_space:
             prefix = parts[0].lower()
-            all_names = self._registry.all_names()
             # Also include aliases
             all_completions: list[str] = []
             for cmd in self._registry.all_commands():

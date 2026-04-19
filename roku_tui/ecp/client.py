@@ -1,6 +1,5 @@
 import time
-from datetime import datetime
-from typing import Callable
+from collections.abc import Callable
 from xml.etree import ElementTree as ET
 
 import httpx
@@ -51,7 +50,9 @@ class EcpClient:
         event = NetworkEvent(
             method=method,
             url=url,
-            request_headers={"Host": self._base.split("://")[-1], "Content-Length": "0"},
+            request_headers={
+                "Host": self._base.split("://")[-1], "Content-Length": "0"
+            },
         )
         try:
             resp = await self._http.request(method, url)

@@ -3,12 +3,19 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Connection, func, select, text, update
+from sqlalchemy import Connection, func, select, update
 
-from .schema import app_launches, commands, device_apps, devices, macros, network_requests
+from .schema import (
+    app_launches,
+    commands,
+    device_apps,
+    devices,
+    macros,
+    network_requests,
+)
 
 if TYPE_CHECKING:
-    from ..ecp.models import AppInfo, DeviceInfo, NetworkEvent
+    from ..ecp.models import DeviceInfo, NetworkEvent
 
 
 # ── devices ──────────────────────────────────────────────────────────────────
@@ -189,7 +196,7 @@ def upsert_user_macro(
 
 def delete_macro_by_name(conn: Connection, name: str) -> int:
     result = conn.execute(
-        macros.delete().where(macros.c.name == name).where(macros.c.is_builtin == False)
+        macros.delete().where(macros.c.name == name).where(~macros.c.is_builtin)
     )
     conn.commit()
     return result.rowcount
@@ -293,5 +300,7 @@ def sync_device_apps(conn: Connection, device_id: int, apps: list) -> None:
 
 def select_apps_for_device(conn: Connection, device_id: int) -> list:
     return conn.execute(
-        select(device_apps).where(device_apps.c.device_id == device_id).order_by(device_apps.c.app_name)
+        select(device_apps)
+        .where(device_apps.c.device_id == device_id)
+        .order_by(device_apps.c.app_name)
     ).fetchall()

@@ -1,7 +1,7 @@
 import asyncio
 import random
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable
 
 from .models import AppInfo, DeviceInfo, NetworkEvent
 
@@ -27,7 +27,8 @@ MOCK_DEVICE = DeviceInfo(
 )
 
 _APPS_XML = "\n".join(
-    f'  <app id="{a.id}" subtype="{a.subtype}" type="appl" version="{a.version}">{a.name}</app>'
+    f'  <app id="{a.id}" subtype="{a.subtype}"'
+    f' type="appl" version="{a.version}">{a.name}</app>'
     for a in MOCK_APPS
 )
 MOCK_APPS_XML = f"<apps>\n{_APPS_XML}\n</apps>"
@@ -56,7 +57,10 @@ class MockEcpClient:
 
     async def query_active_app(self) -> AppInfo | None:
         app = MOCK_APPS[1]  # Netflix
-        xml = f'<active-app><app id="{app.id}" subtype="{app.subtype}" version="{app.version}">{app.name}</app></active-app>'
+        xml = (
+            f'<active-app><app id="{app.id}" subtype="{app.subtype}"'
+            f' version="{app.version}">{app.name}</app></active-app>'
+        )
         await self._fake_request("GET", "/query/active-app", body=xml)
         return app
 
