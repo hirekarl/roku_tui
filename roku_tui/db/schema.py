@@ -59,6 +59,7 @@ macros = Table(
     Column("last_run_at", DateTime, nullable=True),
     Column("run_count", Integer, nullable=False, server_default="0"),
     Column("is_builtin", Boolean, nullable=False, server_default="0"),
+    Column("abort_on_fail", Boolean, nullable=False, server_default="0"),
 )
 
 device_apps = Table(

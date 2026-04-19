@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from rich.table import Table
@@ -7,6 +8,7 @@ from rich.table import Table
 from .registry import Command, CommandRegistry
 
 META_PREFIXES = ("macro ", "history", "stats", "devices", "help", "clear", "cls")
+_SLEEP_MAX = 30.0
 
 
 # ── macro sub-handlers ────────────────────────────────────────────────────────
@@ -21,10 +23,15 @@ async def _macro_list(client: Any, args: list[str], context: Any):
     table.add_column("Name", width=16)
     table.add_column("Description")
     table.add_column("Runs", justify="right", width=5)
-    table.add_column("", width=7)
+    table.add_column("", width=9)
     for m in macros:
-        flag = "[dim]builtin[/dim]" if m["is_builtin"] else "[#9ece6a]user[/#9ece6a]"
-        table.add_row(m["name"], m["description"] or "", str(m["run_count"]), flag)
+        if m["is_builtin"]:
+            badge = "[dim]builtin[/dim]"
+        elif m["abort_on_fail"]:
+            badge = "[#9ece6a]user abort[/#9ece6a]"
+        else:
+            badge = "[#9ece6a]user[/#9ece6a]"
+        table.add_row(m["name"], m["description"] or "", str(m["run_count"]), badge)
     return table
 
 
@@ -37,10 +44,17 @@ async def _macro_run(client: Any, args: list[str], context: Any):
         return f"[red]No macro named[/red] '{name}'"
 
     repl = context.query_one("#repl-panel")
+    abort = macro.get("abort_on_fail", False)
     steps = macro["commands"]
-    for line in steps:
+    for i, line in enumerate(steps, 1):
         repl.system_message(f"[dim]macro ›[/dim] {line}")
-        await context._dispatch(line)
+        ok = await context._dispatch(line)
+        if not ok and abort:
+            context.db.record_macro_run(name)
+            return (
+                f"[red]Macro[/red] [bold]{name}[/bold] [red]aborted[/red]"
+                f" [dim]at step {i}/{len(steps)}: {line}[/dim]"
+            )
 
     context.db.record_macro_run(name)
     plural = "s" if len(steps) != 1 else ""
@@ -80,12 +94,35 @@ async def _macro_show(client: Any, args: list[str], context: Any):
     macro = context.db.get_macro(args[0])
     if macro is None:
         return f"[red]No macro named[/red] '{args[0]}'"
+    abort_label = (
+        "[#f7768e]abort on fail[/#f7768e]"
+        if macro.get("abort_on_fail")
+        else "[dim]continue on fail[/dim]"
+    )
     table = Table(box=None, show_header=False, padding=(0, 2, 0, 0))
     table.add_column(style="dim", width=4)
     table.add_column()
+    table.add_row("", abort_label)
+    table.add_row("", "")
     for i, line in enumerate(macro["commands"], 1):
         table.add_row(str(i), line)
     return table
+
+
+async def _macro_set(client: Any, args: list[str], context: Any):
+    # args: ["<name>", "abort", "on|off"]
+    if len(args) < 3 or args[1] != "abort" or args[2] not in ("on", "off"):
+        return "[red]Usage:[/red] macro set <name> abort on|off"
+    name, _, value = args[0], args[1], args[2]
+    macro = context.db.get_macro(name)
+    if macro is None:
+        return f"[red]No macro named[/red] '{name}'"
+    abort_on_fail = value == "on"
+    context.db.set_macro_abort_flag(name, abort_on_fail)
+    on = "[#f7768e]abort on fail[/#f7768e]"
+    off = "[dim]continue on fail[/dim]"
+    state = on if abort_on_fail else off
+    return f"[bold]{name}[/bold] → {state}"
 
 
 async def _macro_delete(client: Any, args: list[str], context: Any):
@@ -104,6 +141,7 @@ _MACRO_SUBS = {
     "save": _macro_save,
     "show": _macro_show,
     "delete": _macro_delete,
+    "set": _macro_set,
 }
 
 
@@ -115,7 +153,8 @@ async def handle_macro(client: Any, args: list[str], context: Any):
             "[red]Usage:[/red] macro "
             "[bold]list[/bold] | [bold]run[/bold] <name> | "
             "[bold]save[/bold] <name> | [bold]show[/bold] <name> | "
-            "[bold]delete[/bold] <name>"
+            "[bold]delete[/bold] <name> | "
+            "[bold]set[/bold] <name> abort on|off"
         )
     return await fn(client, args[1:], context)
 
@@ -201,18 +240,40 @@ async def handle_devices(client: Any, args: list[str], context: Any):
     return table
 
 
+# ── sleep ─────────────────────────────────────────────────────────────────────
+
+async def handle_sleep(client: Any, args: list[str], context: Any):
+    if not args:
+        return f"[red]Usage:[/red] sleep <seconds> (max {_SLEEP_MAX:.0f})"
+    try:
+        secs = float(args[0])
+    except ValueError:
+        return f"[red]Usage:[/red] sleep <seconds> (max {_SLEEP_MAX:.0f})"
+    if secs <= 0 or secs > _SLEEP_MAX:
+        return f"[red]sleep:[/red] value must be between 0 and {_SLEEP_MAX:.0f}"
+    await asyncio.sleep(secs)
+    return f"[dim]Slept {secs:g}s[/dim]"
+
+
 # ── registration ──────────────────────────────────────────────────────────────
 
 def register_db_commands(registry: CommandRegistry) -> None:
     registry.register(Command(
         name="macro",
         aliases=[],
-        args=["list", "run", "save", "show", "delete"],
+        args=["list", "run", "save", "show", "delete", "set"],
         handler=handle_macro,
         help_text=(
             "macro list | run <name> | save <name> [desc]"
-            " | show <name> | delete <name>"
+            " | show <name> | delete <name> | set <name> abort on|off"
         ),
+    ))
+    registry.register(Command(
+        name="sleep",
+        aliases=[],
+        args=[],
+        handler=handle_sleep,
+        help_text="sleep <seconds> — pause for N seconds (usable in macros)",
     ))
     registry.register(Command(
         name="history",

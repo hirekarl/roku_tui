@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.pool import NullPool
 
 from .queries import (
@@ -25,6 +25,7 @@ from .queries import (
     select_recent_commands,
     select_top_app_launches,
     select_top_commands,
+    set_macro_abort_flag,
     sync_device_apps,
     update_macro_run_stats,
     upsert_device,
@@ -49,6 +50,7 @@ class Database:
     def initialize(self) -> None:
         metadata.create_all(self._engine)
         with self._engine.connect() as conn:
+            self._migrate(conn)
             if macros_table_is_empty(conn):
                 now = datetime.utcnow()
                 for m in BUILTIN_MACROS:
@@ -60,6 +62,20 @@ class Database:
                         created_at=now,
                         is_builtin=True,
                     )
+
+    def _migrate(self, conn) -> None:
+        cols = {
+            row[1]
+            for row in conn.execute(text("PRAGMA table_info(macros)")).fetchall()
+        }
+        if "abort_on_fail" not in cols:
+            conn.execute(
+                text(
+                    "ALTER TABLE macros ADD COLUMN"
+                    " abort_on_fail BOOLEAN NOT NULL DEFAULT 0"
+                )
+            )
+            conn.commit()
 
     def close(self) -> None:
         self._engine.dispose()
@@ -146,6 +162,10 @@ class Database:
     def record_macro_run(self, name: str) -> None:
         with self._engine.connect() as conn:
             update_macro_run_stats(conn, name, datetime.utcnow())
+
+    def set_macro_abort_flag(self, name: str, abort_on_fail: bool) -> None:
+        with self._engine.connect() as conn:
+            set_macro_abort_flag(conn, name, abort_on_fail)
 
     # ── app launches ──────────────────────────────────────────────────────────
 

@@ -136,6 +136,7 @@ def select_all_macros(conn: Connection) -> list:
             macros.c.description,
             macros.c.run_count,
             macros.c.is_builtin,
+            macros.c.abort_on_fail,
             macros.c.last_run_at,
         ).order_by(macros.c.is_builtin.desc(), macros.c.name)
     ).fetchall()
@@ -200,6 +201,13 @@ def delete_macro_by_name(conn: Connection, name: str) -> int:
     )
     conn.commit()
     return result.rowcount
+
+
+def set_macro_abort_flag(conn: Connection, name: str, abort_on_fail: bool) -> None:
+    conn.execute(
+        update(macros).where(macros.c.name == name).values(abort_on_fail=abort_on_fail)
+    )
+    conn.commit()
 
 
 def update_macro_run_stats(conn: Connection, name: str, ran_at: datetime) -> None:

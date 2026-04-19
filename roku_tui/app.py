@@ -212,13 +212,13 @@ class RokuTuiApp(App):
     ) -> None:
         await self._dispatch(msg.line)
 
-    async def _dispatch(self, line: str) -> None:
+    async def _dispatch(self, line: str) -> bool:
         repl = self.query_one("#repl-panel", ReplPanel)
         success = False
 
         no_client_allowed = {
             "connect", "help", "?", "h", "clear", "cls",
-            "macro", "history", "stats", "devices",
+            "macro", "history", "stats", "devices", "sleep",
         }
         if self.client is None and line.split()[0] not in no_client_allowed:
             repl.error(
@@ -226,7 +226,7 @@ class RokuTuiApp(App):
                 "Use [bold]connect <ip>[/bold] or run with [bold]--mock[/bold]."
             )
             self.db.log_command(line, success=False, device_id=None)
-            return
+            return False
 
         result = self.registry.parse(line)
         if result is None:
@@ -238,7 +238,7 @@ class RokuTuiApp(App):
             self.db.log_command(
                 line, success=False, device_id=self._current_device_id()
             )
-            return
+            return False
 
         cmd, args = result
         try:
@@ -252,6 +252,7 @@ class RokuTuiApp(App):
             self.db.log_command(
                 line, success=success, device_id=self._current_device_id()
             )
+        return success
 
     def _current_device_id(self) -> int | None:
         if not self._current_ip:
