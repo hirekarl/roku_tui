@@ -81,6 +81,10 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
     matched_name = matches[0]
     app = next(a for a in app_cache if a.name.lower() == matched_name)
     await client.keypress(f"launch/{app.id}")
+    try:
+        context.db.log_app_launch(app, context._current_device_id())
+    except Exception:
+        pass
     return f"[dim]↵[/dim] Launched [bold #7aa2f7]{app.name}[/bold #7aa2f7]"
 
 

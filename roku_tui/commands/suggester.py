@@ -10,9 +10,16 @@ class RokuSuggester(Suggester):
         super().__init__(use_cache=False, case_sensitive=False)
         self._registry = registry
         self._app_names: list[str] = []
+        self._launch_freq: dict[str, int] = {}
+
+    def update_launch_frequencies(self, freq: dict[str, int]) -> None:
+        self._launch_freq = freq
 
     def update_app_names(self, names: list[str]) -> None:
-        self._app_names = names
+        self._app_names = sorted(
+            names,
+            key=lambda n: (-self._launch_freq.get(n, 0), n.lower()),
+        )
 
     async def get_suggestion(self, value: str) -> str | None:
         if not value.strip():

@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+from pathlib import Path
+
+from platformdirs import user_data_dir
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -7,9 +11,12 @@ from textual.containers import Horizontal
 from textual.message import Message
 from textual.theme import Theme
 from textual.widgets import Footer, Header
+
+from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
 from .commands.registry import CommandRegistry
 from .commands.suggester import RokuSuggester
+from .db import Database
 from .ecp.client import EcpClient
 from .ecp.discovery import discover_rokus
 from .ecp.mock import MockEcpClient
@@ -39,6 +46,12 @@ TOKYO_NIGHT = Theme(
 )
 
 
+def _get_db_path() -> Path:
+    data_dir = Path(user_data_dir("roku-tui", appauthor=False))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "roku_tui.db"
+
+
 class RokuTuiApp(App):
     CSS_PATH = "../roku_tui.tcss"
     TITLE = "roku-tui"
@@ -60,6 +73,8 @@ class RokuTuiApp(App):
         self.client: EcpClient | MockEcpClient | None = None
         self.registry = CommandRegistry()
         self.app_cache = []
+        self._current_ip: str | None = None
+        self.db = Database(_get_db_path())
         register_all(self.registry)
         self.suggester = RokuSuggester(self.registry)
 
@@ -71,9 +86,11 @@ class RokuTuiApp(App):
             yield NetworkPanel(id="network-panel")
         yield Footer()
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         self.register_theme(TOKYO_NIGHT)
         self.theme = "roku-night"
+        await asyncio.to_thread(self.db.initialize)
+        register_db_commands(self.registry)
         if self.mock:
             self._init_mock()
         elif self.initial_ip:
@@ -104,6 +121,7 @@ class RokuTuiApp(App):
             )
 
     def _init_mock(self) -> None:
+        self._current_ip = "mock-roku"
         self.client = MockEcpClient(on_network_event=self._on_network_event)
         self.query_one("#status-bar", StatusBar).set_connected(
             "My Roku TV (Mock)", mock=True
@@ -114,12 +132,14 @@ class RokuTuiApp(App):
         )
 
     def _connect(self, url: str) -> None:
-        # Normalize: accept bare IP or full URL
         if "://" not in url:
             url = f"http://{url}:8060"
-        base_url = url.rstrip("/").rstrip("/")
+        base_url = url.rstrip("/")
         if not base_url.endswith(":8060"):
             base_url = base_url.split(":8060")[0] + ":8060"
+
+        ip = base_url.split("://")[-1].split(":")[0]
+        self._current_ip = ip
 
         if self.client and hasattr(self.client, "close"):
             self.run_worker(self.client.close())
@@ -129,14 +149,19 @@ class RokuTuiApp(App):
 
     @work
     async def _prefetch_info(self) -> None:
-        if not self.client:
+        if not self.client or not self._current_ip:
             return
         try:
             info = await self.client.query_device_info()
             if info:
                 self.query_one("#status-bar", StatusBar).set_connected(info.friendly_name)
+                await asyncio.to_thread(self.db.upsert_device, info, self._current_ip)
+
             apps = await self.client.query_apps()
             self.app_cache = apps
+
+            freq = await asyncio.to_thread(self.db.app_launch_frequencies)
+            self.suggester.update_launch_frequencies(freq)
             self.suggester.update_app_names([a.name for a in apps])
         except Exception:
             pass
@@ -146,18 +171,26 @@ class RokuTuiApp(App):
 
     def on_roku_tui_app_network_event_received(self, msg: NetworkEventReceived) -> None:
         self.query_one("#network-panel", NetworkPanel).add_event(msg.event)
+        device_id = self._current_device_id()
+        try:
+            self.db.log_network_request(msg.event, device_id)
+        except Exception:
+            pass
 
     async def on_repl_panel_command_submitted(self, msg: ReplPanel.CommandSubmitted) -> None:
         await self._dispatch(msg.line)
 
     async def _dispatch(self, line: str) -> None:
         repl = self.query_one("#repl-panel", ReplPanel)
+        success = False
 
-        if self.client is None and line.split()[0] not in ("connect", "help", "?", "h", "clear", "cls"):
+        no_client_allowed = {"connect", "help", "?", "h", "clear", "cls", "macro", "history", "stats", "devices"}
+        if self.client is None and line.split()[0] not in no_client_allowed:
             repl.error(
                 "[yellow]Not connected.[/yellow] "
                 "Use [bold]connect <ip>[/bold] or run with [bold]--mock[/bold]."
             )
+            self.db.log_command(line, success=False, device_id=None)
             return
 
         result = self.registry.parse(line)
@@ -167,6 +200,7 @@ class RokuTuiApp(App):
                 f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold] — "
                 f"try [bold]help[/bold]"
             )
+            self.db.log_command(line, success=False, device_id=self._current_device_id())
             return
 
         cmd, args = result
@@ -174,8 +208,19 @@ class RokuTuiApp(App):
             output = await cmd.handler(self.client, args, context=self)
             if output:
                 repl.output(output)
+            success = True
         except Exception as e:
             repl.error(f"[red]Error:[/red] {e}")
+        finally:
+            self.db.log_command(line, success=success, device_id=self._current_device_id())
+
+    def _current_device_id(self) -> int | None:
+        if not self._current_ip:
+            return None
+        try:
+            return self.db.get_device_id(self._current_ip)
+        except Exception:
+            return None
 
     def action_toggle_network(self) -> None:
         panel = self.query_one("#network-panel", NetworkPanel)
@@ -196,3 +241,4 @@ class RokuTuiApp(App):
     async def on_unmount(self) -> None:
         if self.client and hasattr(self.client, "close"):
             await self.client.close()
+        self.db.close()
