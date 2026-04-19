@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import difflib
 from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
-from rich.text import Text
 
 from .registry import Command, CommandRegistry
 
@@ -38,21 +38,43 @@ VOLUME_MAP: dict[str, str] = {
     "mute": "VolumeMute",
 }
 
+_MAX_REPEAT = 30
+_REPEAT_DELAY = 0.12
+
+
+def _parse_count(args: list[str], offset: int = 0) -> int:
+    """Return repeat count from args[offset] if it's a digit string, else 1."""
+    val = args[offset] if len(args) > offset else ""
+    return min(int(val), _MAX_REPEAT) if val.isdigit() else 1
+
+
+async def _repeat(client: Any, ecp_key: str, count: int) -> None:
+    for i in range(count):
+        await client.keypress(ecp_key)
+        if i < count - 1:
+            await asyncio.sleep(_REPEAT_DELAY)
+
+
+def _repeat_suffix(count: int) -> str:
+    return f" [dim]×{count}[/dim]" if count > 1 else ""
+
 
 async def handle_key(client: Any, args: list[str], context: Any) -> str:
     key_name = args[0] if args else "Select"
+    count = _parse_count(args, offset=1)
     ecp_key = KEYMAP.get(key_name, key_name)
-    await client.keypress(ecp_key)
-    return f"[dim]↵[/dim] [bold]{ecp_key}[/bold]"
+    await _repeat(client, ecp_key, count)
+    return f"[dim]↵[/dim] [bold]{ecp_key}[/bold]{_repeat_suffix(count)}"
 
 
 async def handle_volume(client: Any, args: list[str], context: Any) -> str:
     direction = args[0].lower() if args else ""
+    count = _parse_count(args, offset=1)
     ecp_key = VOLUME_MAP.get(direction)
     if not ecp_key:
-        return f"[red]Usage:[/red] volume up | down | mute"
-    await client.keypress(ecp_key)
-    return f"[dim]↵[/dim] [bold]{ecp_key}[/bold]"
+        return "[red]Usage:[/red] volume up | down | mute [count]"
+    await _repeat(client, ecp_key, count)
+    return f"[dim]↵[/dim] [bold]{ecp_key}[/bold]{_repeat_suffix(count)}"
 
 
 async def handle_launch(client: Any, args: list[str], context: Any) -> str:
@@ -69,7 +91,6 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
     names = [a.name for a in app_cache]
     matches = difflib.get_close_matches(query, [n.lower() for n in names], n=1, cutoff=0.4)
     if not matches:
-        # Fallback: substring match
         for app in app_cache:
             if query in app.name.lower():
                 matches = [app.name.lower()]
@@ -92,7 +113,6 @@ async def handle_apps(client: Any, args: list[str], context: Any) -> str:
     apps = await client.query_apps()
     context.app_cache = apps
     context.suggester.update_app_names([a.name for a in apps])
-
     table = Table(
         "ID", "Name", "Version",
         box=None,
@@ -131,14 +151,13 @@ async def handle_device_info(client: Any, args: list[str], context: Any) -> str:
 async def handle_connect(client: Any, args: list[str], context: Any) -> str:
     if not args:
         return "[red]Usage:[/red] connect <ip>"
-    ip = args[0]
-    await context.connect(ip)
-    return f"[dim]Connecting to[/dim] [bold]{ip}[/bold]..."
+    await context.connect(args[0])
+    return f"[dim]Connecting to[/dim] [bold]{args[0]}[/bold]..."
 
 
 async def handle_help(client: Any, args: list[str], context: Any) -> str:
     table = Table(box=None, show_header=False, padding=(0, 2, 0, 0))
-    table.add_column(style=f"bold #7aa2f7", width=20)
+    table.add_column(style="bold #7aa2f7", width=20)
     table.add_column(style="dim")
     for cmd in sorted(context.registry.all_commands(), key=lambda c: c.name):
         aliases = f"  [{', '.join(cmd.aliases)}]" if cmd.aliases else ""
@@ -152,21 +171,21 @@ async def handle_clear(client: Any, args: list[str], context: Any) -> str:
 
 
 def register_all(registry: CommandRegistry) -> None:
-    nav_keys = ["home", "back", "select", "up", "down", "left", "right",
-                 "play", "pause", "rev", "fwd", "replay", "mute", "power", "enter"]
+    nav_keys = [
+        "home", "back", "select", "up", "down", "left", "right",
+        "play", "pause", "rev", "fwd", "replay", "mute", "power", "enter",
+    ]
 
     for key in nav_keys:
-        ecp = KEYMAP.get(key, key)
-
         async def _handler(client, args, context, k=key):
-            return await handle_key(client, [k], context)
+            return await handle_key(client, [k] + args, context)
 
         registry.register(Command(
             name=key,
             aliases=[],
             args=[],
             handler=_handler,
-            help_text=f"Send {KEYMAP.get(key, key)} keypress",
+            help_text=f"Send {KEYMAP.get(key, key)} keypress  (add count: {key} 3)",
         ))
 
     registry.register(Command(
@@ -174,7 +193,7 @@ def register_all(registry: CommandRegistry) -> None:
         aliases=["vol"],
         args=["up", "down", "mute"],
         handler=handle_volume,
-        help_text="volume up | down | mute",
+        help_text="volume up | down | mute  (add count: volume up 5)",
     ))
     registry.register(Command(
         name="launch",
@@ -214,10 +233,10 @@ def register_all(registry: CommandRegistry) -> None:
     ))
     registry.register(Command(
         name="help",
-        aliases=["?", "h"],
+        aliases=["?"],
         args=[],
         handler=handle_help,
-        help_text="Show this help",
+        help_text="Show command list  (or press ? for the full guide)",
     ))
     registry.register(Command(
         name="clear",
@@ -226,3 +245,19 @@ def register_all(registry: CommandRegistry) -> None:
         handler=handle_clear,
         help_text="Clear the REPL history",
     ))
+
+    # Single-letter aliases for rapid navigation
+    _aliases = [
+        ("u", "up"), ("d", "down"), ("l", "left"), ("r", "right"),
+        ("s", "select"), ("b", "back"), ("p", "play"), ("m", "mute"),
+    ]
+    for alias, target in _aliases:
+        target_cmd = registry.lookup(target)
+        if target_cmd:
+            registry.register(Command(
+                name=alias,
+                aliases=[],
+                args=[],
+                handler=target_cmd.handler,
+                help_text=f"Alias for {target}",
+            ))

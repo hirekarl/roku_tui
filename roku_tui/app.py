@@ -21,6 +21,7 @@ from .ecp.client import EcpClient
 from .ecp.discovery import discover_rokus
 from .ecp.mock import MockEcpClient
 from .ecp.models import NetworkEvent
+from .widgets.help_screen import HelpScreen
 from .widgets.network_panel import NetworkPanel
 from .widgets.repl_panel import ReplPanel
 from .widgets.status_bar import StatusBar
@@ -59,7 +60,18 @@ class RokuTuiApp(App):
         Binding("ctrl+q", "quit", "Quit"),
         Binding("ctrl+n", "toggle_network", "Network"),
         Binding("ctrl+l", "clear_repl", "Clear"),
+        Binding("f1", "show_guide", "Guide", key_display="F1"),
     ]
+
+    _HOTKEYS: dict[str, str] = {
+        "up": "Up",
+        "down": "Down",
+        "left": "Left",
+        "right": "Right",
+        "enter": "Select",
+        "space": "Play",
+        "backspace": "Back",
+    }
 
     class NetworkEventReceived(Message):
         def __init__(self, event: NetworkEvent):
@@ -232,6 +244,18 @@ class RokuTuiApp(App):
             return self.db.get_device_id(self._current_ip)
         except Exception:
             return None
+
+    async def on_key(self, event) -> None:
+        from textual.widgets import Input
+        if isinstance(self.focused, Input):
+            return
+        ecp_key = self._HOTKEYS.get(event.key)
+        if ecp_key and self.client:
+            event.prevent_default()
+            await self.client.keypress(ecp_key)
+
+    def action_show_guide(self) -> None:
+        self.push_screen(HelpScreen())
 
     def action_toggle_network(self) -> None:
         panel = self.query_one("#network-panel", NetworkPanel)

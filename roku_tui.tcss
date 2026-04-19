@@ -143,3 +143,19 @@ StatusBar {
     scrollbar-background: #1f2335;
     scrollbar-size: 1 1;
 }
+
+/* ── Help Modal ──────────────────────────────────────────────────────────── */
+
+HelpScreen {
+    align: center middle;
+}
+
+#help-body {
+    width: 64;
+    height: auto;
+    max-height: 90%;
+    background: #1f2335;
+    border: tall #414868;
+    padding: 0 1;
+    color: #c0caf5;
+}

@@ -40,10 +40,10 @@ class ReplPanel(Widget):
             css_class="banner",
         )
         self._append(
-            "[dim]Type [bold]help[/bold] for commands · "
+            "[dim]Press [bold]F1[/bold] for the guide · "
             "[bold]Tab[/bold] to complete · "
             "[bold]↑↓[/bold] for history · "
-            "[bold]Ctrl+N[/bold] toggles network panel[/dim]",
+            "[bold]u d l r s[/bold] quick keys[/dim]",
             css_class="banner",
         )
         self._append("", css_class="spacer")
