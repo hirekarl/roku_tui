@@ -234,7 +234,7 @@ HelpScreen {
 }
 
 #help-body {
-    width: 66;
+    width: 72;
     height: auto;
     max-height: 90%;
     background: #1f2335;

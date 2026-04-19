@@ -38,15 +38,15 @@ _LEFT = """\
 _RIGHT = """\
 [bold]Commands[/bold]
 
- [bold #7aa2f7]launch[/bold #7aa2f7] [dim]<name>[/dim]   fuzzy launch
- [bold #7aa2f7]apps[/bold #7aa2f7]            list channels
- [bold #7aa2f7]active[/bold #7aa2f7]          now playing
- [bold #7aa2f7]info[/bold #7aa2f7]            device info
+ [bold #7aa2f7]launch[/bold #7aa2f7] [dim]<name>[/dim]  fuzzy launch
+ [bold #7aa2f7]apps[/bold #7aa2f7]           channel list
+ [bold #7aa2f7]active[/bold #7aa2f7]         now playing
+ [bold #7aa2f7]info[/bold #7aa2f7]           device info
  [bold #7aa2f7]connect[/bold #7aa2f7] [dim]<ip>[/dim]   connect Roku
- [bold #7aa2f7]macro[/bold #7aa2f7] [dim]list|run|save[/dim]
- [bold #7aa2f7]history[/bold #7aa2f7] [dim][N][/dim]     command log
- [bold #7aa2f7]stats[/bold #7aa2f7]           usage stats
- [bold #7aa2f7]sleep[/bold #7aa2f7] [dim]<s>[/dim]      pause Ns
+ [bold #7aa2f7]macro[/bold #7aa2f7] [dim]<sub>[/dim]    manage macros
+ [bold #7aa2f7]history[/bold #7aa2f7] [dim][N][/dim]    command log
+ [bold #7aa2f7]stats[/bold #7aa2f7]          usage stats
+ [bold #7aa2f7]sleep[/bold #7aa2f7] [dim]<s>[/dim]      pause N sec
 
 [bold]Shortcuts[/bold]
 

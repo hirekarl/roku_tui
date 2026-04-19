@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from textual.widgets import TabbedContent
 
 from roku_tui.app import RokuTuiApp
