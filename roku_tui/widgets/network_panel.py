@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from rich.console import Group
-from rich.table import Table
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.widget import Widget
@@ -30,7 +29,6 @@ class NetworkPanel(Widget):
         status_bucket = (event.status_code // 100) if event.status_code else 0
         status_style = STATUS_STYLES.get(status_bucket, "white")
 
-        # Compact path (strip base URL for readability)
         path = event.url
         for prefix in ("http://mock-roku:8060", "http://"):
             if prefix in path:
@@ -49,23 +47,15 @@ class NetworkPanel(Widget):
         elif event.error:
             status_line.append(f"  ERROR: {event.error}", style="bold red")
 
-        details = Table.grid(padding=(0, 1))
-        details.add_column(style="dim", width=10)
-        details.add_column(style="white")
+        parts = [header, status_line]
 
-        # Request headers
-        for k, v in event.request_headers.items():
-            details.add_row(k + ":", v)
+        if event.body and event.status_code is not None:
+            preview = event.body[:120].replace("\n", " ").strip()
+            if len(event.body) > 120:
+                preview += "…"
+            body_line = Text()
+            body_line.append(f"  {preview}", style="dim")
+            parts.append(body_line)
 
-        if event.status_code is not None:
-            # Response headers (abbreviated)
-            for k, v in list(event.response_headers.items())[:3]:
-                details.add_row(k + ":", v)
-            if event.body:
-                preview = event.body[:120].replace("\n", " ").strip()
-                if len(event.body) > 120:
-                    preview += "…"
-                details.add_row("body:", preview)
-
-        sep = Text("─" * 36, style="dim #414868")
-        return Group(header, status_line, details, sep)
+        parts.append(Text("─" * 36, style="dim #414868"))
+        return Group(*parts)

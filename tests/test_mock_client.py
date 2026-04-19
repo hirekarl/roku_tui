@@ -28,7 +28,7 @@ async def test_keypress_response_time_set():
 
 
 async def test_query_apps_returns_mock_list():
-    client, events = _make_client()
+    client, _events = _make_client()
     apps = await client.query_apps()
     assert apps == list(MOCK_APPS)
 
@@ -43,7 +43,7 @@ async def test_query_apps_fires_get_callback():
 
 
 async def test_query_device_info_returns_mock_device():
-    client, events = _make_client()
+    client, _events = _make_client()
     info = await client.query_device_info()
     assert info == MOCK_DEVICE
 
@@ -56,7 +56,7 @@ async def test_query_device_info_fires_callback():
 
 
 async def test_query_active_app_returns_netflix():
-    client, events = _make_client()
+    client, _events = _make_client()
     app = await client.query_active_app()
     assert app is not None
     assert app.name == "Netflix"

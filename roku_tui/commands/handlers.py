@@ -113,7 +113,7 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
 
     if not matches:
         return (
-            f"[red]No app matching[/red] '{query}'. "
+            f"[yellow]No app matching[/yellow] '{query}'. "
             "Try [bold]apps[/bold] to see installed apps."
         )
 
@@ -198,6 +198,12 @@ async def handle_clear(client: Any, args: list[str], context: Any) -> str:
     return ""
 
 
+_LETTER_ALIASES: dict[str, str] = {
+    "up": "u", "down": "d", "left": "l", "right": "r",
+    "select": "s", "back": "b", "play": "p", "mute": "m",
+}
+
+
 def register_all(registry: CommandRegistry) -> None:
     nav_keys = [
         "home", "back", "select", "up", "down", "left", "right",
@@ -208,12 +214,17 @@ def register_all(registry: CommandRegistry) -> None:
         async def _handler(client, args, context, k=key):
             return await handle_key(client, [k, *args], context)
 
+        if key == "pause":
+            help_text = "Play/Pause toggle — same ECP key as play"
+        else:
+            help_text = f"Send {KEYMAP.get(key, key)} keypress  (add count: {key} 3)"
+
         registry.register(Command(
             name=key,
-            aliases=[],
+            aliases=[_LETTER_ALIASES[key]] if key in _LETTER_ALIASES else [],
             args=[],
             handler=_handler,
-            help_text=f"Send {KEYMAP.get(key, key)} keypress  (add count: {key} 3)",
+            help_text=help_text,
         ))
 
     registry.register(Command(

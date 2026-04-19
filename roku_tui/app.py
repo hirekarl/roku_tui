@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import difflib
 from pathlib import Path
 from typing import ClassVar
 
@@ -171,6 +172,9 @@ class RokuTuiApp(App):
                 self.query_one("#status-bar", StatusBar).set_connected(
                     info.friendly_name
                 )
+                self.query_one("#repl-panel", ReplPanel).system_message(
+                    f"[dim]Connected to[/dim] [bold]{info.friendly_name}[/bold]"
+                )
                 device_id = await asyncio.to_thread(
                     self.db.upsert_device, info, self._current_ip
                 )
@@ -196,7 +200,9 @@ class RokuTuiApp(App):
             self.suggester.update_launch_frequencies(freq)
             self.suggester.update_app_names([a.name for a in apps])
         except Exception:
-            pass
+            self.query_one("#repl-panel", ReplPanel).system_message(
+                "[red]Connection failed.[/red] Check the IP and try again."
+            )
 
     def _on_network_event(self, event: NetworkEvent) -> None:
         self.post_message(self.NetworkEventReceived(event))
@@ -231,10 +237,15 @@ class RokuTuiApp(App):
         result = self.registry.parse(line)
         if result is None:
             cmd_name = line.split()[0]
-            repl.error(
-                f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold] — "
-                f"try [bold]help[/bold]"
+            suggestions = difflib.get_close_matches(
+                cmd_name, list(self.registry.all_names()), n=1, cutoff=0.6
             )
+            hint = (
+                f" — did you mean [bold]{suggestions[0]}[/bold]?"
+                if suggestions
+                else " — try [bold]help[/bold]"
+            )
+            repl.error(f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold]{hint}")
             self.db.log_command(
                 line, success=False, device_id=self._current_device_id()
             )

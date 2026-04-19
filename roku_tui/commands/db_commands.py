@@ -41,7 +41,7 @@ async def _macro_run(client: Any, args: list[str], context: Any):
     name = args[0]
     macro = context.db.get_macro(name)
     if macro is None:
-        return f"[red]No macro named[/red] '{name}'"
+        return f"[yellow]No macro named[/yellow] '{name}'"
 
     repl = context.query_one("#repl-panel")
     abort = macro.get("abort_on_fail", False)
@@ -93,7 +93,7 @@ async def _macro_show(client: Any, args: list[str], context: Any):
         return "[red]Usage:[/red] macro show <name>"
     macro = context.db.get_macro(args[0])
     if macro is None:
-        return f"[red]No macro named[/red] '{args[0]}'"
+        return f"[yellow]No macro named[/yellow] '{args[0]}'"
     abort_label = (
         "[#f7768e]abort on fail[/#f7768e]"
         if macro.get("abort_on_fail")
@@ -116,7 +116,7 @@ async def _macro_set(client: Any, args: list[str], context: Any):
     name, _, value = args[0], args[1], args[2]
     macro = context.db.get_macro(name)
     if macro is None:
-        return f"[red]No macro named[/red] '{name}'"
+        return f"[yellow]No macro named[/yellow] '{name}'"
     abort_on_fail = value == "on"
     context.db.set_macro_abort_flag(name, abort_on_fail)
     on = "[#f7768e]abort on fail[/#f7768e]"

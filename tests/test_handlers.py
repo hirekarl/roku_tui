@@ -11,7 +11,6 @@ from roku_tui.commands.registry import CommandRegistry
 from roku_tui.ecp.mock import MOCK_APPS, MockEcpClient
 from roku_tui.ecp.models import NetworkEvent
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 
@@ -75,13 +74,13 @@ async def test_volume_up_sends_keypress():
 
 
 async def test_volume_down_sends_keypress():
-    client, events = _make_client()
+    client, _events = _make_client()
     result = await handle_volume(client, ["down"], MockContext())
     assert "VolumeDown" in result
 
 
 async def test_volume_mute_sends_keypress():
-    client, events = _make_client()
+    client, _events = _make_client()
     result = await handle_volume(client, ["mute"], MockContext())
     assert "VolumeMute" in result
 
@@ -123,7 +122,7 @@ async def test_launch_exact_match():
 
 
 async def test_launch_fuzzy_match():
-    client, events = _make_client()
+    client, _events = _make_client()
     ctx = MockContext()
     ctx.app_cache = list(MOCK_APPS)
     result = await handle_launch(client, ["netflix"], ctx)
@@ -131,7 +130,7 @@ async def test_launch_fuzzy_match():
 
 
 async def test_launch_substring_match():
-    client, events = _make_client()
+    client, _events = _make_client()
     ctx = MockContext()
     ctx.app_cache = list(MOCK_APPS)
     result = await handle_launch(client, ["peace"], ctx)

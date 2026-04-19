@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from roku_tui.commands.registry import Command, CommandRegistry
 
 
@@ -11,8 +9,12 @@ async def _noop(client, args, context):
 
 def _make_registry() -> CommandRegistry:
     reg = CommandRegistry()
-    reg.register(Command(name="foo", aliases=["f", "fo"], args=[], handler=_noop, help_text="Foo"))
-    reg.register(Command(name="bar", aliases=[], args=["x"], handler=_noop, help_text="Bar"))
+    reg.register(Command(
+        name="foo", aliases=["f", "fo"], args=[], handler=_noop, help_text="Foo"
+    ))
+    reg.register(Command(
+        name="bar", aliases=[], args=["x"], handler=_noop, help_text="Bar"
+    ))
     return reg
 
 
