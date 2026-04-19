@@ -47,6 +47,7 @@ _RIGHT = """\
  [bold #7aa2f7]history[/bold #7aa2f7] [dim][N][/dim]    command log
  [bold #7aa2f7]stats[/bold #7aa2f7]          usage stats
  [bold #7aa2f7]sleep[/bold #7aa2f7] [dim]<s>[/dim]      pause N sec
+ [bold #7aa2f7]theme[/bold #7aa2f7] [dim][name][/dim]   switch palette
 
 [bold]Shortcuts[/bold]
 

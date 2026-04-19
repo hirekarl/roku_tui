@@ -37,17 +37,88 @@ TOKYO_NIGHT = Theme(
     background="#1a1b26",
     dark=True,
     variables={
-        "surface": "#24283b",
-        "panel": "#1f2335",
-        "success": "#9ece6a",
-        "warning": "#e0af68",
-        "error": "#f7768e",
-        "accent": "#73daca",
-        "comment": "#565f89",
-        "bg-dark": "#16161e",
+        "surface":      "#24283b",
+        "panel":        "#1f2335",
+        "success":      "#9ece6a",
+        "warning":      "#e0af68",
+        "error":        "#f7768e",
+        "accent":       "#73daca",
+        "comment":      "#565f89",
+        "bg-dark":      "#16161e",
         "bg-highlight": "#292e42",
+        "muted-border": "#414868",
     },
 )
+
+CATPPUCCIN_MOCHA = Theme(
+    name="catppuccin",
+    primary="#89b4fa",
+    secondary="#cba6f7",
+    foreground="#cdd6f4",
+    background="#1e1e2e",
+    dark=True,
+    variables={
+        "surface":      "#313244",
+        "panel":        "#181825",
+        "success":      "#a6e3a1",
+        "warning":      "#fab387",
+        "error":        "#f38ba8",
+        "accent":       "#94e2d5",
+        "comment":      "#6c7086",
+        "bg-dark":      "#11111b",
+        "bg-highlight": "#45475a",
+        "muted-border": "#585b70",
+    },
+)
+
+NORD = Theme(
+    name="nord",
+    primary="#88c0d0",
+    secondary="#b48ead",
+    foreground="#d8dee9",
+    background="#2e3440",
+    dark=True,
+    variables={
+        "surface":      "#434c5e",
+        "panel":        "#3b4252",
+        "success":      "#a3be8c",
+        "warning":      "#ebcb8b",
+        "error":        "#bf616a",
+        "accent":       "#8fbcbb",
+        "comment":      "#4c566a",
+        "bg-dark":      "#242933",
+        "bg-highlight": "#3b4252",
+        "muted-border": "#434c5e",
+    },
+)
+
+GRUVBOX = Theme(
+    name="gruvbox",
+    primary="#83a598",
+    secondary="#d3869b",
+    foreground="#ebdbb2",
+    background="#282828",
+    dark=True,
+    variables={
+        "surface":      "#3c3836",
+        "panel":        "#1d2021",
+        "success":      "#b8bb26",
+        "warning":      "#fabd2f",
+        "error":        "#fb4934",
+        "accent":       "#8ec07c",
+        "comment":      "#928374",
+        "bg-dark":      "#1d2021",
+        "bg-highlight": "#504945",
+        "muted-border": "#665c54",
+    },
+)
+
+_THEMES: dict[str, Theme] = {
+    "roku-night": TOKYO_NIGHT,
+    "catppuccin": CATPPUCCIN_MOCHA,
+    "nord":       NORD,
+    "gruvbox":    GRUVBOX,
+}
 
 
 def _get_db_path() -> Path:
@@ -93,6 +164,14 @@ class RokuTuiApp(App):
         self.suggester = RokuSuggester(self.registry)
         self._register_tui_commands()
 
+    def get_css_variables(self) -> dict[str, str]:
+        variables = super().get_css_variables()
+        # Provide Tokyo Night fallbacks for our custom variables so the CSS
+        # file can reference them even before our themes are registered/applied.
+        for key, value in TOKYO_NIGHT.variables.items():
+            variables.setdefault(key, value)
+        return variables
+
     def compose(self) -> ComposeResult:
         yield Header()
         yield StatusBar(id="status-bar")
@@ -106,7 +185,8 @@ class RokuTuiApp(App):
         yield Footer()
 
     async def on_mount(self) -> None:
-        self.register_theme(TOKYO_NIGHT)
+        for t in _THEMES.values():
+            self.register_theme(t)
         self.theme = "roku-night"
         await asyncio.to_thread(self.db.initialize)
         register_db_commands(self.registry)
@@ -337,6 +417,30 @@ class RokuTuiApp(App):
             args=[],
             handler=_handle_clear,
             help_text="Clear the REPL history",
+        ))
+
+        async def _handle_theme(
+            client: object, args: list[str], context: object
+        ) -> str:
+            if not args:
+                options = "  ".join(
+                    f"[bold]{n}[/bold]" if n == self.theme else f"[dim]{n}[/dim]"
+                    for n in _THEMES
+                )
+                return f"Theme: [bold]{self.theme}[/bold]   {options}"
+            name = args[0].lower()
+            if name not in _THEMES:
+                avail = ", ".join(_THEMES.keys())
+                return f"[yellow]Unknown theme:[/yellow] {name}. Options: {avail}"
+            self.theme = name
+            return f"[green]✓[/green] Theme → [bold]{name}[/bold]"
+
+        self.registry.register(Command(
+            name="theme",
+            aliases=[],
+            args=["name"],
+            handler=_handle_theme,
+            help_text="Switch color theme (roku-night | catppuccin | nord | gruvbox)",
         ))
 
     def emit_message(self, text: str) -> None:

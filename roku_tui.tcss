@@ -1,20 +1,20 @@
 /* ── Global ──────────────────────────────────────────────────────────────── */
 
 Screen {
-    background: #1a1b26;
-    color: #c0caf5;
+    background: $background;
+    color: $foreground;
 }
 
 Header {
-    background: #1f2335;
-    color: #7aa2f7;
+    background: $panel;
+    color: $primary;
     text-style: bold;
     height: 1;
 }
 
 Footer {
-    background: #1f2335;
-    color: #565f89;
+    background: $panel;
+    color: $comment;
     height: 1;
 }
 
@@ -23,20 +23,20 @@ Footer {
 StatusBar {
     dock: top;
     height: 1;
-    background: #16161e;
+    background: $bg-dark;
     layout: horizontal;
     padding: 0 2;
-    color: #c0caf5;
+    color: $foreground;
 }
 
 #status-device {
     width: 1fr;
-    color: #c0caf5;
+    color: $foreground;
 }
 
 #status-indicator {
     width: auto;
-    color: #9ece6a;
+    color: $success;
 }
 
 /* ── Main Area ───────────────────────────────────────────────────────────── */
@@ -51,8 +51,8 @@ StatusBar {
 TabbedContent {
     width: 65%;
     height: 100%;
-    background: #1a1b26;
-    border-right: tall #292e42;
+    background: $background;
+    border-right: tall $bg-highlight;
 }
 
 TabbedContent.full-width {
@@ -61,24 +61,24 @@ TabbedContent.full-width {
 }
 
 TabbedContent > Tabs {
-    background: #16161e;
+    background: $bg-dark;
     height: 2;
 }
 
 TabbedContent > Tabs > Tab {
-    background: #16161e;
-    color: #565f89;
+    background: $bg-dark;
+    color: $comment;
     padding: 0 2;
 }
 
 TabbedContent > Tabs > Tab.-active {
-    background: #1a1b26;
-    color: #7aa2f7;
+    background: $background;
+    color: $primary;
     text-style: bold;
 }
 
 TabbedContent > Tabs > Tab:hover {
-    color: #c0caf5;
+    color: $foreground;
 }
 
 TabbedContent > ContentSwitcher {
@@ -95,24 +95,24 @@ TabPane {
 #repl-panel {
     height: 100%;
     layout: vertical;
-    background: #1a1b26;
+    background: $background;
 }
 
 #history-scroll {
     height: 1fr;
     padding: 1 2;
-    scrollbar-color: #414868;
-    scrollbar-background: #1a1b26;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $background;
     scrollbar-size: 1 1;
 }
 
 .history-entry {
     padding: 0 0 1 0;
-    color: #c0caf5;
+    color: $foreground;
 }
 
 .banner {
-    color: #565f89;
+    color: $comment;
 }
 
 .spacer {
@@ -120,35 +120,35 @@ TabPane {
 }
 
 .cmd-echo {
-    color: #7aa2f7;
+    color: $primary;
 }
 
 .cmd-output {
-    color: #c0caf5;
+    color: $foreground;
     padding: 0 0 1 2;
 }
 
 .cmd-error {
-    color: #f7768e;
+    color: $error;
 }
 
 .cmd-system {
-    color: #565f89;
+    color: $comment;
     text-style: italic;
 }
 
 #command-input {
     dock: bottom;
     height: 3;
-    background: #16161e;
-    color: #c0caf5;
-    border: tall #414868;
+    background: $bg-dark;
+    color: $foreground;
+    border: tall $muted-border;
     padding: 0 1;
     margin: 0 0 0 0;
 }
 
 #command-input:focus {
-    border: tall #7aa2f7;
+    border: tall $primary;
 }
 
 /* ── Network Panel ───────────────────────────────────────────────────────── */
@@ -157,7 +157,7 @@ TabPane {
     width: 35%;
     height: 100%;
     layout: vertical;
-    background: #1f2335;
+    background: $panel;
 }
 
 #network-panel.hidden {
@@ -166,18 +166,18 @@ TabPane {
 
 #network-title {
     height: 1;
-    background: #16161e;
-    color: #bb9af7;
+    background: $bg-dark;
+    color: $secondary;
     text-style: bold;
     padding: 0 1;
 }
 
 #network-log {
     height: 1fr;
-    background: #1f2335;
+    background: $panel;
     padding: 0 1;
-    scrollbar-color: #414868;
-    scrollbar-background: #1f2335;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $panel;
     scrollbar-size: 1 1;
 }
 
@@ -185,7 +185,7 @@ TabPane {
 
 #remote-panel {
     align: center middle;
-    background: #1a1b26;
+    background: $background;
     height: 100%;
 }
 
@@ -215,12 +215,12 @@ TabPane {
 .btn-media   { width: 8;  min-width: 8;  margin: 0 1; }
 .btn-volume  { width: 9;  min-width: 9;  margin: 0 1; }
 
-Button.btn-power  { color: #f7768e; }
-Button.btn-nav    { color: #c0caf5; }
-Button.btn-dpad   { color: #7aa2f7; }
-Button.btn-ok     { background: #bb9af7; color: #1a1b26; }
-Button.btn-media  { color: #73daca; }
-Button.btn-volume { color: #9ece6a; }
+Button.btn-power  { color: $error; }
+Button.btn-nav    { color: $foreground; }
+Button.btn-dpad   { color: $primary; }
+Button.btn-ok     { background: $secondary; color: $background; }
+Button.btn-media  { color: $accent; }
+Button.btn-volume { color: $success; }
 
 Button.btn-flash {
     background: $primary;
@@ -237,13 +237,13 @@ HelpScreen {
     width: 72;
     height: auto;
     max-height: 90%;
-    background: #1f2335;
-    border: tall #414868;
+    background: $panel;
+    border: tall $muted-border;
 }
 
 #help-title {
     padding: 1 2 0 2;
-    color: #c0caf5;
+    color: $foreground;
 }
 
 #help-cols {
@@ -255,12 +255,12 @@ HelpScreen {
     width: 1fr;
     height: auto;
     padding: 0 1;
-    color: #c0caf5;
+    color: $foreground;
 }
 
 #help-foot {
     padding: 1 2;
-    color: #565f89;
+    color: $comment;
     text-align: center;
-    border-top: solid #292e42;
+    border-top: solid $bg-highlight;
 }
