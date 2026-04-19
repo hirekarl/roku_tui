@@ -16,7 +16,7 @@ from textual.widgets import Footer, Header, Input
 
 from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
-from .commands.registry import CommandRegistry
+from .commands.registry import Command, CommandRegistry
 from .commands.suggester import RokuSuggester
 from .db import Database
 from .ecp.client import EcpClient
@@ -89,6 +89,7 @@ class RokuTuiApp(App):
         self.db = Database(_get_db_path())
         register_all(self.registry)
         self.suggester = RokuSuggester(self.registry)
+        self._register_tui_commands()
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -296,6 +297,27 @@ class RokuTuiApp(App):
 
     def action_clear_repl(self) -> None:
         self.query_one("#repl-panel", ReplPanel).clear_history()
+
+    def _register_tui_commands(self) -> None:
+        async def _handle_clear(
+            client: object, args: list[str], context: object
+        ) -> str:
+            self.query_one("#repl-panel", ReplPanel).clear_history()
+            return ""
+
+        self.registry.register(Command(
+            name="clear",
+            aliases=["cls"],
+            args=[],
+            handler=_handle_clear,
+            help_text="Clear the REPL history",
+        ))
+
+    def emit_message(self, text: str) -> None:
+        self.query_one("#repl-panel", ReplPanel).system_message(text)
+
+    async def dispatch(self, line: str) -> bool:
+        return await self._dispatch(line)
 
     async def connect(self, ip: str) -> None:
         self._connect(ip)

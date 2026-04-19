@@ -43,12 +43,11 @@ async def _macro_run(client: Any, args: list[str], context: Any):
     if macro is None:
         return f"[yellow]No macro named[/yellow] '{name}'"
 
-    repl = context.query_one("#repl-panel")
     abort = macro.get("abort_on_fail", False)
     steps = macro["commands"]
     for i, line in enumerate(steps, 1):
-        repl.system_message(f"[dim]macro ›[/dim] {line}")
-        ok = await context._dispatch(line)
+        context.emit_message(f"[dim]macro ›[/dim] {line}")
+        ok = await context.dispatch(line)
         if not ok and abort:
             context.db.record_macro_run(name)
             return (

@@ -193,10 +193,6 @@ async def handle_help(client: Any, args: list[str], context: Any) -> Table:
     return table
 
 
-async def handle_clear(client: Any, args: list[str], context: Any) -> str:
-    context.query_one("#repl-panel").clear_history()
-    return ""
-
 
 _LETTER_ALIASES: dict[str, str] = {
     "up": "u", "down": "d", "left": "l", "right": "r",
@@ -276,13 +272,6 @@ def register_all(registry: CommandRegistry) -> None:
         args=[],
         handler=handle_help,
         help_text="Show command list  (or press ? for the full guide)",
-    ))
-    registry.register(Command(
-        name="clear",
-        aliases=["cls"],
-        args=[],
-        handler=handle_clear,
-        help_text="Clear the REPL history",
     ))
 
     # Single-letter aliases for rapid navigation
