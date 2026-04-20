@@ -263,17 +263,18 @@ name. They are stored in the local database.
 
 Built-in macros come pre-installed and are read-only.
 
-[bold]Save a Macro[/bold]
+[bold]Record a Macro[/bold]
 
-  [bold #73daca]macro save <name> [description][/bold #73daca]
+  [bold #73daca]macro record[/bold #73daca]
 
-Captures the last 10 successful non-meta console commands automatically.
-Run your sequence first, then save it:
+Starts recording. Every successful command you run is captured until you
+call [bold]macro stop[/bold]. Meta-commands (help, history, stats, etc.) are excluded.
 
+  [bold #73daca]macro record[/bold #73daca]
   [bold #73daca]home[/bold #73daca]
   [bold #73daca]sleep 1[/bold #73daca]
   [bold #73daca]launch netflix[/bold #73daca]
-  [bold #73daca]macro save open-netflix Evening startup[/bold #73daca]
+  [bold #73daca]macro stop open-netflix Evening startup[/bold #73daca]
 
 [bold]Run a Macro[/bold]
 

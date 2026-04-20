@@ -24,7 +24,7 @@ uv run roku-tui
 
 ```
 ┌─────────────────────────────┬──────────────────────────────┐
-│  REPL                        │  HTTP Inspector              │
+│  Console                     │  HTTP Inspector              │
 │                              │                              │
 │  > launch Netflix            │  POST /keypress/Home   200 48ms
 │  ↵ Launched Netflix          │  GET  /query/apps      200 61ms
@@ -35,7 +35,7 @@ uv run roku-tui
 │  [Tab] autocomplete          │                              │
 └─────────────────────────────┴──────────────────────────────┘
 ```
-The left panel is a command REPL with tab-completion and persistent history. The right panel shows every ECP HTTP request in real time — method, path, status code, and latency.
+The left panel has two tabs — **Console** (command input with tab-completion and persistent history) and **Remote** (clickable virtual remote with keyboard shortcuts). The right panel shows every ECP HTTP request in real time — method, path, status code, and latency. Toggle it with `Ctrl+N`.
 
 ---
 
@@ -62,7 +62,7 @@ Add a count to repeat: `up 3`, `volume down 5`, `right 10`.
 | `active` | Show currently playing app |
 | `link save <alias> <app> <id>` | Save a content shortcut (e.g., `link save lofi youtube dCmq...`) |
 | `link list` | List all saved shortcuts |
-| `yt search <query>` | Search YouTube directly from the REPL |
+| `yt search <query>` | Search YouTube directly from the console |
 | `yt launch <id | index>` | Launch a YouTube video by ID or search result index |
 
 ### Device
@@ -76,12 +76,14 @@ Add a count to repeat: `up 3`, `volume down 5`, `right 10`.
 | Command | Description |
 |---|---|
 | `macro list` | All macros (builtin + yours) |
+| `macro record` | Start recording commands into a macro |
+| `macro stop <name> [desc]` | Stop recording and save as a named macro |
 | `macro run <name>` | Execute a saved macro |
-| `macro save <name> [desc]` | Save last 10 commands as a macro |
 | `macro show <name>` | Preview a macro's steps |
 | `macro delete <name>` | Delete a user macro |
+| `macro set <name> abort on\|off` | Stop on first failure, or keep going |
 
-Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mute-toggle`, `channel-surf`. Macros now support deep links!
+Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mute-toggle`, `channel-surf`. Macros support deep links and `sleep` for timed sequences.
 
 ### History & stats
 | Command | Description |
@@ -93,9 +95,10 @@ Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mu
 ### Meta
 | Command | Description |
 |---|---|
-| `help` | Command reference |
-| `clear` | Clear the REPL |
+| `help [command]` | Command reference — `help macro`, `help yt`, etc. |
+| `clear` | Clear the console |
 | `theme [name]` | Switch between `roku-night`, `catppuccin`, `nord`, `gruvbox` |
+| `guide` | Open the full user manual |
 
 ---
 
@@ -109,11 +112,24 @@ Six macros are pre-loaded: `morning`, `movie-night`, `sleep-timer`, `binge`, `mu
 | `Enter` | Select (when not typing) |
 | `Space` | Play/Pause (when not typing) |
 | `Backspace` | Back (when not typing) |
-| `Ctrl+T` | Toggle between REPL and Remote mode |
+| `Ctrl+T` | Toggle between Console and Remote tab |
 | `Ctrl+N` | Toggle network inspector |
-| `Ctrl+L` | Clear REPL |
+| `Ctrl+L` | Clear console |
 | `Ctrl+Q` | Quit |
-| `F1` | User guide |
+| `F1` | Quick reference card |
+| `F2` | Full user guide |
+
+### Remote tab shortcuts (when not typing)
+| Key | Action |
+|---|---|
+| Arrow keys | D-pad |
+| `Enter` | Select |
+| `Space` | Play/Pause |
+| `Backspace` | Back |
+| `H` | Home |
+| `M` | Mute |
+| `,` / `.` | Rewind / Fast-forward |
+| `-` / `=` | Volume down / up |
 
 ---
 

@@ -147,6 +147,10 @@ class RokuTuiApp(App[None]):
         "backspace": "Back",
     }
 
+    _RECORDING_SKIP: ClassVar[frozenset[str]] = frozenset(
+        {"macro", "history", "stats", "devices", "help", "clear", "cls", "guide", "theme"}  # noqa: E501
+    )
+
     _REMOTE_HOTKEYS: ClassVar[dict[str, str]] = {
         "h": "Home",
         "m": "VolumeMute",
@@ -174,6 +178,7 @@ class RokuTuiApp(App[None]):
         self.mock = mock
         self.initial_ip = initial_ip
         self._kb_mode: bool = False
+        self._recording: list[str] | None = None
         self.client: EcpClient | MockEcpClient | None = None
         self.registry: CommandRegistry = CommandRegistry()
         self.app_cache: list[AppInfo] = []
@@ -420,6 +425,10 @@ class RokuTuiApp(App[None]):
         finally:
             dev_id = self._current_device_id()
             self.db.log_command(line, success=success, device_id=dev_id)
+            if success and self._recording is not None:
+                first = line.split()[0] if line.split() else ""
+                if first not in self._RECORDING_SKIP:
+                    self._recording.append(line)
         return success
 
     def _current_device_id(self) -> int | None:
@@ -594,6 +603,16 @@ class RokuTuiApp(App[None]):
                 help_text="Switch color theme",
             )
         )
+
+    def start_recording(self) -> None:
+        """Begin capturing successful commands into a macro recording buffer."""
+        self._recording = []
+
+    def stop_recording(self) -> list[str] | None:
+        """Stop recording and return captured commands, or None if not recording."""
+        lines = self._recording
+        self._recording = None
+        return lines
 
     def emit_message(self, text: str) -> None:
         """Display a system message in the console (external API)."""

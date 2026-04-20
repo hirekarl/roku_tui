@@ -11,7 +11,7 @@ TIPS: list[str] = [
     "Send text to the TV in one shot: [bold]type my search query[/bold]",
     "Deep link: [bold]link save alias app id[/bold] → [bold]launch alias[/bold]",
     "[bold]Ctrl+T[/bold] switches between the Console and the Remote tab.",
-    "Capture last 10 commands as a macro: [bold]macro save <name>[/bold]",
+    "[bold]macro record[/bold] → run commands → [bold]macro stop <name>[/bold]",
     "Open the full user manual with [bold]F2[/bold] or [bold]guide[/bold].",
     "Navigate command history with [bold]↑[/bold] and [bold]↓[/bold] in the console.",
     "Themes: [bold]nord[/bold]  [bold]catppuccin[/bold]  [bold]gruvbox[/bold]",
@@ -55,16 +55,23 @@ LONG_HELP: dict[str, str] = {
   [bold]macro list[/bold]
     Show all macros. Built-in macros are read-only.
 
+  [bold]macro record[/bold]
+    Start recording. Every successful command you run is captured until
+    you call [bold]macro stop[/bold]. Meta-commands (help, history, etc.) are excluded.
+
+  [bold]macro stop[/bold] [dim]<name> [description][/dim]
+    Stop recording and save the captured commands as a named macro.
+
+    [dim]Example:[/dim]  macro record
+                home
+                sleep 1
+                launch netflix
+                macro stop open-netflix Evening startup
+
   [bold]macro run[/bold] [dim]<name>[/dim]
     Run a macro by name. Each step is echoed to the console as it executes.
 
-    [dim]Example:[/dim]  macro run wake-up
-
-  [bold]macro save[/bold] [dim]<name> [description][/dim]
-    Capture the last 10 successful console commands as a new macro.
-    Meta-commands (help, history, stats, etc.) are excluded automatically.
-
-    [dim]Example:[/dim]  macro save morning-scroll Start the morning feed
+    [dim]Example:[/dim]  macro run open-netflix
 
   [bold]macro show[/bold] [dim]<name>[/dim]
     Preview the command sequence a macro will run.

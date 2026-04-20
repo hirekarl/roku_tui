@@ -10,7 +10,6 @@ from .registry import Command, CommandRegistry
 if TYPE_CHECKING:
     pass
 
-META_PREFIXES = ("macro ", "history", "stats", "devices", "help", "clear", "cls")
 _SLEEP_MAX = 30.0
 
 
@@ -67,32 +66,35 @@ async def _macro_run(client: Any, args: list[str], context: Any) -> str:
     return f"[dim]Macro[/dim] [bold]{name}[/bold] [dim]{done}.[/dim]"
 
 
-async def _macro_save(client: Any, args: list[str], context: Any) -> str:
-    """Save the last 10 successful commands as a new macro."""
+async def _macro_record(client: Any, args: list[str], context: Any) -> str:
+    """Start recording commands into a macro buffer."""
+    context.start_recording()
+    return (
+        "[dim]Recording started.[/dim] "
+        "Run your commands, then [bold]macro stop <name>[/bold] to save."
+    )
+
+
+async def _macro_stop(client: Any, args: list[str], context: Any) -> str:
+    """Stop recording and save the captured commands as a macro."""
     if not args:
-        return "[red]Usage:[/red] macro save <name> [description]"
+        return "[red]Usage:[/red] macro stop <name> [description]"
     name = args[0]
     description = " ".join(args[1:])
-
-    recent = context.db.recent_commands(limit=20)
-    lines = [
-        r["line"]
-        for r in reversed(recent)
-        if r["success"] and not any(r["line"].startswith(p) for p in META_PREFIXES)
-    ][:10]
-
+    lines = context.stop_recording()
+    if lines is None:
+        return (
+            "[yellow]No recording in progress.[/yellow] "
+            "Start one with [bold]macro record[/bold]."
+        )
     if not lines:
-        return "[yellow]No recent commands to save.[/yellow] Run some commands first."
-
+        return "[yellow]Nothing recorded.[/yellow] No commands were captured."
     try:
         context.db.save_macro(name, description, lines)
     except ValueError as e:
         return f"[red]Error:[/red] {e}"
-
     plural = "s" if len(lines) != 1 else ""
-    steps_preview = ", ".join(f"[italic]{ln}[/italic]" for ln in lines)
-    saved = f"saved ([dim]{len(lines)} step{plural}[/dim])"
-    return f"[bold]{name}[/bold] {saved}: {steps_preview}"
+    return f"[bold]{name}[/bold] saved ([dim]{len(lines)} step{plural}[/dim])."
 
 
 async def _macro_show(client: Any, args: list[str], context: Any) -> Table | str:
@@ -148,7 +150,8 @@ async def _macro_delete(client: Any, args: list[str], context: Any) -> str:
 _MACRO_SUBS = {
     "list": _macro_list,
     "run": _macro_run,
-    "save": _macro_save,
+    "record": _macro_record,
+    "stop": _macro_stop,
     "show": _macro_show,
     "delete": _macro_delete,
     "set": _macro_set,
@@ -162,8 +165,8 @@ async def handle_macro(client: Any, args: list[str], context: Any) -> Table | st
     if fn is None:
         return (
             "[red]Usage:[/red] macro "
-            "[bold]list[/bold] | [bold]run[/bold] <name> | "
-            "[bold]save[/bold] <name> | [bold]show[/bold] <name> | "
+            "[bold]list[/bold] | [bold]record[/bold] | [bold]stop[/bold] <name> | "
+            "[bold]run[/bold] <name> | [bold]show[/bold] <name> | "
             "[bold]delete[/bold] <name> | "
             "[bold]set[/bold] <name> abort on|off"
         )
@@ -283,10 +286,10 @@ def register_db_commands(registry: CommandRegistry) -> None:
         Command(
             name="macro",
             aliases=[],
-            args=["list", "run", "save", "show", "delete", "set"],
+            args=["list", "record", "stop", "run", "show", "delete", "set"],
             handler=handle_macro,
             help_text=(
-                "macro list | run <name> | save <name> [desc]"
+                "macro list | record | stop <name> [desc] | run <name>"
                 " | show <name> | delete <name> | set <name> abort on|off"
             ),
         )

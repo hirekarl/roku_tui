@@ -28,8 +28,8 @@ _LEFT = """\
  [bold #73daca]kb[/bold #73daca]
  [dim]→ live keyboard mode · ESC to exit[/dim]
 
- [bold #73daca]macro save name[/bold #73daca]
- [dim]→ capture last 10 commands[/dim]
+ [bold #73daca]macro record[/bold #73daca] [dim]/ [bold]macro stop name[/bold][/dim]
+ [dim]→ record then save a macro[/dim]
 
  [bold #73daca]link save alias netflix id[/bold #73daca]
  [dim]→ create a deep link shortcut[/dim]
