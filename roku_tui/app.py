@@ -158,7 +158,7 @@ class RokuTuiApp(App[None]):
             "cls",
             "guide",
             "theme",
-        }  # noqa: E501
+        }
     )
 
     _REMOTE_HOTKEYS: ClassVar[dict[str, str]] = {
