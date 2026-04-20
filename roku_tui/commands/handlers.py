@@ -244,9 +244,7 @@ async def handle_help(client: Any, args: list[str], context: Any) -> Table | str
             return LONG_HELP[cmd_name]
         cmd = context.registry.lookup(cmd_name)
         if cmd:
-            aliases = (
-                f"  [dim][{', '.join(cmd.aliases)}][/dim]" if cmd.aliases else ""
-            )
+            aliases = f"  [dim][{', '.join(cmd.aliases)}][/dim]" if cmd.aliases else ""
             return (
                 f"[bold #7aa2f7]{cmd.name}[/bold #7aa2f7]{aliases}\n\n"
                 f"  {cmd.help_text}\n\n"

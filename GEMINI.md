@@ -28,7 +28,7 @@ uv run pytest
 
 ### Layout
 
-- **Left panel (Fluid)** — `TabbedContent` with `ReplPanel` and `RemotePanel`. Uses `width: 1fr`.
+- **Left panel (Fluid)** — `TabbedContent` with `ConsolePanel` and `RemotePanel`. Uses `width: 1fr`.
 - **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses fixed width for data visibility.
 - **Top** — `StatusBar`: connected device info.
 - **F1** — `HelpScreen` modal.
@@ -36,13 +36,13 @@ uv run pytest
 ### Command Flow
 
 ```
-User input → ReplPanel → CommandSubmitted message
+User input → ConsolePanel → CommandSubmitted message
   → RokuTuiApp._dispatch()
   → CommandRegistry.parse()         # lookup by name or alias
   → handler (async)                 # in handlers.py or db_commands.py
   → EcpClient / MockEcpClient       # HTTP to Roku port 8060
   → NetworkEvent callback           # routed to NetworkPanel + DB
-  → output rendered in ReplPanel
+  → output rendered in ConsolePanel
 ```
 
 ### Key Modules
@@ -58,7 +58,7 @@ User input → ReplPanel → CommandSubmitted message
 | `service.py` | `YouTubeClient` using InnerTube for search. |
 | `db/database.py` | SQLite API wrapper with SQLAlchemy Core. |
 | `db/schema.py` | Tables: devices, commands, requests, macros, links. |
-| `widgets/` | `ReplPanel`, `NetworkPanel`, `RemotePanel`, `StatusBar`. |
+| `widgets/` | `ConsolePanel`, `NetworkPanel`, `RemotePanel`, `StatusBar`. |
 
 ### Engineering Standards
 

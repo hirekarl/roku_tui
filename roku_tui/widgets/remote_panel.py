@@ -60,31 +60,31 @@ class RemotePanel(Widget):
 
     def compose(self) -> ComposeResult:
         with VerticalScroll(id="remote-scroll"), Vertical(id="remote-content"):
-                with Vertical(id="remote-body"):
+            with Vertical(id="remote-body"):
+                with Horizontal(classes="remote-row"):
+                    yield Button("⏻  Power", id="btn-power", classes="btn-power")
+                with Horizontal(classes="remote-row"):
+                    yield Button("↩  Back", id="btn-back", classes="btn-nav")
+                    yield Button("⌂  Home", id="btn-home", classes="btn-nav")
+                with Vertical(classes="dpad"):
                     with Horizontal(classes="remote-row"):
-                        yield Button("⏻  Power", id="btn-power", classes="btn-power")
+                        yield Button("▲", id="btn-up", classes="btn-dpad")
                     with Horizontal(classes="remote-row"):
-                        yield Button("↩  Back", id="btn-back", classes="btn-nav")
-                        yield Button("⌂  Home", id="btn-home", classes="btn-nav")
-                    with Vertical(classes="dpad"):
-                        with Horizontal(classes="remote-row"):
-                            yield Button("▲", id="btn-up", classes="btn-dpad")
-                        with Horizontal(classes="remote-row"):
-                            yield Button("◄", id="btn-left", classes="btn-dpad")
-                            yield Button("OK", id="btn-select", classes="btn-ok")
-                            yield Button("►", id="btn-right", classes="btn-dpad")
-                        with Horizontal(classes="remote-row"):
-                            yield Button("▼", id="btn-down", classes="btn-dpad")
+                        yield Button("◄", id="btn-left", classes="btn-dpad")
+                        yield Button("OK", id="btn-select", classes="btn-ok")
+                        yield Button("►", id="btn-right", classes="btn-dpad")
                     with Horizontal(classes="remote-row"):
-                        yield Button("◀◀", id="btn-rev", classes="btn-media")
-                        yield Button("▶  ⏸", id="btn-play", classes="btn-media")
-                        yield Button("▶▶", id="btn-fwd", classes="btn-media")
-                    with Horizontal(classes="remote-row"):
-                        yield Button("- Vol", id="btn-vol-down", classes="btn-volume")
-                        yield Button("⊗ Mute", id="btn-mute", classes="btn-volume")
-                        yield Button("+ Vol", id="btn-vol-up", classes="btn-volume")
-                with Horizontal(id="remote-legend-row"):
-                    yield Static(_LEGEND, id="remote-legend", markup=True)
+                        yield Button("▼", id="btn-down", classes="btn-dpad")
+                with Horizontal(classes="remote-row"):
+                    yield Button("◀◀", id="btn-rev", classes="btn-media")
+                    yield Button("▶  ⏸", id="btn-play", classes="btn-media")
+                    yield Button("▶▶", id="btn-fwd", classes="btn-media")
+                with Horizontal(classes="remote-row"):
+                    yield Button("- Vol", id="btn-vol-down", classes="btn-volume")
+                    yield Button("⊗ Mute", id="btn-mute", classes="btn-volume")
+                    yield Button("+ Vol", id="btn-vol-up", classes="btn-volume")
+            with Horizontal(id="remote-legend-row"):
+                yield Static(_LEGEND, id="remote-legend", markup=True)
 
     def flash_button(self, btn_id: str) -> None:
         try:

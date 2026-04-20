@@ -78,7 +78,9 @@ class HelpScreen(ModalScreen[None]):
                 yield Static(_LEFT, classes="help-col", markup=True)
                 yield Static(_RIGHT, classes="help-col", markup=True)
             with Horizontal(id="help-foot"):
-                yield Static("[dim]ESC or F1 to close[/dim]", id="help-foot-text", markup=True)
+                yield Static(
+                    "[dim]ESC or F1 to close[/dim]", id="help-foot-text", markup=True
+                )
                 yield Button("✕ Close", id="help-close", classes="modal-close")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

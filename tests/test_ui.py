@@ -298,13 +298,13 @@ async def test_remote_hotkeys_blocked_when_modal_open_over_remote_tab(app):
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await pilot.press("ctrl+t")   # switch to Remote
+        await pilot.press("ctrl+t")  # switch to Remote
         await pilot.pause()
-        await pilot.press("f2")       # open guide modal
+        await pilot.press("f2")  # open guide modal
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
-        await pilot.press("h")        # would be Home on Remote tab without modal
-        await pilot.press("up")       # would be Up
+        await pilot.press("h")  # would be Home on Remote tab without modal
+        await pilot.press("up")  # would be Up
         await pilot.pause()
         assert keypresses == []
 

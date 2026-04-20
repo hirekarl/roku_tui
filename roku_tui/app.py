@@ -148,7 +148,17 @@ class RokuTuiApp(App[None]):
     }
 
     _RECORDING_SKIP: ClassVar[frozenset[str]] = frozenset(
-        {"macro", "history", "stats", "devices", "help", "clear", "cls", "guide", "theme"}  # noqa: E501
+        {
+            "macro",
+            "history",
+            "stats",
+            "devices",
+            "help",
+            "clear",
+            "cls",
+            "guide",
+            "theme",
+        }  # noqa: E501
     )
 
     _REMOTE_HOTKEYS: ClassVar[dict[str, str]] = {
@@ -225,12 +235,12 @@ class RokuTuiApp(App[None]):
     @work(thread=True)
     def _start_discovery(self) -> None:
         """Try last-known devices first, then fall back to SSDP discovery."""
-        repl = self.query_one("#console-panel", ConsolePanel)
+        console = self.query_one("#console-panel", ConsolePanel)
 
         known_ips = self.db.known_device_ips()
         if known_ips:
             self.call_from_thread(
-                repl.system_message,
+                console.system_message,
                 "[dim]Trying last-known Roku devices...[/dim]",
             )
             for ip in known_ips:
@@ -239,20 +249,20 @@ class RokuTuiApp(App[None]):
                     return
 
         self.call_from_thread(
-            repl.system_message,
+            console.system_message,
             "[dim]Searching for Roku devices on your network...[/dim]",
         )
         urls = discover_rokus(timeout=3.0)
         if urls:
             url = urls[0]
             self.call_from_thread(
-                repl.system_message,
+                console.system_message,
                 f"[dim]Found Roku at[/dim] [bold]{url}[/bold]",
             )
             self.call_from_thread(self._connect, url)
         else:
             self.call_from_thread(
-                repl.system_message,
+                console.system_message,
                 "[yellow]No Roku found.[/yellow] "
                 "Use [bold]connect <ip>[/bold] to connect manually.",
             )
@@ -369,7 +379,7 @@ class RokuTuiApp(App[None]):
 
     async def _dispatch(self, line: str) -> bool:
         """Parse and route a command string to its appropriate handler."""
-        repl = self.query_one("#console-panel", ConsolePanel)
+        console = self.query_one("#console-panel", ConsolePanel)
         success = False
 
         no_client = {
@@ -391,7 +401,7 @@ class RokuTuiApp(App[None]):
             "guide",
         }
         if self.client is None and line.split()[0] not in no_client:
-            repl.error(
+            console.error(
                 "[yellow]Not connected.[/yellow] "
                 "Use [bold]connect <ip>[/bold] or run with [bold]--mock[/bold]."
             )
@@ -409,7 +419,7 @@ class RokuTuiApp(App[None]):
                 if suggestions
                 else " — try [bold]help[/bold]"
             )
-            repl.error(f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold]{hint}")
+            console.error(f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold]{hint}")
             dev_id = self._current_device_id()
             self.db.log_command(line, success=False, device_id=dev_id)
             return False
@@ -418,10 +428,10 @@ class RokuTuiApp(App[None]):
         try:
             output = await cmd.handler(self.client, args, context=self)
             if output:
-                repl.output(output)
+                console.output(output)
             success = True
         except Exception as e:
-            repl.error(f"[red]Error:[/red] {e}")
+            console.error(f"[red]Error:[/red] {e}")
         finally:
             dev_id = self._current_device_id()
             self.db.log_command(line, success=success, device_id=dev_id)
