@@ -26,6 +26,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - **Feedback:** Real-time HTTP logging in `NetworkPanel`; single-line "floated" layout.
 
 ## New Features
+- **Network Inspector:** Interactive `DataTable` with real-time filtering (`/` hotkey) and detailed modal inspection of headers/payloads (with JSON/XML pretty-printing).
 - **Deep Links:** Support for launching specific content via `link` and `yt` commands.
 - **YouTube:** Direct YouTube search and launch without API keys using InnerTube.
 - **Macros:** Capture and replay sequences including deep link content.

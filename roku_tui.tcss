@@ -198,6 +198,19 @@ TabPane {
     padding: 0 1;
 }
 
+#network-filter {
+    height: 1;
+    background: $bg-dark;
+    color: $foreground;
+    border: none;
+    padding: 0 1;
+    margin: 0;
+}
+
+#network-filter:focus {
+    background: $bg-highlight;
+}
+
 #network-log {
     height: 1fr;
     background: $panel;
@@ -205,6 +218,16 @@ TabPane {
     scrollbar-color: $muted-border;
     scrollbar-background: $panel;
     scrollbar-size: 1 1;
+    border: none;
+}
+
+#network-log > .datatable--header {
+    display: none;
+}
+
+#network-log > .datatable--cursor {
+    background: $bg-highlight;
+    color: $foreground;
 }
 
 /* ── Remote Panel ────────────────────────────────────────────────────────── */
@@ -380,46 +403,69 @@ GuideScreen {
     width: 1fr;
 }
 
-/* ── Help Modal ──────────────────────────────────────────────────────────── */
+/* ── Network Inspector ───────────────────────────────────────────────────── */
 
-HelpScreen {
+NetworkInspector {
     align: center middle;
 }
 
-#help-body {
-    width: 78;
+#inspector-body {
+    width: 90;
     height: 90%;
     background: $panel;
     border: tall $muted-border;
 }
 
-#help-title {
-    padding: 1 2 0 2;
-    color: $foreground;
-    text-align: center;
-}
-
-#help-cols {
-    height: 1fr;
+#inspector-title {
+    height: 1;
+    background: $bg-dark;
+    color: $primary;
+    text-style: bold;
     padding: 0 2;
 }
 
-.help-col {
-    width: 1fr;
+#inspector-header {
     height: auto;
     padding: 1 2;
-    color: $foreground;
+    background: $bg-dark;
+    border-bottom: solid $muted-border;
 }
 
-#help-foot {
+#inspector-content {
+    height: 1fr;
+    layout: vertical;
+}
+
+.inspector-section-title {
+    padding: 1 2 0 2;
+    color: $secondary;
+    text-style: bold;
+}
+
+.inspector-text {
+    padding: 0 2 1 2;
+    height: auto;
+}
+
+#inspector-payload-container {
+    height: 1fr;
+    border-top: solid $muted-border;
+}
+
+#inspector-payload {
+    height: 1fr;
+    background: $bg-dark;
+    margin: 1 2;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $bg-dark;
+    scrollbar-size: 1 1;
+}
+
+#inspector-foot {
     height: 3;
-    padding: 0 2;
+    background: $bg-dark;
     color: $comment;
-    border-top: solid $bg-highlight;
+    padding: 0 2;
+    border-top: solid $muted-border;
     align: left middle;
-}
-
-#help-foot-text {
-    width: 1fr;
-    content-align: left middle;
 }

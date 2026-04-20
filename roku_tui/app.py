@@ -28,6 +28,7 @@ from .ecp.models import AppInfo, NetworkEvent
 from .widgets.console_panel import ConsolePanel
 from .widgets.guide_screen import GuideScreen
 from .widgets.help_screen import HelpScreen
+from .widgets.network_inspector import NetworkInspector
 from .widgets.network_panel import NetworkPanel
 from .widgets.remote_panel import HOTKEY_TO_BUTTON, REMOTE_HOTKEY_TO_BTN, RemotePanel
 from .widgets.status_bar import StatusBar
@@ -135,6 +136,7 @@ class RokuTuiApp(App[None]):
         Binding("ctrl+l", "clear_console", "Clear"),
         Binding("f1", "show_guide", "Quick ref", key_display="F1"),
         Binding("f2", "show_manual", "Guide", key_display="F2"),
+        Binding("/", "focus_network_filter", "Filter", show=False),
     ]
 
     _HOTKEYS: ClassVar[dict[str, str]] = {
@@ -356,6 +358,16 @@ class RokuTuiApp(App[None]):
         device_id = self._current_device_id()
         with contextlib.suppress(Exception):
             self.db.log_network_request(msg.event, device_id)
+
+    def on_network_panel_event_selected(self, msg: NetworkPanel.EventSelected) -> None:
+        """Show the inspection modal when a network event is selected."""
+        self.push_screen(NetworkInspector(msg.event))
+
+    def action_focus_network_filter(self) -> None:
+        """Focus the network filter input if the panel is visible."""
+        panel = self.query_one("#network-panel", NetworkPanel)
+        if not panel.has_class("hidden"):
+            panel.query_one("#network-filter", Input).focus()
 
     async def on_console_panel_command_submitted(
         self, msg: ConsolePanel.CommandSubmitted
