@@ -16,14 +16,12 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - **Style:** Google-style docstrings, PEP-8 compliance, strict type hints (`mypy --strict`).
 - **Imports:** `from __future__ import annotations`, sorted with Ruff (`I001`).
 - **Database:** SQLAlchemy Core (no ORM) for SQLite persistence in `roku_tui.db`.
-- **Concurrency:** Use `asyncio.to_thread` for blocking DB calls; use Textual `@work` for async tasks.
-- **Messaging:** Textual message passing for internal event routing (commands → dispatcher → handler).
-- **Layout:** Fluid left panel (`1fr`), fixed-width right network panel (`44` chars).
+- **UI/UX:** True-black workspace for Console and Remote tabs; visual "pulse" feedback on remote buttons; interactive Network Inspector with real-time filtering.
 
 ## UI/UX
 - **Theme:** Tokyo Night palette (custom Textual `Theme`), switchable via `theme` command.
-- **Interactivity:** Tab completion for commands and fuzzy app names; command history (↑↓).
-- **Feedback:** Real-time HTTP logging in `NetworkPanel`; single-line "floated" layout.
+- **Interactivity:** Tab completion for commands and fuzzy app names; command history (↑↓); visual remote feedback for keyboard/console input.
+- **Feedback:** Real-time HTTP logging in `NetworkPanel` with selectable rows for detailed inspection.
 
 ## New Features
 - **Network Inspector:** Interactive `DataTable` with real-time filtering (`/` hotkey) and detailed modal inspection of headers/payloads (with JSON/XML pretty-printing).

@@ -30,7 +30,12 @@ from .widgets.guide_screen import GuideScreen
 from .widgets.help_screen import HelpScreen
 from .widgets.network_inspector import NetworkInspector
 from .widgets.network_panel import NetworkPanel
-from .widgets.remote_panel import HOTKEY_TO_BUTTON, REMOTE_HOTKEY_TO_BTN, RemotePanel
+from .widgets.remote_panel import (
+    CMD_TO_ECP,
+    HOTKEY_TO_BUTTON,
+    REMOTE_HOTKEY_TO_BTN,
+    RemotePanel,
+)
 from .widgets.status_bar import StatusBar
 
 TOKYO_NIGHT = Theme(
@@ -442,6 +447,21 @@ class RokuTuiApp(App[None]):
             if output:
                 console.output(output)
             success = True
+
+            # Visual feedback on the remote
+            if success:
+                ecp_key = CMD_TO_ECP.get(cmd.name)
+                if ecp_key:
+                    # Special case for volume directions
+                    if cmd.name == "volume" and args:
+                        if args[0] == "up":
+                            ecp_key = "VolumeUp"
+                        elif args[0] == "down":
+                            ecp_key = "VolumeDown"
+                        elif args[0] == "mute":
+                            ecp_key = "VolumeMute"
+
+                    self.query_one("#remote-panel", RemotePanel).flash_by_key(ecp_key)
         except Exception as e:
             console.error(f"[red]Error:[/red] {e}")
         finally:
@@ -480,6 +500,7 @@ class RokuTuiApp(App[None]):
 
     async def on_key(self, event: Key) -> None:
         """Route keys to the TV in keyboard mode; otherwise handle hotkeys."""
+        remote = self.query_one("#remote-panel", RemotePanel)
         if self._kb_mode:
             char = event.character
             key = event.key
@@ -489,10 +510,12 @@ class RokuTuiApp(App[None]):
             elif key in ("enter", "return"):
                 event.stop()
                 if self.client:
+                    remote.flash_by_key("Select")
                     await self.client.keypress("Select")
             elif key == "backspace":
                 event.stop()
                 if self.client:
+                    remote.flash_by_key("Back")
                     await self.client.keypress("Backspace")
             elif char and char.isprintable():
                 event.stop()
@@ -506,14 +529,11 @@ class RokuTuiApp(App[None]):
             return
         if len(self.screen_stack) > 1:
             return
+
         ecp_key = self._HOTKEYS.get(event.key)
         if ecp_key and self.client:
             event.prevent_default()
-            tabs = self.query_one("#main-tabs", TabbedContent)
-            if tabs.active == "tab-remote":
-                btn_id = HOTKEY_TO_BUTTON.get(event.key)
-                if btn_id:
-                    self.query_one("#remote-panel", RemotePanel).flash_button(btn_id)
+            remote.flash_by_key(ecp_key)
             await self.client.keypress(ecp_key)
             return
 
@@ -527,9 +547,7 @@ class RokuTuiApp(App[None]):
             remote_ecp = self._REMOTE_HOTKEYS.get(char)
             if remote_ecp:
                 event.prevent_default()
-                btn_id = REMOTE_HOTKEY_TO_BTN.get(char)
-                if btn_id:
-                    self.query_one("#remote-panel", RemotePanel).flash_button(btn_id)
+                remote.flash_by_key(remote_ecp)
                 await self.client.keypress(remote_ecp)
 
     def action_show_guide(self) -> None:

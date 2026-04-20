@@ -74,4 +74,4 @@ User input → ConsolePanel → CommandSubmitted message
 
 ### Styling
 
-Custom themes (Tokyo Night, Nord, etc.) defined in `app.py` and applied via `roku_tui.tcss`. Tabbed content uses custom active-state indicators.
+The application uses a high-contrast true-black background (`black`) for the primary workspace (Console and Remote) to improve readability and focus. Custom themes (Tokyo Night, Nord, etc.) define the accent and panel colors. The Remote Panel uses a 3-column `Grid` layout with hybrid volume control placement.
