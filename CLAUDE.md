@@ -8,7 +8,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - Connect by IP: `uv run roku-tui --ip <IP>`
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
-- Type Check: `uv run mypy roku_tui/`
+- Type Check: `uv run mypy .`
 - Test: `uv run pytest`
 - Single Test: `uv run pytest tests/test_handlers.py::test_launch_fuzzy_match`
 

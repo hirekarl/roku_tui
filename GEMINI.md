@@ -16,7 +16,7 @@ uv run ruff check . --fix
 uv run ruff format .
 
 # Type check
-uv run mypy roku_tui/
+uv run mypy .
 
 # Tests
 uv run pytest
