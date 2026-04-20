@@ -112,6 +112,10 @@ class Database:
             rows = select_all_devices(conn)
         return [dict(r._mapping) for r in rows]
 
+    def known_device_ips(self) -> list[str]:
+        """Return known device IPs ordered by most recently connected."""
+        return [d["ip"] for d in self.list_devices()]
+
     def sync_device_apps(self, apps: list[AppInfo], device_id: int) -> None:
         """Update the list of apps associated with a device."""
         with self._engine.connect() as conn:

@@ -10,12 +10,14 @@ from textual.message import Message
 from textual.widget import Widget
 from textual.widgets import Input, RichLog
 
+from ..commands.tips import random_tip
+
 if TYPE_CHECKING:
     from ..commands.suggester import RokuSuggester
 
 
-class ReplPanel(Widget):
-    """The command REPL panel for manual interaction and output."""
+class ConsolePanel(Widget):
+    """The command console panel for manual interaction and output."""
 
     class CommandSubmitted(Message):
         """Sent when the user submits a command string."""
@@ -25,7 +27,7 @@ class ReplPanel(Widget):
             self.line = line
 
     def __init__(self, suggester: RokuSuggester, **kwargs: Any) -> None:
-        """Initialize the ReplPanel.
+        """Initialize the ConsolePanel.
 
         Args:
             suggester: The command and app name suggester.
@@ -35,9 +37,9 @@ class ReplPanel(Widget):
         self.suggester = suggester
 
     def compose(self) -> ComposeResult:
-        """Compose the REPL layout."""
-        with Vertical(id="repl-panel"):
-            yield RichLog(id="history-scroll", auto_scroll=True, markup=True)
+        """Compose the console layout."""
+        with Vertical(id="console-panel"):
+            yield RichLog(id="history-scroll", auto_scroll=True, markup=True, wrap=True)
             yield Input(
                 placeholder="Type a command...  (Tab to complete, ↑↓ for history)",
                 id="command-input",
@@ -48,11 +50,12 @@ class ReplPanel(Widget):
         """Focus the input and show the banner on mount."""
         self.query_one(Input).focus()
         self._show_banner()
+        self._append(f"[dim]Tip:[/dim] {random_tip()}", "cmd-system")
 
     def _show_banner(self) -> None:
-        """Display the welcome banner in the REPL."""
+        """Display the welcome banner in the console."""
         title = "[bold #7aa2f7]roku-tui[/bold #7aa2f7]"
-        sub = "[dim]Roku Remote · REPL Edition[/dim]"
+        sub = "[dim]Roku Remote · Console[/dim]"
         banner = (
             f"{title}  {sub}\n\n"
             "Press [bold]F1[/bold] for the guide · "
@@ -73,12 +76,28 @@ class ReplPanel(Widget):
         self.post_message(self.CommandSubmitted(line))
 
     def on_key(self, event: Any) -> None:
-        """Handle key events in the REPL panel."""
+        """Handle key events in the console panel."""
         if event.key == "enter":
-            # If the input is not focused, refocus it when Enter is pressed
             inp = self.query_one(Input)
             if not inp.has_focus:
                 inp.focus()
+
+    def enter_keyboard_mode(self) -> None:
+        """Switch the input into keyboard passthrough mode."""
+        inp = self.query_one(Input)
+        inp.add_class("keyboard-mode")
+        self._append(
+            "[bold]⌨  KEYBOARD MODE[/bold]  "
+            "[dim]Every key is sent to the TV · ESC to exit[/dim]",
+            "cmd-system",
+        )
+
+    def exit_keyboard_mode(self) -> None:
+        """Restore normal console input mode."""
+        inp = self.query_one(Input)
+        inp.remove_class("keyboard-mode")
+        self._append("[dim]Keyboard mode off.[/dim]", "cmd-system")
+        inp.focus()
 
     def clear_history(self) -> None:
         """Clear the command output history."""
@@ -86,7 +105,7 @@ class ReplPanel(Widget):
         self._show_banner()
 
     def output(self, content: Any) -> None:
-        """Display command output in the REPL history.
+        """Display command output in the console history.
 
         Args:
             content: The content to display (str, Text, or Table).
@@ -95,7 +114,7 @@ class ReplPanel(Widget):
             self._append(content, "cmd-output")
 
     def error(self, text: str) -> None:
-        """Display an error message in the REPL.
+        """Display an error message in the console.
 
         Args:
             text: The error text to display.
@@ -103,7 +122,7 @@ class ReplPanel(Widget):
         self._append(text, "cmd-error")
 
     def system_message(self, text: str) -> None:
-        """Display a system message in the REPL.
+        """Display a system message in the console.
 
         Args:
             text: The system message text to display.

@@ -13,6 +13,15 @@ MSEARCH = (
 )
 
 
+def probe_roku(ip: str, timeout: float = 1.5) -> bool:
+    """Return True if port 8060 is reachable on the given IP. Blocking."""
+    try:
+        with socket.create_connection((ip, 8060), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def discover_rokus(timeout: float = 3.0) -> list[str]:
     """Return Roku base URLs found via SSDP. Blocking — run in a thread worker."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

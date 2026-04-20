@@ -3,12 +3,14 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import difflib
+import urllib.parse
 from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
 
 from ..service import YouTubeClient
 from .registry import Command, CommandRegistry
+from .tips import LONG_HELP
 
 if TYPE_CHECKING:
     from ..ecp.models import AppInfo
@@ -67,7 +69,8 @@ _HELP_SECTIONS: list[tuple[str, list[str]]] = [
     ("Apps & Deep Links", ["launch", "apps", "active", "link", "yt"]),
     ("Device", ["info", "connect", "devices"]),
     ("Macros & History", ["macro", "history", "stats", "sleep"]),
-    ("Session", ["help", "clear"]),
+    ("Text Input", ["type", "kb"]),
+    ("Session", ["guide", "help", "clear"]),
 ]
 
 VOLUME_MAP: dict[str, str] = {
@@ -233,8 +236,27 @@ async def handle_connect(client: Any, args: list[str], context: Any) -> str:
     return f"[dim]Connecting to[/dim] [bold]{args[0]}[/bold]..."
 
 
-async def handle_help(client: Any, args: list[str], context: Any) -> Table:
-    """Display the inline command help list."""
+async def handle_help(client: Any, args: list[str], context: Any) -> Table | str:
+    """Display command help; with an argument, show detailed per-command docs."""
+    if args:
+        cmd_name = args[0].lower()
+        if cmd_name in LONG_HELP:
+            return LONG_HELP[cmd_name]
+        cmd = context.registry.lookup(cmd_name)
+        if cmd:
+            aliases = (
+                f"  [dim][{', '.join(cmd.aliases)}][/dim]" if cmd.aliases else ""
+            )
+            return (
+                f"[bold #7aa2f7]{cmd.name}[/bold #7aa2f7]{aliases}\n\n"
+                f"  {cmd.help_text}\n\n"
+                "[dim]No extended help available for this command.[/dim]"
+            )
+        return (
+            f"[yellow]Unknown command:[/yellow] '{cmd_name}'. "
+            "Try [bold]help[/bold] for all commands."
+        )
+
     table = Table(box=None, show_header=False, padding=(0, 1, 0, 0))
     table.add_column(width=26)
     table.add_column(style="dim")
@@ -378,6 +400,23 @@ async def handle_youtube(client: Any, args: list[str], context: Any) -> Table | 
     return f"[red]Unknown yt command:[/red] {sub}"
 
 
+async def handle_type(client: Any, args: list[str], context: Any) -> str:
+    """Send a string to the Roku as individual Lit_ keypresses."""
+    if not args:
+        return "[red]Usage:[/red] type <text>"
+    text = " ".join(args)
+    if client:
+        for char in text:
+            await client.keypress(f"Lit_{urllib.parse.quote(char, safe='')}")
+    return f"[dim]↵[/dim] Typed: [bold]{text}[/bold]"
+
+
+async def handle_kb(client: Any, args: list[str], context: Any) -> str:
+    """Toggle keyboard passthrough mode."""
+    context.toggle_keyboard_mode()
+    return ""
+
+
 _LETTER_ALIASES: dict[str, str] = {
     "up": "u",
     "down": "d",
@@ -391,7 +430,7 @@ _LETTER_ALIASES: dict[str, str] = {
 
 
 def register_all(registry: CommandRegistry) -> None:
-    """Register all available REPL commands into the registry."""
+    """Register all available console commands into the registry."""
     nav_keys = [
         "home",
         "back",
@@ -514,6 +553,26 @@ def register_all(registry: CommandRegistry) -> None:
             args=[],
             handler=handle_help,
             help_text="Show command list  (or press ? for the full guide)",
+        )
+    )
+
+    registry.register(
+        Command(
+            name="type",
+            aliases=[],
+            args=[],
+            handler=handle_type,
+            help_text="type <text> — send text to the TV as keypresses",
+            dynamic_args=True,
+        )
+    )
+    registry.register(
+        Command(
+            name="kb",
+            aliases=["keyboard"],
+            args=[],
+            handler=handle_kb,
+            help_text="Toggle keyboard passthrough mode  (ESC to exit)",
         )
     )
 

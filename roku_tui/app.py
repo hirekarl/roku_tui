@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import difflib
+import urllib.parse
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -10,9 +11,10 @@ from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
+from textual.events import Key
 from textual.message import Message
 from textual.theme import Theme
-from textual.widgets import Footer, Header, Input, TabbedContent, TabPane
+from textual.widgets import Button, Footer, Header, Input, TabbedContent, TabPane
 
 from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
@@ -20,13 +22,14 @@ from .commands.registry import Command, CommandRegistry
 from .commands.suggester import RokuSuggester
 from .db import Database
 from .ecp.client import EcpClient
-from .ecp.discovery import discover_rokus
+from .ecp.discovery import discover_rokus, probe_roku
 from .ecp.mock import MockEcpClient
 from .ecp.models import AppInfo, NetworkEvent
+from .widgets.console_panel import ConsolePanel
+from .widgets.guide_screen import GuideScreen
 from .widgets.help_screen import HelpScreen
 from .widgets.network_panel import NetworkPanel
-from .widgets.remote_panel import HOTKEY_TO_BUTTON, RemotePanel
-from .widgets.repl_panel import ReplPanel
+from .widgets.remote_panel import HOTKEY_TO_BUTTON, REMOTE_HOTKEY_TO_BTN, RemotePanel
 from .widgets.status_bar import StatusBar
 
 TOKYO_NIGHT = Theme(
@@ -127,10 +130,11 @@ class RokuTuiApp(App[None]):
     TITLE = "roku-tui"
     BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         Binding("ctrl+q", "quit", "Quit"),
-        Binding("ctrl+t", "toggle_tab", "Mode"),
+        Binding("ctrl+t", "toggle_tab", "Console/Remote"),
         Binding("ctrl+n", "toggle_network", "Network"),
-        Binding("ctrl+l", "clear_repl", "Clear"),
-        Binding("f1", "show_guide", "Guide", key_display="F1"),
+        Binding("ctrl+l", "clear_console", "Clear"),
+        Binding("f1", "show_guide", "Quick ref", key_display="F1"),
+        Binding("f2", "show_manual", "Guide", key_display="F2"),
     ]
 
     _HOTKEYS: ClassVar[dict[str, str]] = {
@@ -141,6 +145,15 @@ class RokuTuiApp(App[None]):
         "enter": "Select",
         "space": "Play",
         "backspace": "Back",
+    }
+
+    _REMOTE_HOTKEYS: ClassVar[dict[str, str]] = {
+        "h": "Home",
+        "m": "VolumeMute",
+        ",": "Rev",
+        ".": "Fwd",
+        "=": "VolumeUp",
+        "-": "VolumeDown",
     }
 
     class NetworkEventReceived(Message):
@@ -160,6 +173,7 @@ class RokuTuiApp(App[None]):
         super().__init__()
         self.mock = mock
         self.initial_ip = initial_ip
+        self._kb_mode: bool = False
         self.client: EcpClient | MockEcpClient | None = None
         self.registry: CommandRegistry = CommandRegistry()
         self.app_cache: list[AppInfo] = []
@@ -181,9 +195,9 @@ class RokuTuiApp(App[None]):
         yield Header()
         yield StatusBar(id="status-bar")
         with Horizontal(id="main-area"):
-            with TabbedContent(id="main-tabs", initial="tab-repl"):
-                with TabPane("REPL", id="tab-repl"):
-                    yield ReplPanel(suggester=self.suggester, id="repl-panel")
+            with TabbedContent(id="main-tabs", initial="tab-console"):
+                with TabPane("Console", id="tab-console"):
+                    yield ConsolePanel(suggester=self.suggester, id="console-panel")
                 with TabPane("Remote", id="tab-remote"):
                     yield RemotePanel(id="remote-panel")
             yield NetworkPanel(id="network-panel")
@@ -205,8 +219,20 @@ class RokuTuiApp(App[None]):
 
     @work(thread=True)
     def _start_discovery(self) -> None:
-        """Start SSDP discovery for Roku devices in a background thread."""
-        repl = self.query_one("#repl-panel", ReplPanel)
+        """Try last-known devices first, then fall back to SSDP discovery."""
+        repl = self.query_one("#console-panel", ConsolePanel)
+
+        known_ips = self.db.known_device_ips()
+        if known_ips:
+            self.call_from_thread(
+                repl.system_message,
+                "[dim]Trying last-known Roku devices...[/dim]",
+            )
+            for ip in known_ips:
+                if probe_roku(ip):
+                    self.call_from_thread(self._connect, f"http://{ip}:8060")
+                    return
+
         self.call_from_thread(
             repl.system_message,
             "[dim]Searching for Roku devices on your network...[/dim]",
@@ -233,7 +259,7 @@ class RokuTuiApp(App[None]):
         self.query_one("#status-bar", StatusBar).set_connected(
             "My Roku TV (Mock)", mock=True
         )
-        self.query_one("#repl-panel", ReplPanel).system_message(
+        self.query_one("#console-panel", ConsolePanel).system_message(
             "[dim]Running in [bold]mock mode[/bold] — "
             "HTTP requests are simulated.[/dim]"
         )
@@ -265,15 +291,16 @@ class RokuTuiApp(App[None]):
     @work
     async def _prefetch_info(self) -> None:
         """Prefetch device info and app list to warm the suggester cache."""
-        if not self.client or not self._current_ip:
+        client = self.client
+        if not client or not self._current_ip:
             return
         try:
-            info = await self.client.query_device_info()
+            info = await client.query_device_info()
             if info:
                 self.query_one("#status-bar", StatusBar).set_connected(
                     info.friendly_name
                 )
-                self.query_one("#repl-panel", ReplPanel).system_message(
+                self.query_one("#console-panel", ConsolePanel).system_message(
                     f"[dim]Connected to[/dim] [bold]{info.friendly_name}[/bold]"
                 )
                 device_id = await asyncio.to_thread(
@@ -288,7 +315,7 @@ class RokuTuiApp(App[None]):
                     names = [a["app_name"] for a in cached]
                     self.suggester.update_app_names(names)
 
-            apps = await self.client.query_apps()
+            apps = await client.query_apps()
             self.app_cache = apps
             if info and device_id:
                 await asyncio.to_thread(self.db.sync_device_apps, apps, device_id)
@@ -297,9 +324,10 @@ class RokuTuiApp(App[None]):
             self.suggester.update_launch_frequencies(freq)
             self.suggester.update_app_names([a.name for a in apps])
         except Exception:
-            self.query_one("#repl-panel", ReplPanel).system_message(
-                "[red]Connection failed.[/red] Check the IP and try again."
-            )
+            with contextlib.suppress(Exception):
+                self.query_one("#console-panel", ConsolePanel).system_message(
+                    "[red]Connection failed.[/red] Check the IP and try again."
+                )
 
     def _on_network_event(self, event: NetworkEvent) -> None:
         """Internal callback passed to the ECP client to route network traffic."""
@@ -314,11 +342,13 @@ class RokuTuiApp(App[None]):
         with contextlib.suppress(Exception):
             self.db.log_network_request(msg.event, device_id)
 
-    async def on_repl_panel_command_submitted(
-        self, msg: ReplPanel.CommandSubmitted
+    async def on_console_panel_command_submitted(
+        self, msg: ConsolePanel.CommandSubmitted
     ) -> None:
-        """Handle command submission from the REPL panel."""
-        await self._dispatch(msg.line)
+        """Handle command submission from the console panel."""
+        parts = [p.strip() for p in msg.line.split(";") if p.strip()]
+        for part in parts:
+            await self._dispatch(part)
 
     async def on_remote_panel_button_activated(
         self, msg: RemotePanel.ButtonActivated
@@ -334,7 +364,7 @@ class RokuTuiApp(App[None]):
 
     async def _dispatch(self, line: str) -> bool:
         """Parse and route a command string to its appropriate handler."""
-        repl = self.query_one("#repl-panel", ReplPanel)
+        repl = self.query_one("#console-panel", ConsolePanel)
         success = False
 
         no_client = {
@@ -351,6 +381,9 @@ class RokuTuiApp(App[None]):
             "sleep",
             "link",
             "yt",
+            "kb",
+            "keyboard",
+            "guide",
         }
         if self.client is None and line.split()[0] not in no_client:
             repl.error(
@@ -398,9 +431,49 @@ class RokuTuiApp(App[None]):
         except Exception:
             return None
 
-    async def on_key(self, event: Any) -> None:
-        """Handle global hotkeys for remote control navigation."""
+    def toggle_keyboard_mode(self) -> None:
+        """Toggle keyboard passthrough mode on or off."""
+        if self._kb_mode:
+            self._exit_keyboard_mode()
+        else:
+            self._enter_keyboard_mode()
+
+    def _enter_keyboard_mode(self) -> None:
+        self._kb_mode = True
+        self.set_focus(None)
+        self.query_one("#console-panel", ConsolePanel).enter_keyboard_mode()
+
+    def _exit_keyboard_mode(self) -> None:
+        self._kb_mode = False
+        self.query_one("#console-panel", ConsolePanel).exit_keyboard_mode()
+
+    async def on_key(self, event: Key) -> None:
+        """Route keys to the TV in keyboard mode; otherwise handle hotkeys."""
+        if self._kb_mode:
+            char = event.character
+            key = event.key
+            if key == "escape":
+                event.stop()
+                self._exit_keyboard_mode()
+            elif key in ("enter", "return"):
+                event.stop()
+                if self.client:
+                    await self.client.keypress("Select")
+            elif key == "backspace":
+                event.stop()
+                if self.client:
+                    await self.client.keypress("Backspace")
+            elif char and char.isprintable():
+                event.stop()
+                if self.client:
+                    await self.client.keypress(
+                        f"Lit_{urllib.parse.quote(char, safe='')}"
+                    )
+            return
+
         if isinstance(self.focused, Input):
+            return
+        if len(self.screen_stack) > 1:
             return
         ecp_key = self._HOTKEYS.get(event.key)
         if ecp_key and self.client:
@@ -411,15 +484,46 @@ class RokuTuiApp(App[None]):
                 if btn_id:
                     self.query_one("#remote-panel", RemotePanel).flash_button(btn_id)
             await self.client.keypress(ecp_key)
+            return
+
+        if not self.client:
+            return
+        tabs = self.query_one("#main-tabs", TabbedContent)
+        if tabs.active != "tab-remote":
+            return
+        char = event.character
+        if char:
+            remote_ecp = self._REMOTE_HOTKEYS.get(char)
+            if remote_ecp:
+                event.prevent_default()
+                btn_id = REMOTE_HOTKEY_TO_BTN.get(char)
+                if btn_id:
+                    self.query_one("#remote-panel", RemotePanel).flash_button(btn_id)
+                await self.client.keypress(remote_ecp)
 
     def action_show_guide(self) -> None:
-        """Toggle the F1 user guide screen."""
-        self.push_screen(HelpScreen())
+        """Toggle the F1 quick reference card."""
+        if isinstance(self.screen, HelpScreen):
+            self.pop_screen()
+        else:
+            self.push_screen(HelpScreen())
+
+    def action_show_manual(self) -> None:
+        """Toggle the F2 full user guide."""
+        if isinstance(self.screen, GuideScreen):
+            self.pop_screen()
+        else:
+            self.push_screen(GuideScreen())
 
     def action_toggle_tab(self) -> None:
-        """Toggle between REPL and Remote tabs (Ctrl+T)."""
+        """Toggle between Console and Remote tabs (Ctrl+T)."""
         tabs = self.query_one("#main-tabs", TabbedContent)
-        tabs.active = "tab-remote" if tabs.active == "tab-repl" else "tab-repl"
+        if tabs.active == "tab-console":
+            tabs.active = "tab-remote"
+            self.query_one("#btn-up", Button).focus()
+        else:
+            tabs.active = "tab-console"
+            self.query_one("#command-input", Input).focus()
 
     def action_toggle_network(self) -> None:
         """Show or hide the network inspector panel (Ctrl+N)."""
@@ -432,15 +536,15 @@ class RokuTuiApp(App[None]):
             panel.add_class("hidden")
             tabs.add_class("full-width")
 
-    def action_clear_repl(self) -> None:
-        """Clear the REPL history scrollback."""
-        self.query_one("#repl-panel", ReplPanel).clear_history()
+    def action_clear_console(self) -> None:
+        """Clear the console history scrollback."""
+        self.query_one("#console-panel", ConsolePanel).clear_history()
 
     def _register_tui_commands(self) -> None:
         """Register built-in TUI-specific commands like 'clear' and 'theme'."""
 
         async def _handle_clear(client: Any, args: list[str], context: Any) -> str:
-            self.query_one("#repl-panel", ReplPanel).clear_history()
+            self.query_one("#console-panel", ConsolePanel).clear_history()
             return ""
 
         self.registry.register(
@@ -449,7 +553,21 @@ class RokuTuiApp(App[None]):
                 aliases=["cls"],
                 args=[],
                 handler=_handle_clear,
-                help_text="Clear the REPL history",
+                help_text="Clear the console history",
+            )
+        )
+
+        async def _handle_guide(client: Any, args: list[str], context: Any) -> str:
+            self.push_screen(GuideScreen())
+            return ""
+
+        self.registry.register(
+            Command(
+                name="guide",
+                aliases=[],
+                args=[],
+                handler=_handle_guide,
+                help_text="Open the full user manual",
             )
         )
 
@@ -478,8 +596,8 @@ class RokuTuiApp(App[None]):
         )
 
     def emit_message(self, text: str) -> None:
-        """Display a system message in the REPL (external API)."""
-        self.query_one("#repl-panel", ReplPanel).system_message(text)
+        """Display a system message in the console (external API)."""
+        self.query_one("#console-panel", ConsolePanel).system_message(text)
 
     async def dispatch(self, line: str) -> bool:
         """Dispatch a command string (external API)."""

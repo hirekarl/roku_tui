@@ -6,7 +6,7 @@ from .app import RokuTuiApp
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="roku-tui",
-        description="Roku remote control as a terminal REPL",
+        description="Roku remote control as a terminal console",
     )
     parser.add_argument(
         "--mock",

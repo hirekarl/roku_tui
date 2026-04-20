@@ -4,8 +4,8 @@ import pytest
 from textual.widgets import TabbedContent
 
 from roku_tui.app import RokuTuiApp
+from roku_tui.widgets.console_panel import ConsolePanel
 from roku_tui.widgets.network_panel import NetworkPanel
-from roku_tui.widgets.repl_panel import ReplPanel
 from roku_tui.widgets.status_bar import StatusBar
 
 
@@ -23,7 +23,7 @@ def app(monkeypatch, tmp_path):
 async def test_app_mounts_without_error(app):
     async with app.run_test() as pilot:
         await pilot.pause()
-        assert app.query_one("#repl-panel", ReplPanel) is not None
+        assert app.query_one("#console-panel", ConsolePanel) is not None
         assert app.query_one("#network-panel", NetworkPanel) is not None
         assert app.query_one("#status-bar", StatusBar) is not None
 

@@ -25,18 +25,32 @@ StatusBar {
     height: 1;
     background: $bg-dark;
     layout: horizontal;
-    padding: 0 2;
-    color: $foreground;
-}
-
-#status-device {
-    width: 1fr;
-    color: $foreground;
+    align: center middle;
+    color: $comment;
 }
 
 #status-indicator {
     width: auto;
+}
+
+#status-device {
+    width: auto;
+}
+
+StatusBar.connected #status-indicator {
     color: $success;
+}
+
+StatusBar.connected #status-device {
+    color: $foreground;
+}
+
+StatusBar.mock-mode #status-indicator {
+    color: $warning;
+}
+
+StatusBar.mock-mode #status-device {
+    color: $foreground;
 }
 
 /* ── Main Area ───────────────────────────────────────────────────────────── */
@@ -96,9 +110,9 @@ TabPane {
     height: 1fr;
 }
 
-/* ── REPL Panel ──────────────────────────────────────────────────────────── */
+/* ── Console Panel ───────────────────────────────────────────────────────── */
 
-#repl-panel {
+#console-panel {
     height: 100%;
     layout: vertical;
     background: $background;
@@ -157,6 +171,10 @@ TabPane {
     border: tall $primary;
 }
 
+#command-input.keyboard-mode {
+    border: tall $accent;
+}
+
 /* ── Network Panel ───────────────────────────────────────────────────────── */
 
 #network-panel {
@@ -192,15 +210,41 @@ TabPane {
 /* ── Remote Panel ────────────────────────────────────────────────────────── */
 
 #remote-panel {
-    align: center middle;
+    layout: vertical;
     background: $background;
     height: 100%;
 }
 
+#remote-scroll {
+    width: 100%;
+    height: 100%;
+    background: $background;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $background;
+    scrollbar-size: 1 1;
+}
+
+#remote-content {
+    width: 100%;
+    height: auto;
+}
+
 #remote-body {
-    width: 33;
+    width: 100%;
+    height: auto;
+    align: center top;
+    padding: 1 0 0 0;
+}
+
+#remote-legend-row {
     height: auto;
     align: center middle;
+    padding: 1 0 1 0;
+}
+
+#remote-legend {
+    width: 33;
+    color: $comment;
 }
 
 .remote-row {
@@ -236,6 +280,106 @@ Button.btn-flash {
     color: $background;
 }
 
+/* ── Modal Close Button ──────────────────────────────────────────────────── */
+
+.modal-close {
+    height: 1;
+    width: auto;
+    min-width: 9;
+    background: $bg-highlight;
+    color: $comment;
+    border: none;
+}
+
+.modal-close:hover {
+    background: $error;
+    color: $background;
+}
+
+/* ── Guide Screen ────────────────────────────────────────────────────────── */
+
+GuideScreen {
+    align: center middle;
+}
+
+#guide-body {
+    width: 94;
+    height: 90%;
+    background: $panel;
+    border: tall $muted-border;
+}
+
+#guide-title {
+    height: 1;
+    background: $bg-dark;
+    color: $primary;
+    text-style: bold;
+    padding: 0 2;
+}
+
+#guide-main {
+    height: 1fr;
+    layout: horizontal;
+}
+
+#guide-sidebar {
+    width: 22;
+    height: 100%;
+    background: $bg-dark;
+    border-right: solid $muted-border;
+}
+
+#guide-sidebar-title {
+    height: 1;
+    padding: 0 1;
+    color: $comment;
+    border-bottom: solid $muted-border;
+}
+
+#guide-nav {
+    height: 1fr;
+    background: $bg-dark;
+    border: none;
+}
+
+#guide-nav > ListItem {
+    background: $bg-dark;
+    color: $foreground;
+    padding: 0 1;
+}
+
+#guide-nav > ListItem.--highlight {
+    background: $primary;
+    color: $background;
+    text-style: bold;
+}
+
+#guide-scroll {
+    width: 1fr;
+    height: 100%;
+    padding: 1 2;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $panel;
+    scrollbar-size: 1 1;
+}
+
+#guide-content {
+    width: 1fr;
+}
+
+#guide-foot {
+    height: 3;
+    background: $bg-dark;
+    color: $comment;
+    padding: 0 2;
+    border-top: solid $muted-border;
+    align: left middle;
+}
+
+#guide-foot-text {
+    width: 1fr;
+}
+
 /* ── Help Modal ──────────────────────────────────────────────────────────── */
 
 HelpScreen {
@@ -244,8 +388,7 @@ HelpScreen {
 
 #help-body {
     width: 78;
-    height: auto;
-    max-height: 90%;
+    height: 90%;
     background: $panel;
     border: tall $muted-border;
 }
@@ -257,7 +400,7 @@ HelpScreen {
 }
 
 #help-cols {
-    height: auto;
+    height: 1fr;
     padding: 0 2;
 }
 
@@ -269,8 +412,14 @@ HelpScreen {
 }
 
 #help-foot {
-    padding: 1 2;
+    height: 3;
+    padding: 0 2;
     color: $comment;
-    text-align: center;
     border-top: solid $bg-highlight;
+    align: left middle;
+}
+
+#help-foot-text {
+    width: 1fr;
+    content-align: left middle;
 }
