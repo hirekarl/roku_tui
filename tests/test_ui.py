@@ -317,7 +317,7 @@ async def test_kb_command_enters_keyboard_mode(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert not app._kb_mode
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         assert app._kb_mode
 
@@ -325,7 +325,7 @@ async def test_kb_command_enters_keyboard_mode(app: RokuTuiApp) -> None:
 async def test_escape_exits_keyboard_mode(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         assert app._kb_mode
         await pilot.press("escape")
@@ -343,7 +343,7 @@ async def test_printable_key_in_kb_mode_sends_lit_keypress(app: RokuTuiApp) -> N
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         assert app._kb_mode
         await pilot.press("a")
@@ -361,7 +361,7 @@ async def test_enter_in_kb_mode_sends_select(app: RokuTuiApp) -> None:
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("enter")
         await pilot.pause()
@@ -378,7 +378,7 @@ async def test_backspace_in_kb_mode_sends_backspace(app: RokuTuiApp) -> None:
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("backspace")
         await pilot.pause()
@@ -396,7 +396,7 @@ async def test_arrow_key_in_kb_mode_does_not_send_ecp_nav(app: RokuTuiApp) -> No
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await app._dispatch("kb")
+        await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("up")
         await pilot.pause()

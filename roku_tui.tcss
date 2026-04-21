@@ -186,6 +186,93 @@ TabPane {
     background: black;
 }
 
+/* ── Discovery Screen ────────────────────────────────────────────────────── */
+
+DiscoveryScreen {
+    align: center middle;
+}
+
+#discovery-body {
+    width: 60;
+    height: auto;
+    max-height: 20;
+    background: $panel;
+    border: tall $primary;
+    padding: 1 2;
+}
+
+#discovery-title {
+    width: 100%;
+    content-align: center middle;
+    color: $primary;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#discovery-loading {
+    height: 1;
+    color: $secondary;
+    margin: 1 0;
+}
+
+#discovery-list {
+    background: black;
+    height: auto;
+    max-height: 10;
+    border: none;
+    margin: 1 0;
+}
+
+#discovery-manual-container {
+    width: 100%;
+    height: auto;
+    display: none;
+}
+
+#discovery-manual-container.visible {
+    display: block;
+}
+
+#discovery-ip-input {
+    background: black;
+    border: tall $muted-border;
+    margin: 1 0;
+}
+
+#discovery-ip-input:focus {
+    border: tall $primary;
+}
+
+#discovery-foot {
+    margin-top: 1;
+    align: center middle;
+}
+
+/* ── Remote Panel Empty State ────────────────────────────────────────────── */
+
+#remote-wrapper {
+    width: 100%;
+    height: auto;
+    align: center top;
+}
+
+#remote-empty-state {
+    display: none;
+    width: 100%;
+    height: 20;
+    content-align: center middle;
+    color: $comment;
+    text-align: center;
+}
+
+RemotePanel.disconnected #remote-grid-container {
+    display: none;
+}
+
+RemotePanel.disconnected #remote-empty-state {
+    display: block;
+}
+
 /* ── Network Panel ───────────────────────────────────────────────────────── */
 
 #network-panel {

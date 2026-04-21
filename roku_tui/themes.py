@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+from textual.theme import Theme
+
+TOKYO_NIGHT = Theme(
+    name="roku-night",
+    primary="#7aa2f7",
+    secondary="#bb9af7",
+    foreground="#c0caf5",
+    background="#1a1b26",
+    dark=True,
+    variables={
+        "surface": "#24283b",
+        "panel": "#1f2335",
+        "success": "#9ece6a",
+        "warning": "#e0af68",
+        "error": "#f7768e",
+        "accent": "#73daca",
+        "comment": "#565f89",
+        "bg-dark": "#16161e",
+        "bg-highlight": "#292e42",
+        "muted-border": "#414868",
+    },
+)
+
+THEMES: dict[str, Theme] = {
+    "roku-night": TOKYO_NIGHT,
+    "catppuccin": Theme(
+        name="catppuccin",
+        primary="#89b4fa",
+        secondary="#cba6f7",
+        foreground="#cdd6f4",
+        background="#1e1e2e",
+        dark=True,
+        variables={
+            "surface": "#313244",
+            "panel": "#181825",
+            "success": "#a6e3a1",
+            "warning": "#fab387",
+            "error": "#f38ba8",
+            "accent": "#94e2d5",
+            "comment": "#6c7086",
+            "bg-dark": "#11111b",
+            "bg-highlight": "#45475a",
+            "muted-border": "#585b70",
+        },
+    ),
+    "nord": Theme(
+        name="nord",
+        primary="#88c0d0",
+        secondary="#b48ead",
+        foreground="#d8dee9",
+        background="#2e3440",
+        dark=True,
+        variables={
+            "surface": "#434c5e",
+            "panel": "#3b4252",
+            "success": "#a3be8c",
+            "warning": "#ebcb8b",
+            "error": "#bf616a",
+            "accent": "#8fbcbb",
+            "comment": "#4c566a",
+            "bg-dark": "#242933",
+            "bg-highlight": "#3b4252",
+            "muted-border": "#434c5e",
+        },
+    ),
+    "gruvbox": Theme(
+        name="gruvbox",
+        primary="#83a598",
+        secondary="#d3869b",
+        foreground="#ebdbb2",
+        background="#282828",
+        dark=True,
+        variables={
+            "surface": "#3c3836",
+            "panel": "#1d2021",
+            "success": "#b8bb26",
+            "warning": "#fabd2f",
+            "error": "#fb4934",
+            "accent": "#8ec07c",
+            "comment": "#928374",
+            "bg-dark": "#1d2021",
+            "bg-highlight": "#504945",
+            "muted-border": "#665c54",
+        },
+    ),
+}

@@ -7,6 +7,9 @@ import urllib.parse
 from pathlib import Path
 from typing import Any, ClassVar
 
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -18,6 +21,7 @@ from textual.widgets import Button, Footer, Header, Input, TabbedContent, TabPan
 
 from .commands.db_commands import register_db_commands
 from .commands.handlers import register_all
+from .commands.tui_commands import register_tui_commands
 from .commands.registry import Command, CommandRegistry
 from .commands.suggester import RokuSuggester
 from .db import Database
@@ -26,6 +30,7 @@ from .ecp.discovery import discover_rokus, probe_roku
 from .ecp.mock import MockEcpClient
 from .ecp.models import AppInfo, NetworkEvent
 from .widgets.console_panel import ConsolePanel
+from .widgets.discovery_screen import DiscoveryScreen
 from .widgets.guide_screen import GuideScreen
 from .widgets.help_screen import HelpScreen
 from .widgets.network_inspector import NetworkInspector
@@ -36,92 +41,8 @@ from .widgets.remote_panel import (
     REMOTE_HOTKEY_TO_BTN,
     RemotePanel,
 )
+from .themes import THEMES, TOKYO_NIGHT
 from .widgets.status_bar import StatusBar
-
-TOKYO_NIGHT = Theme(
-    name="roku-night",
-    primary="#7aa2f7",
-    secondary="#bb9af7",
-    foreground="#c0caf5",
-    background="#1a1b26",
-    dark=True,
-    variables={
-        "surface": "#24283b",
-        "panel": "#1f2335",
-        "success": "#9ece6a",
-        "warning": "#e0af68",
-        "error": "#f7768e",
-        "accent": "#73daca",
-        "comment": "#565f89",
-        "bg-dark": "#16161e",
-        "bg-highlight": "#292e42",
-        "muted-border": "#414868",
-    },
-)
-
-_THEMES: dict[str, Theme] = {
-    "roku-night": TOKYO_NIGHT,
-    "catppuccin": Theme(
-        name="catppuccin",
-        primary="#89b4fa",
-        secondary="#cba6f7",
-        foreground="#cdd6f4",
-        background="#1e1e2e",
-        dark=True,
-        variables={
-            "surface": "#313244",
-            "panel": "#181825",
-            "success": "#a6e3a1",
-            "warning": "#fab387",
-            "error": "#f38ba8",
-            "accent": "#94e2d5",
-            "comment": "#6c7086",
-            "bg-dark": "#11111b",
-            "bg-highlight": "#45475a",
-            "muted-border": "#585b70",
-        },
-    ),
-    "nord": Theme(
-        name="nord",
-        primary="#88c0d0",
-        secondary="#b48ead",
-        foreground="#d8dee9",
-        background="#2e3440",
-        dark=True,
-        variables={
-            "surface": "#434c5e",
-            "panel": "#3b4252",
-            "success": "#a3be8c",
-            "warning": "#ebcb8b",
-            "error": "#bf616a",
-            "accent": "#8fbcbb",
-            "comment": "#4c566a",
-            "bg-dark": "#242933",
-            "bg-highlight": "#3b4252",
-            "muted-border": "#434c5e",
-        },
-    ),
-    "gruvbox": Theme(
-        name="gruvbox",
-        primary="#83a598",
-        secondary="#d3869b",
-        foreground="#ebdbb2",
-        background="#282828",
-        dark=True,
-        variables={
-            "surface": "#3c3836",
-            "panel": "#1d2021",
-            "success": "#b8bb26",
-            "warning": "#fabd2f",
-            "error": "#fb4934",
-            "accent": "#8ec07c",
-            "comment": "#928374",
-            "bg-dark": "#1d2021",
-            "bg-highlight": "#504945",
-            "muted-border": "#665c54",
-        },
-    ),
-}
 
 
 def _get_db_path() -> Path:
@@ -142,6 +63,7 @@ class RokuTuiApp(App[None]):
         Binding("f1", "show_guide", "Quick ref", key_display="F1"),
         Binding("f2", "show_manual", "Guide", key_display="F2"),
         Binding("/", "focus_network_filter", "Filter", show=False),
+        Binding("c", "show_discovery", "Connect"),
     ]
 
     _HOTKEYS: ClassVar[dict[str, str]] = {
@@ -231,7 +153,7 @@ class RokuTuiApp(App[None]):
 
     async def on_mount(self) -> None:
         """Initialize themes, database, and start device discovery."""
-        for t in _THEMES.values():
+        for t in THEMES.values():
             self.register_theme(t)
         self.theme = "roku-night"
         await asyncio.to_thread(self.db.initialize)
@@ -241,7 +163,7 @@ class RokuTuiApp(App[None]):
         elif self.initial_ip:
             self._connect(self.initial_ip)
         else:
-            self._start_discovery()
+            self.action_show_discovery()
 
     @work(thread=True)
     def _start_discovery(self) -> None:
@@ -289,6 +211,7 @@ class RokuTuiApp(App[None]):
             "[dim]Running in [bold]mock mode[/bold] — "
             "HTTP requests are simulated.[/dim]"
         )
+        self.query_one("#remote-panel", RemotePanel).set_connected(True)
         self._prefetch_info()
 
     def _connect(self, url: str) -> None:
@@ -312,6 +235,7 @@ class RokuTuiApp(App[None]):
         self.client = EcpClient(
             base_url=base_url, on_network_event=self._on_network_event
         )
+        self.query_one("#remote-panel", RemotePanel).set_connected(True)
         self._prefetch_info()
 
     @work
@@ -378,13 +302,22 @@ class RokuTuiApp(App[None]):
         if not panel.has_class("hidden"):
             panel.query_one("#network-filter", Input).focus()
 
+    def action_show_discovery(self) -> None:
+        """Show the interactive Roku discovery screen."""
+        known_ips = self.db.known_device_ips()
+        self.push_screen(DiscoveryScreen(known_ips=known_ips))
+
+    def on_discovery_screen_device_selected(self, msg: DiscoveryScreen.DeviceSelected) -> None:
+        """Handle device selection from the discovery screen."""
+        self._connect(msg.ip)
+
     async def on_console_panel_command_submitted(
         self, msg: ConsolePanel.CommandSubmitted
     ) -> None:
         """Handle command submission from the console panel."""
         parts = [p.strip() for p in msg.line.split(";") if p.strip()]
         for part in parts:
-            await self._dispatch(part)
+            await self.dispatch(part)
 
     async def on_remote_panel_button_activated(
         self, msg: RemotePanel.ButtonActivated
@@ -422,10 +355,18 @@ class RokuTuiApp(App[None]):
             "guide",
         }
         if self.client is None and line.split()[0] not in no_client:
-            console.error(
-                "[yellow]Not connected.[/yellow] "
-                "Use [bold]connect <ip>[/bold] or run with [bold]--mock[/bold]."
+            msg = Panel(
+                "[bold yellow]Not connected to a Roku device.[/bold yellow]\n\n"
+                "You must connect to a device before sending this command.\n\n"
+                "• Press [cyan]C[/cyan] to search for devices\n"
+                "• Type [bold]connect <ip>[/bold] to connect manually\n"
+                "• Run with [bold]--mock[/bold] for simulation",
+                title="[red]Error[/red]",
+                border_style="yellow",
+                expand=False,
+                padding=(1, 2),
             )
+            console.output(msg)
             self.db.log_command(line, success=False, device_id=None)
             return False
 
@@ -594,59 +535,8 @@ class RokuTuiApp(App[None]):
         self.query_one("#console-panel", ConsolePanel).clear_history()
 
     def _register_tui_commands(self) -> None:
-        """Register built-in TUI-specific commands like 'clear' and 'theme'."""
-
-        async def _handle_clear(client: Any, args: list[str], context: Any) -> str:
-            self.query_one("#console-panel", ConsolePanel).clear_history()
-            return ""
-
-        self.registry.register(
-            Command(
-                name="clear",
-                aliases=["cls"],
-                args=[],
-                handler=_handle_clear,
-                help_text="Clear the console history",
-            )
-        )
-
-        async def _handle_guide(client: Any, args: list[str], context: Any) -> str:
-            self.push_screen(GuideScreen())
-            return ""
-
-        self.registry.register(
-            Command(
-                name="guide",
-                aliases=[],
-                args=[],
-                handler=_handle_guide,
-                help_text="Open the full user manual",
-            )
-        )
-
-        async def _handle_theme(client: Any, args: list[str], context: Any) -> str:
-            if not args:
-                options = "  ".join(
-                    f"[bold]{n}[/bold]" if n == self.theme else f"[dim]{n}[/dim]"
-                    for n in _THEMES
-                )
-                return f"Theme: [bold]{self.theme}[/bold]   {options}"
-            name = args[0].lower()
-            if name not in _THEMES:
-                avail = ", ".join(_THEMES.keys())
-                return f"[yellow]Unknown theme:[/yellow] {name}. Options: {avail}"
-            self.theme = name
-            return f"[green]✓[/green] Theme → [bold]{name}[/bold]"
-
-        self.registry.register(
-            Command(
-                name="theme",
-                aliases=[],
-                args=["name"],
-                handler=_handle_theme,
-                help_text="Switch color theme",
-            )
-        )
+        """Register built-in TUI-specific commands."""
+        register_tui_commands(self.registry, self)
 
     def start_recording(self) -> None:
         """Begin capturing successful commands into a macro recording buffer."""

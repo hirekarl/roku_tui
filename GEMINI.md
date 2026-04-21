@@ -37,7 +37,8 @@ uv run pytest
 
 ```
 User input → ConsolePanel → CommandSubmitted message
-  → RokuTuiApp._dispatch()
+  → RokuTuiApp.dispatch()
+  → RokuTuiApp._dispatch()          # internal logic
   → CommandRegistry.parse()         # lookup by name or alias
   → handler (async)                 # in handlers.py or db_commands.py
   → EcpClient / MockEcpClient       # HTTP to Roku port 8060
@@ -49,20 +50,19 @@ User input → ConsolePanel → CommandSubmitted message
 
 | Path | Role |
 |------|------|
-| `app.py` | Textual `App` — lifecycle, theme management, messaging. |
-| `commands/handlers.py` | ~25 handlers: navigation, apps, deep links, YouTube. |
-| `commands/db_commands.py` | Macro management, history, stats, sleep. |
-| `commands/suggester.py` | Tab completion (commands + fuzzy app names). |
-| `ecp/client.py` | Async HTTP client for Roku ECP (port 8060). |
-| `ecp/mock.py` | `MockEcpClient` — simulation for development. |
-| `service.py` | `YouTubeClient` using InnerTube for search. |
-| `db/database.py` | SQLite API wrapper with SQLAlchemy Core. |
-| `db/schema.py` | Tables: devices, commands, requests, macros, links. |
-| `widgets/console_panel.py` | Command line input with syntax highlighting and dynamic hints. |
+| `app.py` | Textual `App` — lifecycle, messaging, top-level orchestration. |
+| `themes.py` | Centralized Textual `Theme` definitions. |
+| `commands/tui_commands.py` | UI-specific commands (`theme`, `guide`, `clear`). |
+| `commands/handlers.py` | ~25 navigation and app control handlers. |
+| `commands/db_commands.py` | Macro management, history, and stats. |
+| `commands/suggester.py` | Tab completion logic. |
+| `ecp/client.py` | Async HTTP client for Roku ECP. |
+| `ecp/discovery.py` | SSDP and IP-based device discovery services. |
+| `widgets/discovery_screen.py` | Interactive device selection modal. |
+| `widgets/console_panel.py` | Command input with highlighting and dynamic hints. |
 | `widgets/network_panel.py` | Interactive HTTP log with filtering. |
 | `widgets/network_inspector.py` | Detailed modal for inspecting NetworkEvents. |
-| `widgets/remote_panel.py` | Button-based remote control interface. |
-| `widgets/status_bar.py` | Connected device info display. |
+| `widgets/remote_panel.py` | Button-based remote with grid layout and feedback. |
 
 ### Engineering Standards
 

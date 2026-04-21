@@ -77,21 +77,21 @@ async def test_ctrl_n_twice_restores_layout(app: RokuTuiApp) -> None:
 async def test_unknown_command_returns_false(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        result = await app._dispatch("zzz_nonexistent_command")
+        result = await app.dispatch("zzz_nonexistent_command")
         assert result is False
 
 
 async def test_known_nav_command_returns_true(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        result = await app._dispatch("up")
+        result = await app.dispatch("up")
         assert result is True
 
 
 async def test_help_command_returns_true(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        result = await app._dispatch("help")
+        result = await app.dispatch("help")
         assert result is True
 
 
@@ -99,7 +99,7 @@ async def test_disconnected_ecp_command_returns_false(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         app.client = None
-        result = await app._dispatch("up")
+        result = await app.dispatch("up")
         assert result is False
 
 
@@ -107,5 +107,5 @@ async def test_disconnected_allows_help(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         app.client = None
-        result = await app._dispatch("help")
+        result = await app.dispatch("help")
         assert result is True
