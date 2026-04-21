@@ -29,3 +29,13 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - **Deep Links:** Support for launching specific content via `link` and `yt` commands.
 - **YouTube:** Direct YouTube search and launch without API keys using InnerTube.
 - **Macros:** Capture and replay sequences including deep link content.
+
+## Codebase Structure
+- `roku_tui/app.py`: Main `App` class and top-level UI orchestration.
+- `roku_tui/actions.py`: Mixin class for UI actions and event handlers.
+- `roku_tui/constants.py`: Centralized configuration (bindings, hotkeys).
+- `roku_tui/themes.py`: Centralized Textual `Theme` definitions.
+- `roku_tui/commands/`: Command registry and handlers (db, tui, network).
+- `roku_tui/db/`: Database schema and persistence logic.
+- `roku_tui/ecp/`: Roku ECP client, discovery, and mock simulations.
+- `roku_tui/widgets/`: Interactive TUI components.

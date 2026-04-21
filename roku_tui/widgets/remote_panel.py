@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
@@ -62,7 +60,7 @@ CMD_TO_ECP: dict[str, str] = {
     "rev": "Rev",
     "fwd": "Fwd",
     "play": "Play",
-    "volume": "VolumeMute", # Default to mute if no args, though handler is complex
+    "volume": "VolumeMute",  # Default to mute if no args, though handler is complex
     "mute": "VolumeMute",
 }
 
@@ -106,51 +104,58 @@ class RemotePanel(Widget):
             self.ecp_key = ecp_key
 
     def compose(self) -> ComposeResult:
-        with VerticalScroll(id="remote-scroll"):
-            with Vertical(id="remote-content"):
-                with Vertical(id="remote-wrapper"):
-                    with Horizontal(id="remote-grid-container"):
-                        with Static(id="remote-body"):
-                            # Row 1: Back, Home, Power
-                            yield Button("↩", id="btn-back", classes="btn-nav", tooltip="Back")
-                            yield Button("⌂", id="btn-home", classes="btn-nav", tooltip="Home")
-                            yield Button("⏻", id="btn-power", classes="btn-power", tooltip="Power")
+        with (
+            VerticalScroll(id="remote-scroll"),
+            Vertical(id="remote-content"),
+            Vertical(id="remote-wrapper"),
+        ):
+            with Horizontal(id="remote-grid-container"), Static(id="remote-body"):
+                # Row 1: Back, Home, Power
+                yield Button("↩", id="btn-back", classes="btn-nav", tooltip="Back")
+                yield Button("⌂", id="btn-home", classes="btn-nav", tooltip="Home")
+                yield Button("⏻", id="btn-power", classes="btn-power", tooltip="Power")
 
-                            # Row 2: Empty, Up, Empty
-                            yield Static(classes="remote-empty")
-                            yield Button("▲", id="btn-up", classes="btn-dpad")
-                            yield Static(classes="remote-empty")
+                # Row 2: Empty, Up, Empty
+                yield Static(classes="remote-empty")
+                yield Button("▲", id="btn-up", classes="btn-dpad")
+                yield Static(classes="remote-empty")
 
-                            # Row 3: Left, OK, Right
-                            yield Button("◄", id="btn-left", classes="btn-dpad")
-                            yield Button("OK", id="btn-select", classes="btn-ok")
-                            yield Button("►", id="btn-right", classes="btn-dpad")
+                # Row 3: Left, OK, Right
+                yield Button("◄", id="btn-left", classes="btn-dpad")
+                yield Button("OK", id="btn-select", classes="btn-ok")
+                yield Button("►", id="btn-right", classes="btn-dpad")
 
-                            # Row 4: Empty, Down, Empty
-                            yield Static(classes="remote-empty")
-                            yield Button("▼", id="btn-down", classes="btn-dpad")
-                            yield Static(classes="remote-empty")
+                # Row 4: Empty, Down, Empty
+                yield Static(classes="remote-empty")
+                yield Button("▼", id="btn-down", classes="btn-dpad")
+                yield Static(classes="remote-empty")
 
-                            # Row 5: Vol-, Mute, Vol+
-                            yield Button("−", id="btn-vol-down", classes="btn-volume", tooltip="Volume Down")
-                            yield Button("⊗", id="btn-mute", classes="btn-volume", tooltip="Mute")
-                            yield Button("+", id="btn-vol-up", classes="btn-volume", tooltip="Volume Up")
+                # Row 5: Vol-, Mute, Vol+
+                yield Button(
+                    "−", id="btn-vol-down", classes="btn-volume", tooltip="Volume Down"
+                )
+                yield Button("⊗", id="btn-mute", classes="btn-volume", tooltip="Mute")
+                yield Button(
+                    "+", id="btn-vol-up", classes="btn-volume", tooltip="Volume Up"
+                )
 
-                            # Row 6: Rev, Play, Fwd
-                            yield Button("◀◀", id="btn-rev", classes="btn-media", tooltip="Reverse")
-                            yield Button("▶⏸", id="btn-play", classes="btn-media", tooltip="Play/Pause")
-                            yield Button("▶▶", id="btn-fwd", classes="btn-media", tooltip="Forward")
+                # Row 6: Rev, Play, Fwd
+                yield Button("◀◀", id="btn-rev", classes="btn-media", tooltip="Reverse")
+                yield Button(
+                    "▶⏸", id="btn-play", classes="btn-media", tooltip="Play/Pause"
+                )
+                yield Button("▶▶", id="btn-fwd", classes="btn-media", tooltip="Forward")
 
-                    yield Label(
-                        "\n\n\n[bold]No Roku Connected[/bold]\n\n"
-                        "Search for devices with [cyan]C[/cyan]\n"
-                        "or use the [cyan]connect <ip>[/cyan] command.",
-                        id="remote-empty-state",
-                        markup=True
-                    )
+            yield Label(
+                "\n\n\n[bold]No Roku Connected[/bold]\n\n"
+                "Search for devices with [cyan]C[/cyan]\n"
+                "or use the [cyan]connect <ip>[/cyan] command.",
+                id="remote-empty-state",
+                markup=True,
+            )
 
-                with Static(id="remote-legend-row"):
-                    yield Static(_LEGEND, id="remote-legend", markup=True)
+            with Static(id="remote-legend-row"):
+                yield Static(_LEGEND, id="remote-legend", markup=True)
 
     def on_mount(self) -> None:
         """Initial state is disconnected until explicitly set."""

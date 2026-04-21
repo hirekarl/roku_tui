@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from rich.table import Table
-
-from .registry import Command
 from ..themes import THEMES
+from .registry import Command
 
 if TYPE_CHECKING:
     from ..app import RokuTuiApp

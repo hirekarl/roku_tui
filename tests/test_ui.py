@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import pytest
 from textual.widgets import TabbedContent
 
@@ -288,7 +289,9 @@ async def test_m_sends_mute_on_remote_tab(app: RokuTuiApp) -> None:
         assert "VolumeMute" in keypresses
 
 
-async def test_remote_hotkeys_blocked_when_modal_open_over_remote_tab(app: RokuTuiApp) -> None:
+async def test_remote_hotkeys_blocked_when_modal_open_over_remote_tab(
+    app: RokuTuiApp,
+) -> None:
     """Open a modal while on the Remote tab; hotkeys must not reach the TV."""
     keypresses: list[str] = []
 

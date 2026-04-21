@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from roku_tui.commands.handlers import (
     _parse_count,
     handle_connect,
@@ -8,7 +10,6 @@ from roku_tui.commands.handlers import (
     register_all,
 )
 from roku_tui.commands.registry import CommandRegistry
-from typing import Any
 from roku_tui.ecp.mock import MOCK_APPS, MockEcpClient
 from roku_tui.ecp.models import AppInfo, NetworkEvent
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Any
 
 from rich.highlighter import RegexHighlighter
@@ -45,7 +44,7 @@ class CommandHighlighter(RegexHighlighter):
                 style = "bold #7aa2f7"  # Primary blue
             else:
                 style = "bold #bb9af7"  # Secondary purple
-            
+
             # Apply style to the first word (the command/alias)
             text.stylize(style, 0, len(cmd_name))
         else:
@@ -63,7 +62,9 @@ class ConsolePanel(Widget):
             super().__init__()
             self.line = line
 
-    def __init__(self, suggester: RokuSuggester, registry: CommandRegistry, **kwargs: Any) -> None:
+    def __init__(
+        self, suggester: RokuSuggester, registry: CommandRegistry, **kwargs: Any
+    ) -> None:
         """Initialize the ConsolePanel.
 
         Args:
@@ -126,9 +127,13 @@ class ConsolePanel(Widget):
                 # Show expected arguments
                 if cmd.args:
                     args_str = " | ".join(cmd.args)
-                    self._set_hint(f"[bold]Usage:[/bold] {cmd.name} [cyan][{args_str}][/cyan]")
+                    self._set_hint(
+                        f"[bold]Usage:[/bold] {cmd.name} [cyan][{args_str}][/cyan]"
+                    )
                 elif cmd.dynamic_args:
-                    self._set_hint(f"[bold]Usage:[/bold] {cmd.name} [cyan]<args>[/cyan]")
+                    self._set_hint(
+                        f"[bold]Usage:[/bold] {cmd.name} [cyan]<args>[/cyan]"
+                    )
                 else:
                     self._set_hint("[dim](No arguments expected)[/dim]")
         else:

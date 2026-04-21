@@ -2,22 +2,23 @@ from __future__ import annotations
 
 import json
 import xml.dom.minidom
-from typing import Any
+from typing import Any, ClassVar
 
 from rich.syntax import Syntax
 from rich.text import Text
 from textual.app import ComposeResult
-from textual.containers import Vertical, ScrollableContainer
+from textual.binding import Binding
+from textual.containers import ScrollableContainer, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Label, RichLog, Static, Button
+from textual.widgets import Button, Label, RichLog, Static
 
 from ..ecp.models import NetworkEvent
 
-
+...
 class NetworkInspector(ModalScreen[None]):
     """A modal screen for inspecting the details of a NetworkEvent."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         ("escape", "dismiss", "Close"),
         ("q", "dismiss", "Close"),
     ]
@@ -28,8 +29,10 @@ class NetworkInspector(ModalScreen[None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="inspector-body"):
-            yield Label(f" Inspect: {self.event.method} {self.event.url}", id="inspector-title")
-            
+            yield Label(
+                f" Inspect: {self.event.method} {self.event.url}", id="inspector-title"
+            )
+
             with Vertical(id="inspector-header"):
                 status_color = "green" if (self.event.status_code or 0) < 400 else "red"
                 yield Label(Text.assemble(
@@ -41,17 +44,28 @@ class NetworkInspector(ModalScreen[None]):
 
             with ScrollableContainer(id="inspector-content"):
                 yield Label("Request Headers", classes="inspector-section-title")
-                yield Static(self._format_headers(self.event.request_headers), classes="inspector-text")
-                
+                yield Static(
+                    self._format_headers(self.event.request_headers),
+                    classes="inspector-text",
+                )
+
                 yield Label("Response Headers", classes="inspector-section-title")
-                yield Static(self._format_headers(self.event.response_headers), classes="inspector-text")
+                yield Static(
+                    self._format_headers(self.event.response_headers),
+                    classes="inspector-text",
+                )
 
                 with Vertical(id="inspector-payload-container"):
                     yield Label("Response Body", classes="inspector-section-title")
                     yield RichLog(id="inspector-payload", highlight=True, wrap=True)
 
             with Vertical(id="inspector-foot"):
-                yield Button("Close (Esc)", variant="error", classes="modal-close", id="inspector-close")
+                yield Button(
+                    "Close (Esc)",
+                    variant="error",
+                    classes="modal-close",
+                    id="inspector-close",
+                )
 
     def on_mount(self) -> None:
         """Pretty-print the body once the log is mounted."""
@@ -70,7 +84,7 @@ class NetworkInspector(ModalScreen[None]):
     def _format_headers(self, headers: dict[str, str]) -> Text:
         if not headers:
             return Text("None", style="dim italic")
-        
+
         txt = Text()
         for k, v in headers.items():
             txt.append(f"{k}: ", style="bold cyan")
@@ -93,8 +107,12 @@ class NetworkInspector(ModalScreen[None]):
                 dom = xml.dom.minidom.parseString(body)
                 pretty = dom.toprettyxml(indent="  ")
                 # Strip extra newlines toprettyxml adds
-                pretty = "\n".join([line for line in pretty.split("\n") if line.strip()])
-                return Syntax(pretty, "xml", theme="monokai", background_color="default")
+                pretty = "\n".join(
+                    [line for line in pretty.split("\n") if line.strip()]
+                )
+                return Syntax(
+                    pretty, "xml", theme="monokai", background_color="default"
+                )
         except Exception:
             pass
 

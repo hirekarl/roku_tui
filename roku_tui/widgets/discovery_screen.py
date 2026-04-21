@@ -1,24 +1,25 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Any, ClassVar
 
 from textual import work
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Vertical
 from textual.message import Message
 from textual.screen import ModalScreen
-from textual.widgets import Input, Label, LoadingIndicator, OptionList, Button
+from textual.widgets import Button, Input, Label, LoadingIndicator, OptionList
 from textual.widgets.option_list import Option
 
-from ..ecp.discovery import discover_rokus, probe_roku
 from ..ecp.client import EcpClient
+from ..ecp.discovery import discover_rokus, probe_roku
 
-
+...
 class DiscoveryScreen(ModalScreen[str | None]):
     """A modal screen for discovering and selecting Roku devices on the network."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         ("escape", "dismiss(None)", "Cancel"),
     ]
 
@@ -49,17 +50,19 @@ class DiscoveryScreen(ModalScreen[str | None]):
             yield Label("Connect to Roku", id="discovery-title")
             yield LoadingIndicator(id="discovery-loading")
             yield OptionList(id="discovery-list")
-            
+
             with Vertical(id="discovery-manual-container"):
                 yield Label("Enter IP Address:", classes="discovery-label")
                 yield Input(placeholder="e.g. 192.168.1.50", id="discovery-ip-input")
-            
+
             with Vertical(id="discovery-foot"):
                 yield Button("Cancel", variant="error", id="discovery-cancel")
 
     def on_mount(self) -> None:
         """Start discovery workers on mount."""
-        self.query_one("#discovery-list", OptionList).add_option(Option("Enter IP Manually...", id="manual"))
+        self.query_one("#discovery-list", OptionList).add_option(
+            Option("Enter IP Manually...", id="manual")
+        )
         self.discover_known_devices()
         self.discover_ssdp_devices()
 
@@ -104,7 +107,7 @@ class DiscoveryScreen(ModalScreen[str | None]):
                 return info.friendly_name if info else "Roku Device"
             except Exception:
                 return "Roku Device"
-        
+
         return str(asyncio.run(_async_get()))
 
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:

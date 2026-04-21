@@ -58,14 +58,16 @@ class NetworkPanel(Widget):
         """Re-populate the data table based on current events and filter."""
         table = self.query_one("#network-log", DataTable)
         current_scroll = table.scroll_y
-        
+
         # We need to track if we were at the bottom before clearing
         # DataTable doesn't have a perfect 'is_at_bottom', so we check if scroll_y
         # is near the maximum scrollable distance.
-        is_at_bottom = table.scroll_y >= table.max_scroll_y - 1 if table.max_scroll_y > 0 else True
+        is_at_bottom = (
+            table.scroll_y >= table.max_scroll_y - 1 if table.max_scroll_y > 0 else True
+        )
 
         table.clear()
-        
+
         # Filter and add rows
         for i, event in enumerate(self._events):
             if self._matches_filter(event):
