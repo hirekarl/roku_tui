@@ -11,6 +11,7 @@ BINDINGS: list[Binding | tuple[str, str] | tuple[str, str, str]] = [
     Binding("ctrl+l", "clear_console", "Clear"),
     Binding("f1", "show_guide", "Quick ref", key_display="F1"),
     Binding("f2", "show_manual", "Guide", key_display="F2"),
+    Binding("f3", "show_tour", "Tour", key_display="F3"),
     Binding("/", "focus_network_filter", "Filter", show=False),
     Binding("c", "show_discovery", "Connect"),
 ]
@@ -52,5 +53,6 @@ RECORDING_SKIP: frozenset[str] = frozenset(
         "cls",
         "guide",
         "theme",
+        "tour",
     }
 )

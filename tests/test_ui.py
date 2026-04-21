@@ -9,6 +9,7 @@ from roku_tui.app import RokuTuiApp
 from roku_tui.widgets.console_panel import ConsolePanel
 from roku_tui.widgets.guide_screen import GuideScreen
 from roku_tui.widgets.help_screen import HelpScreen
+from roku_tui.widgets.tour_screen import TourScreen
 
 
 @pytest.fixture
@@ -121,6 +122,74 @@ async def test_only_one_modal_pushed_per_key(app: RokuTuiApp) -> None:
         await pilot.pause()
         assert len(app.screen_stack) == 2
         assert isinstance(app.screen, GuideScreen)
+
+
+async def test_f3_opens_tour_screen(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        assert isinstance(app.screen, TourScreen)
+
+
+async def test_tour_navigation(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        assert isinstance(app.screen, TourScreen)
+        tour = app.screen
+        assert tour.step_index == 0
+
+        await pilot.press("n")
+        await pilot.pause()
+        assert tour.step_index == 1
+
+        await pilot.press("p")
+        await pilot.pause()
+        assert tour.step_index == 0
+
+        await pilot.press("right")
+        await pilot.pause()
+        assert tour.step_index == 1
+
+        await pilot.press("left")
+        await pilot.pause()
+        assert tour.step_index == 0
+
+
+async def test_tour_finish(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        assert isinstance(app.screen, TourScreen)
+        tour = app.screen
+        # Jump to last step
+        from roku_tui.widgets.tour_screen import _STEPS
+
+        tour.step_index = len(_STEPS) - 1
+        await pilot.press("n")
+        await pilot.pause()
+        assert not isinstance(app.screen, TourScreen)
+
+
+async def test_tour_skip(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        await pilot.press("s")
+        await pilot.pause()
+        assert not isinstance(app.screen, TourScreen)
+
+
+async def test_tour_command_opens_tour_screen(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await app.dispatch("tour")
+        await pilot.pause()
+        assert isinstance(app.screen, TourScreen)
 
 
 # ── Modals do not leak ECP keypresses ─────────────────────────────────────────

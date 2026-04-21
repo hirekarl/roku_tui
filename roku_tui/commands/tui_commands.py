@@ -66,6 +66,20 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
         )
     )
 
+    async def _handle_tour(client: Any, args: list[str], context: Any) -> str:
+        app.action_show_tour()
+        return ""
+
+    registry.register(
+        Command(
+            name="tour",
+            aliases=[],
+            args=[],
+            handler=_handle_tour,
+            help_text="Start the interactive guided tour",
+        )
+    )
+
     async def _handle_version(client: Any, args: list[str], context: Any) -> str:
         return f"roku-tui v[bold]{__version__}[/bold]"
 

@@ -83,6 +83,12 @@ class RokuActions:
         else:
             self.push_screen(GuideScreen())
 
+    def action_show_tour(self: RokuAppProtocol) -> None:
+        """Show the interactive guided tour."""
+        from .widgets.tour_screen import TourScreen
+
+        self.push_screen(TourScreen())
+
     def action_toggle_tab(self: RokuAppProtocol) -> None:
         """Toggle between Console and Remote tabs (Ctrl+T)."""
         tabs = self.query_one("#main-tabs", TabbedContent)
