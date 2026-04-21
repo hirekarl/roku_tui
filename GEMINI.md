@@ -51,6 +51,8 @@ User input → ConsolePanel → CommandSubmitted message
 | Path | Role |
 |------|------|
 | `app.py` | Textual `App` — lifecycle, messaging, top-level orchestration. |
+| `actions.py` | Mixin for UI actions, event handlers, and shared app logic. |
+| `constants.py` | Global bindings, hotkeys, and behavioral constants. |
 | `themes.py` | Centralized Textual `Theme` definitions. |
 | `commands/tui_commands.py` | UI-specific commands (`theme`, `guide`, `clear`). |
 | `commands/handlers.py` | ~25 navigation and app control handlers. |
