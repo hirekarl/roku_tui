@@ -13,6 +13,7 @@ jobs:
     name: Build for ${{ matrix.os }} (${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -57,10 +58,30 @@ jobs:
         run: mv dist/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
         shell: bash
 
-      - name: Upload binaries to release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Upload temporary artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: dist/${{ matrix.asset_name }}
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.asset_name }}
+          retention-days: 1
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
