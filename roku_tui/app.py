@@ -203,7 +203,7 @@ class RokuTuiApp(RokuActions, App[None]):
                     "[red]Connection failed.[/red]"
                 )
 
-    def on_roku_tui_app_network_event_received(
+    def on_roku_actions_network_event_received(
         self, msg: RokuActions.NetworkEventReceived
     ) -> None:
         """Handle network event messages by updating the UI and database."""
