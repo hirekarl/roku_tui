@@ -23,6 +23,20 @@ In an AI-Native world, the "obvious" move is to build a modern web app with grad
 3. **The "God View" (Network Observability)**: Most UIs hide their complexity. **roku-tui** exposes it. The real-time network panel shows you exactly how the Roku ECP protocol works, turning your remote into an educational tool for how the internet actually functions.
 4. **The Context-Switch Killer**: Reaching for a physical remote or unlocking a phone is a "context switch" that breaks your flow. If you're already at your computer, your remote is now just a `Cmd+Tab` away. You never have to leave your keyboard (or your seat) to adjust the volume or pause a show.
 5. **Local Memory**: Your Roku doesn't know you. **roku-tui** does. It tracks your stats, remembers your most-launched apps, and provides instant tab-completion for your favorites based on your actual history.
+6. **Works Over SSH**: A TUI sends text — nothing more. SSH into your home server, spin up **roku-tui**, and control your TV from anywhere with zero latency overhead and zero GUI dependencies.
+7. **Shell-Native Automation**: Because it's a terminal app, it composes with everything else. Wrap commands in a shell script, call it from cron, or pipe it into a home automation workflow. A phone app can't do that.
+
+---
+
+## Who Is This For?
+
+If any of these describe you, **roku-tui** was built for you:
+
+- **You live in a terminal.** You use tmux, Neovim, or a tiling WM. Reaching for your phone to pause a video is genuinely annoying.
+- **You run a home server or HTPC.** SSH into your box and control the TV without a graphical environment or VNC session.
+- **You automate everything.** Cron job to mute the TV at 11pm. Shell script that launches a show and dims your Hue lights. A TUI with a real command interface composes with your other tools; a phone app doesn't.
+- **You're learning how HTTP works.** The network panel shows you every ECP request in real time — method, path, status code, and latency. It's the rare app that teaches you how it works while you use it.
+- **You hate context switching.** Every time you unlock your phone to hit pause, you've broken your flow. Your remote should be a `Cmd+Tab` away, not an arm's reach away.
 
 ---
 
@@ -200,7 +214,7 @@ uv run mypy roku_tui/
 uv run pytest
 ```
 
-The local database lives at `roku_tui.db` in the repo root.
+The local database is stored in your OS user data directory (e.g. `~/.local/share/roku-tui/roku_tui.db` on Linux/macOS, `%LOCALAPPDATA%\roku-tui\roku_tui.db` on Windows).
 
 **Stack:** Python 3.12 · Textual · httpx · SQLAlchemy Core · SQLite · uv
 
