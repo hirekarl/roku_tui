@@ -178,6 +178,14 @@ TabPane {
     border: tall $accent;
 }
 
+#command-hint {
+    height: 1;
+    color: $comment;
+    padding: 0 2;
+    margin: 0;
+    background: black;
+}
+
 /* ── Network Panel ───────────────────────────────────────────────────────── */
 
 #network-panel {

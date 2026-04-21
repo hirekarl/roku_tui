@@ -219,7 +219,11 @@ class RokuTuiApp(App[None]):
         with Horizontal(id="main-area"):
             with TabbedContent(id="main-tabs", initial="tab-console"):
                 with TabPane("Console", id="tab-console"):
-                    yield ConsolePanel(suggester=self.suggester, id="console-panel")
+                    yield ConsolePanel(
+                        suggester=self.suggester,
+                        registry=self.registry,
+                        id="console-panel",
+                    )
                 with TabPane("Remote", id="tab-remote"):
                     yield RemotePanel(id="remote-panel")
             yield NetworkPanel(id="network-panel")

@@ -21,6 +21,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 ## UI/UX
 - **Theme:** Tokyo Night palette (custom Textual `Theme`), switchable via `theme` command.
 - **Interactivity:** Tab completion for commands and fuzzy app names; command history (↑↓); visual remote feedback for keyboard/console input.
+- **Console:** Real-time syntax highlighting (commands/aliases/errors) and dynamic inline usage hints.
 - **Feedback:** Real-time HTTP logging in `NetworkPanel` with selectable rows for detailed inspection.
 
 ## New Features

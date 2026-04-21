@@ -58,7 +58,7 @@ User input → ConsolePanel → CommandSubmitted message
 | `service.py` | `YouTubeClient` using InnerTube for search. |
 | `db/database.py` | SQLite API wrapper with SQLAlchemy Core. |
 | `db/schema.py` | Tables: devices, commands, requests, macros, links. |
-| `widgets/console_panel.py` | Command line input and history. |
+| `widgets/console_panel.py` | Command line input with syntax highlighting and dynamic hints. |
 | `widgets/network_panel.py` | Interactive HTTP log with filtering. |
 | `widgets/network_inspector.py` | Detailed modal for inspecting NetworkEvents. |
 | `widgets/remote_panel.py` | Button-based remote control interface. |
