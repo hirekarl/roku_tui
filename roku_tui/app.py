@@ -3,9 +3,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import difflib
+import sys
 import urllib.parse
 from pathlib import Path
 
+import platformdirs
 from rich.panel import Panel
 from textual import work
 from textual.app import App, ComposeResult
@@ -32,15 +34,28 @@ from .widgets.remote_panel import CMD_TO_ECP, RemotePanel
 from .widgets.status_bar import StatusBar
 
 
+def _get_resource_path(relative_path: str) -> Path:
+    """Get absolute path to resource, works for dev and for PyInstaller."""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    except Exception:
+        base_path = Path(__file__).resolve().parent.parent
+
+    return base_path / relative_path
+
+
 def _get_db_path() -> Path:
-    """Return the absolute path to the SQLite database file."""
-    return Path(__file__).resolve().parent.parent / "roku_tui.db"
+    """Return the absolute path to the SQLite database file in user data directory."""
+    data_dir = Path(platformdirs.user_data_dir("roku-tui"))
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "roku_tui.db"
 
 
 class RokuTuiApp(RokuActions, App[None]):
     """The main Textual application class for roku-tui."""
 
-    CSS_PATH = "../roku_tui.tcss"
+    CSS_PATH = _get_resource_path("roku_tui.tcss")
     TITLE = "roku-tui"
     BINDINGS = BINDINGS
 

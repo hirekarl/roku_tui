@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+            artifact_name: roku-tui
+            asset_name: roku-tui-linux-amd64
+          - os: windows-latest
+            arch: amd64
+            artifact_name: roku-tui.exe
+            asset_name: roku-tui-windows-amd64.exe
+          - os: macos-13
+            arch: intel
+            artifact_name: roku-tui
+            asset_name: roku-tui-macos-intel
+          - os: macos-14
+            arch: silicon
+            artifact_name: roku-tui
+            asset_name: roku-tui-macos-silicon
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          uv run pyinstaller roku_tui.spec
+
+      - name: Rename artifact
+        run: mv dist/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
+        shell: bash
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

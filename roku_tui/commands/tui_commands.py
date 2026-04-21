@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from .. import __version__
 from ..themes import THEMES
 from .registry import Command
 
@@ -62,5 +63,18 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
             args=["name"],
             handler=_handle_theme,
             help_text="Switch color theme",
+        )
+    )
+
+    async def _handle_version(client: Any, args: list[str], context: Any) -> str:
+        return f"roku-tui v[bold]{__version__}[/bold]"
+
+    registry.register(
+        Command(
+            name="version",
+            aliases=["v"],
+            args=[],
+            handler=_handle_version,
+            help_text="Show the current version",
         )
     )
