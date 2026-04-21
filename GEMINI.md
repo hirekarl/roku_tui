@@ -5,6 +5,9 @@ This file provides guidance to Gemini CLI when working with code in this reposit
 ## Commands
 
 ```bash
+# Run with auto-discovery
+uv run roku-tui
+
 # Run (no Roku needed)
 uv run roku-tui --mock
 
@@ -20,6 +23,9 @@ uv run mypy .
 
 # Tests
 uv run pytest
+
+# Single test
+uv run pytest tests/test_handlers.py::test_launch_fuzzy_match
 ```
 
 ## Architecture
@@ -66,14 +72,32 @@ User input → ConsolePanel → CommandSubmitted message
 | `widgets/network_inspector.py` | Detailed modal for inspecting NetworkEvents. |
 | `widgets/remote_panel.py` | Button-based remote with grid layout and feedback. |
 
+## Next Session
+
+Implement a **guided tour** of the app UI — a step-by-step walkthrough to help new users discover features interactively.
+
+### UI/UX
+
+- **Theme:** Tokyo Night palette (custom Textual `Theme`), switchable via `theme` command. Additional themes (Nord, etc.) available.
+- **Interactivity:** Tab completion for commands and fuzzy app names; command history (↑↓); visual remote feedback for keyboard/console input.
+- **Console:** Real-time syntax highlighting (commands/aliases/errors) and dynamic inline usage hints.
+- **Network Panel:** Toggle with `Ctrl+N`. Filter with `/`. Select a row to open the network inspector modal (JSON/XML pretty-printing).
+
+### Features
+
+- **Deep Links:** Launch specific content via `link` and `yt` commands.
+- **YouTube:** Direct YouTube search and launch without API keys using InnerTube.
+- **Macros:** Capture and replay command sequences including deep link content.
+
 ### Engineering Standards
 
 - **Type Safety:** `mypy --strict` compliance required. Use `Row[Any]` for DB rows.
-- **Quality Control:** Pre-commit hooks (`ruff`, `mypy`, `pytest`) and GitHub CI workflow enforced.
+- **Quality Control:** Pre-commit hooks (`ruff`, `mypy`, `pytest`) — run `uv run pre-commit install` to set up. GitHub CI runs on every push/PR; releases trigger on `v*` tags.
 - **Linting:** Ruff for both linting and formatting.
 - **Async:** Use Textual workers (`@work`) for non-blocking UI tasks.
 - **Documentation:** Google-style docstrings for all functions/classes.
 - **Testing:** Always maintain 100% passing rate in `pytest`.
+- **Message handlers:** Textual handler names follow `on_{defining_class_snake_case}_{message_name}` — the namespace comes from the class where the `Message` subclass is *defined*, not the class that posts or receives it. Messages defined in mixins (e.g. `RokuActions`) use the mixin's name as the namespace.
 
 ### Styling
 
