@@ -88,6 +88,9 @@ uv run roku-tui
 uv run roku-tui --ip 192.168.1.42
 ```
 
+> **Can't find your Roku automatically?**
+> On your Roku, go to **Settings → Network → About**. The IP address is listed there (it looks like `192.168.1.42`). Enter it with `--ip` and you're connected. If that menu is hard to reach, the same address is usually visible in your router's admin page under connected devices — typically at `192.168.1.1` or `192.168.0.1` in a browser.
+
 ---
 
 ## For the Developers
