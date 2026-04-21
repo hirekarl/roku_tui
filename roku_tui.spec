@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['roku_tui/__main__.py'],
+    ['entry.py'],
     pathex=[],
     binaries=[],
     datas=[('roku_tui.tcss', '.')],
