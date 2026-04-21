@@ -82,6 +82,44 @@ User input → ConsolePanel → CommandSubmitted message
 
 Implement a **guided tour** of the app UI — a step-by-step walkthrough to help new users discover features interactively.
 
+### Plan
+
+Full plan at: `~/.claude/plans/wise-floating-pond.md`
+
+**New file:** `roku_tui/widgets/tour_screen.py` — `TourScreen(ModalScreen[None])` with a `TourStep` dataclass.
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `roku_tui/widgets/tour_screen.py` | **Create** — `TourScreen` widget |
+| `roku_tui/widgets/__init__.py` | Add `TourScreen` export |
+| `roku_tui.tcss` | Add `TourScreen` CSS rules |
+| `roku_tui/constants.py` | Add F3 binding; add `"tour"` to recording skip set |
+| `roku_tui/actions.py` | Add `action_show_tour()` |
+| `roku_tui/commands/tui_commands.py` | Register `tour` command |
+
+**Pattern to follow:** `roku_tui/widgets/guide_screen.py` (sidebar+content modal) and `roku_tui/widgets/help_screen.py` (simple modal). Trigger via F3 and `tour` console command.
+
+**10 tour steps:** Welcome → Console Panel → Navigation Commands → Launch Apps → Remote Panel → Network Inspector → Macros → Deep Links & YouTube → Keyboard Passthrough → Stats & Themes
+
+**Layout:**
+```
+┌─ Guided Tour ──────────── Step 3 of 10 ──┐
+│  [Step Title]                             │
+│  [Body with rich markup]                  │
+│  ▶ Try it: [example command]              │
+│  💡 [hint]                                │
+├───────────────────────────────────────────┤
+│  ◀ Prev [P]   [●●●○○○○○○○]   Next [N] ▶  │
+│              [Skip tour]                  │
+└───────────────────────────────────────────┘
+```
+
+**Bindings:** `N`/`→` = next, `P`/`←` = prev, `Escape`/`Q`/`S` = dismiss.
+
+**Verification:** Add to `tests/test_ui.py`: press `f3` → `isinstance(app.screen, TourScreen)`; press `n` → step increments; `escape` → back to main.
+
 ### UI/UX
 
 - **Theme:** Tokyo Night palette (custom Textual `Theme`), switchable via `theme` command. Additional themes (Nord, etc.) available.
