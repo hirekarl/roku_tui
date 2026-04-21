@@ -15,6 +15,8 @@ from textual.widgets import Button, Label, RichLog, Static
 from ..ecp.models import NetworkEvent
 
 ...
+
+
 class NetworkInspector(ModalScreen[None]):
     """A modal screen for inspecting the details of a NetworkEvent."""
 
@@ -35,12 +37,14 @@ class NetworkInspector(ModalScreen[None]):
 
             with Vertical(id="inspector-header"):
                 status_color = "green" if (self.event.status_code or 0) < 400 else "red"
-                yield Label(Text.assemble(
-                    ("Status: ", "dim"),
-                    (f"{self.event.status_code or '???'}", f"bold {status_color}"),
-                    ("  Time: ", "dim"),
-                    (f"{self.event.response_time_ms or 0:.1f}ms", "bold")
-                ))
+                yield Label(
+                    Text.assemble(
+                        ("Status: ", "dim"),
+                        (f"{self.event.status_code or '???'}", f"bold {status_color}"),
+                        ("  Time: ", "dim"),
+                        (f"{self.event.response_time_ms or 0:.1f}ms", "bold"),
+                    )
+                )
 
             with ScrollableContainer(id="inspector-content"):
                 yield Label("Request Headers", classes="inspector-section-title")

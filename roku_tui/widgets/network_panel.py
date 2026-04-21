@@ -124,7 +124,7 @@ class NetworkPanel(Widget):
 
         # Left side: Method + Path
         # Fixed width is 44. Scrollbar is 1. Effective width is 43.
-        max_width = 40 # Slightly narrower for DataTable padding
+        max_width = 40  # Slightly narrower for DataTable padding
         right_len = len(right)
         left_width = max_width - right_len - 1
 

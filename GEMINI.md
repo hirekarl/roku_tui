@@ -69,6 +69,7 @@ User input → ConsolePanel → CommandSubmitted message
 ### Engineering Standards
 
 - **Type Safety:** `mypy --strict` compliance required. Use `Row[Any]` for DB rows.
+- **Quality Control:** Pre-commit hooks (`ruff`, `mypy`, `pytest`) and GitHub CI workflow enforced.
 - **Linting:** Ruff for both linting and formatting.
 - **Async:** Use Textual workers (`@work`) for non-blocking UI tasks.
 - **Documentation:** Google-style docstrings for all functions/classes.

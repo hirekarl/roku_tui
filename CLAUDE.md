@@ -14,9 +14,8 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 
 ## Standards & Practices
 - **Style:** Google-style docstrings, PEP-8 compliance, strict type hints (`mypy --strict`).
-- **Imports:** `from __future__ import annotations`, sorted with Ruff (`I001`).
-- **Database:** SQLAlchemy Core (no ORM) for SQLite persistence in `roku_tui.db`.
-- **UI/UX:** True-black workspace for Console and Remote tabs; visual "pulse" feedback on remote buttons; interactive Network Inspector with real-time filtering.
+- **Pre-commit:** Hooks installed for `ruff`, `mypy`, and `pytest`. Run `uv run pre-commit install` to set up.
+- **CI/CD:** Automated CI on every push/PR; automated releases on tag push (`v*`).
 
 ## UI/UX
 - **Theme:** Tokyo Night palette (custom Textual `Theme`), switchable via `theme` command.

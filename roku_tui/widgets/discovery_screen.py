@@ -16,6 +16,8 @@ from ..ecp.client import EcpClient
 from ..ecp.discovery import discover_rokus, probe_roku
 
 ...
+
+
 class DiscoveryScreen(ModalScreen[str | None]):
     """A modal screen for discovering and selecting Roku devices on the network."""
 
@@ -25,12 +27,14 @@ class DiscoveryScreen(ModalScreen[str | None]):
 
     class DeviceSelected(Message):
         """Sent when a device is selected from the list or manually entered."""
+
         def __init__(self, ip: str):
             super().__init__()
             self.ip = ip
 
     class DiscoveryFound(Message):
         """Internal message when a device is found."""
+
         def __init__(self, ip: str, name: str):
             super().__init__()
             self.ip = ip
@@ -38,6 +42,7 @@ class DiscoveryScreen(ModalScreen[str | None]):
 
     class DiscoveryFinished(Message):
         """Internal message when SSDP discovery completes."""
+
         pass
 
     def __init__(self, known_ips: list[str], **kwargs: Any):
@@ -99,6 +104,7 @@ class DiscoveryScreen(ModalScreen[str | None]):
 
     def _get_device_name_sync(self, ip: str) -> str:
         """Helper to get device name using a temporary event loop if needed."""
+
         async def _async_get() -> str:
             try:
                 client = EcpClient(f"http://{ip}:8060")

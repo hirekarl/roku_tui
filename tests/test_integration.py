@@ -13,7 +13,7 @@ from roku_tui.widgets.remote_panel import RemotePanel
 @pytest.fixture
 def app(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> RokuTuiApp:
     monkeypatch.setattr("roku_tui.app._get_db_path", lambda: tmp_path / "test.db")
-    app = RokuTuiApp() # Not mock, to trigger discovery
+    app = RokuTuiApp()  # Not mock, to trigger discovery
     app.db.initialize()
     return app
 

@@ -16,7 +16,10 @@ from roku_tui.widgets.network_panel import NetworkPanel
 @pytest.fixture
 def registry() -> CommandRegistry:
     reg = CommandRegistry()
-    async def _h(*a: Any, **k: Any) -> str: return ""
+
+    async def _h(*a: Any, **k: Any) -> str:
+        return ""
+
     reg.register(Command("home", [], [], _h, "Home"))
     reg.register(Command("launch", ["l"], ["app"], _h, "Launch"))
     return reg
@@ -71,6 +74,7 @@ async def test_network_panel_limits_events() -> None:
 
 def test_command_highlighter_logic(registry: CommandRegistry) -> None:
     from rich.text import Text
+
     highlighter = CommandHighlighter(registry)
 
     # 1. Valid primary command
@@ -96,8 +100,10 @@ async def test_console_panel_hint_updates(
     panel = ConsolePanel(suggester, registry)
 
     hints = []
+
     def _mock_set_hint(content: str) -> None:
         hints.append(content)
+
     panel._set_hint = _mock_set_hint  # type: ignore[method-assign]
 
     # 1. Type exact command
