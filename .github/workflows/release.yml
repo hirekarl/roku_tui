@@ -24,14 +24,10 @@ jobs:
             arch: amd64
             artifact_name: roku-tui.exe
             asset_name: roku-tui-windows-amd64.exe
-          - os: macos-13
-            arch: intel
-            artifact_name: roku-tui
-            asset_name: roku-tui-macos-intel
           - os: macos-14
-            arch: silicon
+            arch: universal
             artifact_name: roku-tui
-            asset_name: roku-tui-macos-silicon
+            asset_name: roku-tui-macos-universal
 
     steps:
       - name: Checkout code
