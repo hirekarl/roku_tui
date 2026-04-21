@@ -26,6 +26,12 @@ uv run pytest
 
 # Single test
 uv run pytest tests/test_handlers.py::test_launch_fuzzy_match
+
+# Dev mode — live CSS reloading (no restart needed for .tcss changes)
+uv run textual run --dev roku_tui/__main__.py
+
+# Dev console — log sink in a separate terminal (use self.log() in code)
+uv run textual console
 ```
 
 ## Architecture

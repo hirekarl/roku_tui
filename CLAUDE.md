@@ -11,6 +11,8 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - Type Check: `uv run mypy .`
 - Test: `uv run pytest`
 - Single Test: `uv run pytest tests/test_handlers.py::test_launch_fuzzy_match`
+- Dev Mode (live CSS reload): `uv run textual run --dev roku_tui/__main__.py`
+- Dev Console (log sink): `uv run textual console` (run in a separate terminal)
 
 ## Standards & Practices
 - **Style:** Google-style docstrings, PEP-8 compliance, strict type hints (`mypy --strict`).
