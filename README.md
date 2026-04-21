@@ -4,63 +4,23 @@
 [![Textual](https://img.shields.io/badge/UI-Textual-green.svg)](https://textual.textualize.io/)
 [![uv](https://img.shields.io/badge/Managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
 
-A Roku remote control that lives in your terminal — built to replace a "slick" but cumbersome interface with a high-performance, keyboard-driven cockpit.
+**Your Roku remote, inside your terminal. Type to control your TV — no phone, no plastic, no excuses.**
 
 ---
 
-## The Thesis: Why a Terminal?
+## The Problem With Every Roku Remote
 
-The prompt for this project was: **"Take a UI you use daily and improve it."**
+You're at your computer. A show is playing on the TV. You need to pause it.
 
-In an AI-Native world, the "obvious" move is to build a modern web app with gradients and animations. But for the Roku, the "modern" path is actually the source of the friction. Physical remotes and mobile apps are **"Dumb Remotes"** — they are stateless, forgetful, and have zero bandwidth.
+So you reach for your phone, unlock it, open the Roku app, wait for it to connect, and hit pause. Or you get up to find the physical remote. Or — be honest — you just let the show keep playing.
 
-**roku-tui** is an argument for the **Programmable Remote**. By moving the interface into a terminal, we don't just get speed; we get a remote with a **brain** (a local SQLite database) that can do things a piece of plastic never could.
+None of this makes sense. You have a keyboard right in front of you.
 
-### The "Unfair" TUI Advantages
-
-1. **Macros (Scripts for your TV)**: A physical remote can't remember a sequence. In **roku-tui**, you can record a "Morning Routine" macro: `home -> sleep 2 -> launch YouTube -> sleep 1 -> select`. One command, zero menu diving.
-2. **Fuzzy "Content-First" Launching**: Don't waste time scrolling through a grid of 100 apps. Use fuzzy search to launch apps instantly, or use **Deep Links** to jump directly to a specific YouTube video or Netflix show with a single keyword alias.
-3. **The "God View" (Network Observability)**: Most UIs hide their complexity. **roku-tui** exposes it. The real-time network panel shows you exactly how the Roku ECP protocol works, turning your remote into an educational tool for how the internet actually functions.
-4. **The Context-Switch Killer**: Reaching for a physical remote or unlocking a phone is a "context switch" that breaks your flow. If you're already at your computer, your remote is now just a `Cmd+Tab` away. You never have to leave your keyboard (or your seat) to adjust the volume or pause a show.
-5. **Local Memory**: Your Roku doesn't know you. **roku-tui** does. It tracks your stats, remembers your most-launched apps, and provides instant tab-completion for your favorites based on your actual history.
-6. **Works Over SSH**: A TUI sends text — nothing more. SSH into your home server, spin up **roku-tui**, and control your TV from anywhere with zero latency overhead and zero GUI dependencies.
-7. **Shell-Native Automation**: Because it's a terminal app, it composes with everything else. Wrap commands in a shell script, call it from cron, or pipe it into a home automation workflow. A phone app can't do that.
+**roku-tui** is a Roku remote that lives inside your terminal. You type what you want, and it happens. No unlocking, no waiting, no getting up.
 
 ---
 
-## Who Is This For?
-
-If any of these describe you, **roku-tui** was built for you:
-
-- **You live in a terminal.** You use tmux, Neovim, or a tiling WM. Reaching for your phone to pause a video is genuinely annoying.
-- **You run a home server or HTPC.** SSH into your box and control the TV without a graphical environment or VNC session.
-- **You automate everything.** Cron job to mute the TV at 11pm. Shell script that launches a show and dims your Hue lights. A TUI with a real command interface composes with your other tools; a phone app doesn't.
-- **You're learning how HTTP works.** The network panel shows you every ECP request in real time — method, path, status code, and latency. It's the rare app that teaches you how it works while you use it.
-- **You hate context switching.** Every time you unlock your phone to hit pause, you've broken your flow. Your remote should be a `Cmd+Tab` away, not an arm's reach away.
-
----
-
-## Quick Start
-
-Ensure you have [uv](https://github.com/astral-sh/uv) installed, then clone and run:
-
-```bash
-git clone https://github.com/pursuit-ai/roku-tui.git
-cd roku-tui
-
-# No Roku? Use mock mode — all HTTP calls are simulated
-uv run roku-tui --mock
-
-# Connect to a real device by IP
-uv run roku-tui --ip 192.168.1.42
-
-# Auto-discover Roku on your local network
-uv run roku-tui
-```
-
----
-
-## The Interface
+## What It Looks Like
 
 ```
 ┌──────────────────────────────┬───────────────────────────────────┐
@@ -76,20 +36,81 @@ uv run roku-tui
 └──────────────────────────────┴───────────────────────────────────┘
 ```
 
-The app features a dual-panel layout:
-- **Left Panel (Fluid)**: A `TabbedContent` area featuring the **Console** and a virtual **Remote** control.
-- **Right Panel (44 chars)**: A **Network Inspector** that logs every ECP HTTP request in real time. Toggle it with `Ctrl+N`.
+Think of it like a search bar that controls your TV. You type what you want — `pause`, `launch Netflix`, `volume up 3` — and it happens instantly. Tab-completion means you rarely need to type more than a few characters.
 
 ---
 
-## The Power of Local Persistence
+## Five Things It Does That No Physical Remote Can
 
-Traditional remotes are ephemeral. **roku-tui** is backed by a SQLite database, turning it into a personalized command center:
+**1. Scripts for your TV (Macros)**
 
-- **Instant Autocomplete**: We cache every app on your Roku. Type `launch n...` and it autocompletes `Netflix` instantly from local state—zero network round-trips.
-- **Smart History**: Every command is logged. Search your history or use `stats` to see your most-launched apps and peak activity times.
-- **Programmable Macros**: Record a sequence (e.g., "Open YouTube -> Wait 2s -> Select -> Search 'Lofi'") and save it as a named macro.
-- **Network Observability**: Watch the HTTP latency of the Roku ECP protocol in real-time.
+A physical remote can't remember sequences. In **roku-tui**, you record one, name it, and run it with a single command. Type `macro run morning` and it executes: home → wait 2 seconds → launch your news app → select. One command, zero menu-diving.
+
+**2. Find anything, instantly**
+
+No more scrolling through a grid of 100 apps. Type `launch net` and it finds Netflix. Save a shortcut to a specific playlist: `link save lofi youtube dCmq...`. From then on, `launch lofi` takes you directly there — not just to the app, but to that exact content.
+
+**3. Search YouTube from your terminal**
+
+Type `yt search lo-fi beats` and get results back in the console. Type `yt launch 1` to play the first one. No YouTube app loading screen, no autoplay algorithm, no ads to click through.
+
+**4. Your remote remembers you**
+
+Your Roku doesn't know you. **roku-tui** does. Every app you've launched and every command you've run is stored locally. `stats` shows your most-used apps. Tab-completion learns your favorites. The more you use it, the faster it gets.
+
+**5. See how it works**
+
+The right panel shows every HTTP request your Roku responds to, in real time — what gets sent, what comes back, how fast. Most apps hide their complexity. This one shows you the internet working, live, while you use it.
+
+---
+
+## Quick Start
+
+**Option 1: Download a binary** (no setup required)
+
+Grab the latest release for your platform from the [Releases page](https://github.com/hirekarl/roku_tui/releases). Download, run, done.
+
+**Option 2: Run from source**
+
+Ensure you have [uv](https://github.com/astral-sh/uv) installed, then:
+
+```bash
+git clone https://github.com/hirekarl/roku_tui.git
+cd roku_tui
+
+# No Roku? Use mock mode — all HTTP calls are simulated
+uv run roku-tui --mock
+
+# Auto-discover Roku on your local network
+uv run roku-tui
+
+# Or connect directly by IP
+uv run roku-tui --ip 192.168.1.42
+```
+
+---
+
+## For the Developers
+
+The prompt for this project was: **"Take a UI you use daily and improve it."**
+
+The "obvious" move is to build a modern web app with gradients and animations. But for the Roku, the "modern" path is actually the source of the friction. Physical remotes and mobile apps are **Dumb Remotes** — stateless, forgetful, with zero bandwidth.
+
+**roku-tui** is an argument for the **Programmable Remote**. Moving the interface into a terminal doesn't just add speed — it adds a **brain**: a local SQLite database, a command registry, a macro engine, and a real-time network inspector. Things a piece of plastic will never have.
+
+### The Unfair TUI Advantages
+
+- **Context-switch killer.** Reaching for a phone breaks flow. If you're already at your computer, your remote is a `Cmd+Tab` away.
+- **Works over SSH.** A TUI sends text — nothing more. Control your TV from a remote machine with zero GUI dependencies.
+- **Shell-native automation.** Wrap commands in a shell script, call them from cron, compose with home automation. A phone app can't do that.
+- **God view.** The network panel exposes the Roku ECP protocol in real time. Turn your remote into an educational tool for how HTTP actually works.
+
+### Who Is This For?
+
+- **Terminal natives.** You use tmux, Neovim, or a tiling WM. Reaching for your phone to pause a video is genuinely annoying.
+- **Home server / HTPC users.** SSH in and control the TV without a graphical environment or VNC session.
+- **Automation people.** Cron job to mute at 11pm. Script that launches a show and dims your Hue lights.
+- **Learners.** The network panel shows every ECP request live — method, path, status code, latency. It's the rare app that teaches you how it works while you use it.
 
 ---
 
@@ -116,13 +137,13 @@ Traditional remotes are ephemeral. **roku-tui** is backed by a SQLite database, 
 ### Apps & Deep Links
 | Command | Description |
 |---|---|
-| `launch <name | alias>` | Fuzzy-match launch an app or a saved shortcut |
+| `launch <name \| alias>` | Fuzzy-match launch an app or a saved shortcut |
 | `apps` | List installed channels |
 | `active` | Show currently playing app |
 | `link save <alias> <app> <id>` | Save a content shortcut (e.g., `link save lofi youtube dCmq...`) |
 | `link list` | List all saved shortcuts |
 | `yt search <query>` | Search YouTube directly from the console |
-| `yt launch <id | index>` | Launch a YouTube video by ID or search result index |
+| `yt launch <id \| index>` | Launch a YouTube video by ID or search result index |
 | `type <text>` | Send a text string to the Roku |
 | `kb` | Toggle live keyboard passthrough mode |
 
@@ -208,13 +229,13 @@ uv run ruff check . --fix
 uv run ruff format .
 
 # Type check
-uv run mypy roku_tui/
+uv run mypy .
 
 # Tests
 uv run pytest
 ```
 
-The local database is stored in your OS user data directory (e.g. `~/.local/share/roku-tui/roku_tui.db` on Linux/macOS, `%LOCALAPPDATA%\roku-tui\roku_tui.db` on Windows).
+The local database is stored in your OS user data directory (`~/.local/share/roku-tui/roku_tui.db` on Linux/macOS, `%LOCALAPPDATA%\roku-tui\roku_tui.db` on Windows).
 
 **Stack:** Python 3.12 · Textual · httpx · SQLAlchemy Core · SQLite · uv
 
