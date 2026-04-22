@@ -26,7 +26,8 @@ _STEPS = [
     TourStep(
         title="Welcome to roku-tui",
         body=f"{_MASCOT}\n\n"
-        "Welcome. I'll show you around — this won't take long,\n"
+        "Hi. I'm Ratsmith.\n\n"
+        "I'll show you around — this won't take long,\n"
         "and by the end you'll wonder why you ever used the stock remote app.",
         hint="Use [bold]N[/bold] for Next and [bold]P[/bold] for Prev",
     ),
@@ -105,7 +106,8 @@ _STEPS = [
     ),
     TourStep(
         title="That's all.",
-        body=f"{_MASCOT}\n\nYou've got everything you need.\nNow go control something.",
+        body=f"{_MASCOT}\n\nYou've got everything you need.\n"
+        "Now go control something.\n\n[dim]— Ratsmith[/dim]",
     ),
 ]
 

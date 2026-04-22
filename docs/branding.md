@@ -8,7 +8,7 @@ roku-tui's brand identity is deliberately understated. The mascot and voice are 
 
 ## The Mascot
 
-Take 3: forward-facing rat with a chef's toque and wooden spoon, offered toward the viewer. The pose reads as presenting, not performing — confident, not try-hard.
+His name is **Ratsmith**. Take 3: forward-facing rat with a chef's toque and wooden spoon, offered toward the viewer. The pose reads as presenting, not performing — confident, not try-hard.
 
 ```
           ___

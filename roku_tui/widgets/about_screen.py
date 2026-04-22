@@ -31,6 +31,8 @@ Senior Software Engineer · Terminal Enthusiast
  [bold #7aa2f7]GitHub[/bold #7aa2f7]    https://github.com/hirekarl/roku_tui
  [bold #7aa2f7]LinkedIn[/bold #7aa2f7]  https://www.linkedin.com/in/hirekarl
 
+[dim]── Ratsmith ──────────────────────────────[/dim]
+
 {RAT_MARKUP_CREDITED}
 """
 

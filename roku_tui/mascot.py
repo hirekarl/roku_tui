@@ -44,6 +44,7 @@ RAT_MARKUP = (
     "[/#565f89]"
 )
 
+MASCOT_NAME = "Ratsmith"
 ATTRIBUTION = "mascot based on ASCII art by ikas · ascii.co.uk/art/rat"
 
 # Markup version with attribution line — for About / final placement

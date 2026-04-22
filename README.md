@@ -21,7 +21,7 @@
             //  \   |_./
           '~' '~----'
 ```
-<p align="center"><em>Mascot based on ASCII art by <a href="https://ascii.co.uk/art/rat">ikas</a></em></p>
+<p align="center"><em>Ratsmith — mascot based on ASCII art by <a href="https://ascii.co.uk/art/rat">ikas</a></em></p>
 
 ---
 
@@ -227,6 +227,6 @@ uv run pytest
 
 **roku-tui** is maintained by **[Karl Johnson](https://www.linkedin.com/in/hirekarl/)** and was built for the [Pursuit AI-Native program](https://www.pursuit.org/ai-native-program).
 
-Mascot design based on ASCII art by **[ikas](https://ascii.co.uk/art/rat)**.
+Ratsmith (mascot) based on ASCII art by **[ikas](https://ascii.co.uk/art/rat)**.
 
 This project is licensed under the [MIT License](LICENSE).
