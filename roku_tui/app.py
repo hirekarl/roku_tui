@@ -36,13 +36,9 @@ from .widgets.status_bar import StatusBar
 
 def _get_resource_path(relative_path: str) -> Path:
     """Get absolute path to resource, works for dev and for PyInstaller."""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = Path(sys._MEIPASS)  # type: ignore[attr-defined]
-    except Exception:
-        base_path = Path(__file__).resolve().parent.parent
-
-    return base_path / relative_path
+    if hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / relative_path
+    return Path(__file__).resolve().parent.parent / relative_path
 
 
 def _get_db_path() -> Path:
