@@ -24,7 +24,7 @@ class EcpClient:
             on_network_event: Optional callback for logging HTTP traffic.
         """
         self._base = base_url.rstrip("/")
-        self._on_event = on_network_event
+        self.on_network_event = on_network_event
         self._http = httpx.AsyncClient(timeout=5.0)
 
     async def close(self) -> None:
@@ -48,7 +48,7 @@ class EcpClient:
 
         duration = (time.perf_counter() - start) * 1000
 
-        if self._on_event:
+        if self.on_network_event:
             event = NetworkEvent(
                 method=method,
                 url=url,
@@ -59,7 +59,7 @@ class EcpClient:
                 body=resp.text if resp else "",
                 error=error,
             )
-            self._on_event(event)
+            self.on_network_event(event)
 
         return resp
 

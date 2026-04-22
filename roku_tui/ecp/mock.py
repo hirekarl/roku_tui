@@ -45,7 +45,7 @@ MOCK_DEVICE_XML = f"""<device-info>
 
 class MockEcpClient:
     def __init__(self, on_network_event: Callable[[NetworkEvent], None]):
-        self._callback = on_network_event
+        self.on_network_event = on_network_event
         self._base = "http://mock-roku:8060"
 
     async def keypress(self, key: str) -> None:
@@ -81,7 +81,7 @@ class MockEcpClient:
     async def _fake_request(self, method: str, path: str, body: str) -> None:
         delay_ms = random.uniform(30, 120)
         await asyncio.sleep(delay_ms / 1000)
-        self._callback(
+        self.on_network_event(
             NetworkEvent(
                 method=method,
                 url=f"{self._base}{path}",
