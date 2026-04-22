@@ -8,9 +8,10 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Static
 
+from .. import __version__
 from ..mascot import RAT_MARKUP_CREDITED
 
-_TITLE = "[bold #7aa2f7]roku-tui[/bold #7aa2f7] [dim]about the project[/dim]"
+_TITLE = f"[bold #7aa2f7]roku-tui[/bold #7aa2f7] [dim]v{__version__} · about the project[/dim]"
 
 _CONTENT = f"""
 [bold #73daca]The Gist[/bold #73daca]
