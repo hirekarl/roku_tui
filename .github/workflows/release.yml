@@ -54,7 +54,31 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          uv run pyinstaller roku_tui.spec
+          if [[ "${{ matrix.os }}" == macos-* ]]; then
+            echo "Building universal2 binary for macOS..."
+            
+            # 1. Build for arm64 (native)
+            echo "Building arm64 slice..."
+            uv run pyinstaller roku_tui.spec --workpath build-arm64 --clean
+            mv dist/roku-tui dist/roku-tui-arm64
+            
+            # 2. Build for x86_64
+            echo "Building x86_64 slice..."
+            uv python install cpython-3.12-macos-x86_64-none
+            uv venv .venv-x86_64 --python cpython-3.12-macos-x86_64-none
+            uv pip install --python .venv-x86_64/bin/python . pyinstaller --python-platform x86_64-apple-darwin
+            # Run pyinstaller under x86_64 emulation to ensure x86_64 collection
+            arch -x86_64 .venv-x86_64/bin/pyinstaller roku_tui.spec --workpath build-x86_64 --clean
+            mv dist/roku-tui dist/roku-tui-x86_64
+            
+            # 3. Combine into a universal binary
+            echo "Combining slices with lipo..."
+            lipo -create dist/roku-tui-arm64 dist/roku-tui-x86_64 -output dist/roku-tui
+            rm dist/roku-tui-arm64 dist/roku-tui-x86_64
+          else
+            uv run pyinstaller roku_tui.spec
+          fi
+        shell: bash
 
       - name: Rename artifact
         run: mv dist/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
