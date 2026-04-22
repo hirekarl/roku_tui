@@ -1,6 +1,6 @@
 [project]
 name = "roku-tui"
-version = "0.4.1"
+version = "0.5.0"
 description = "Roku remote control as a terminal console — learn the terminal and HTTP at the same time"
 readme = "README.md"
 license = "MIT"
