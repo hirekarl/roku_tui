@@ -43,6 +43,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - `roku_tui/actions.py`: Mixin class for UI actions and event handlers.
 - `roku_tui/constants.py`: Centralized configuration (bindings, hotkeys).
 - `roku_tui/themes.py`: Centralized Textual `Theme` definitions.
+- `roku_tui/mascot.py`: Rat mascot ASCII art and `ratsay()` speech-bubble formatter.
 - `roku_tui/commands/`: Command registry and handlers (db, tui, network).
 - `roku_tui/db/`: Database schema and persistence logic.
 - `roku_tui/ecp/`: Roku ECP client, discovery, and mock simulations.

@@ -9,6 +9,8 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label, Static
 
+from ..mascot import RAT_MARKUP as _MASCOT
+
 
 @dataclass
 class TourStep:
@@ -23,9 +25,9 @@ class TourStep:
 _STEPS = [
     TourStep(
         title="Welcome to roku-tui",
-        body="This tour will walk you through the core features of the app.\n\n"
-        "roku-tui is a terminal-based Roku remote that gives you a "
-        "command console, a visual remote panel, and a live network log.",
+        body=f"{_MASCOT}\n\n"
+        "Welcome. I'll show you around — this won't take long,\n"
+        "and by the end you'll wonder why you ever used the stock remote app.",
         hint="Use [bold]N[/bold] for Next and [bold]P[/bold] for Prev",
     ),
     TourStep(
@@ -100,6 +102,10 @@ _STEPS = [
         body="Personalize your experience with themes and track your usage.",
         try_it="theme nord",
         hint="Type [bold]stats[/bold] to see your most used commands.",
+    ),
+    TourStep(
+        title="That's all.",
+        body=f"{_MASCOT}\n\nYou've got everything you need.\nNow go control something.",
     ),
 ]
 

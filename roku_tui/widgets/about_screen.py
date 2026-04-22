@@ -8,27 +8,30 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Static
 
+from ..mascot import RAT_MARKUP_CREDITED
+
 _TITLE = "[bold #7aa2f7]roku-tui[/bold #7aa2f7] [dim]about the project[/dim]"
 
-_CONTENT = """
-[bold #73daca]The Impetus[/bold #73daca]
+_CONTENT = f"""
+[bold #73daca]The Gist[/bold #73daca]
 
-[italic]roku-tui[/italic] was born from the desire to bridge the gap between simple
-device control and technical curiosity. It transforms your terminal into a
-powerful Roku remote while exposing the underlying HTTP/ECP protocol in real-time.
+[italic]Precision remote control for people who hate imprecision.[/italic]
 
-The goal is to help users learn how the web works (and how devices talk to
-each other) while they're just trying to find something to watch.
+roku-tui turns your terminal into a full-featured Roku remote —
+deep links, macros, network inspection, YouTube without an API key.
+The things your stock remote pretends it can't do.
 
 [bold #73daca]The Author[/bold #73daca]
 
 [bold]Karl Johnson[/bold]
-Senior Software Engineer & Terminal Enthusiast
+Senior Software Engineer · Terminal Enthusiast
 
 [bold #bb9af7]Connect & Contribute[/bold #bb9af7]
 
  [bold #7aa2f7]GitHub[/bold #7aa2f7]    https://github.com/hirekarl/roku_tui
  [bold #7aa2f7]LinkedIn[/bold #7aa2f7]  https://www.linkedin.com/in/hirekarl
+
+{RAT_MARKUP_CREDITED}
 """
 
 

@@ -55,5 +55,6 @@ RECORDING_SKIP: frozenset[str] = frozenset(
         "about",
         "theme",
         "tour",
+        "ratsay",
     }
 )

@@ -9,11 +9,12 @@ from textual.binding import Binding
 from textual.containers import Vertical
 from textual.message import Message
 from textual.screen import ModalScreen
-from textual.widgets import Button, Input, Label, LoadingIndicator, OptionList
+from textual.widgets import Button, Input, Label, LoadingIndicator, OptionList, Static
 from textual.widgets.option_list import Option
 
 from ..ecp.client import EcpClient
 from ..ecp.discovery import discover_rokus, probe_roku
+from ..mascot import RAT_MARKUP
 
 ...
 
@@ -52,6 +53,7 @@ class DiscoveryScreen(ModalScreen[str | None]):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="discovery-body"):
+            yield Static(RAT_MARKUP, id="discovery-mascot", markup=True)
             yield Label("Connect to Roku", id="discovery-title")
             yield LoadingIndicator(id="discovery-loading")
             yield OptionList(id="discovery-list")

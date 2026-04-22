@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
 
+from ..mascot import ratsay as _ratsay
 from ..service_yt import YouTubeClient
 from .registry import Command, CommandRegistry
 from .tips import LONG_HELP
@@ -571,6 +572,20 @@ def register_all(registry: CommandRegistry) -> None:
             args=[],
             handler=handle_kb,
             help_text="Toggle keyboard passthrough mode  (ESC to exit)",
+        )
+    )
+
+    async def handle_ratsay(client: Any, args: list[str], context: Any) -> str:
+        return _ratsay(" ".join(args) if args else None)
+
+    registry.register(
+        Command(
+            name="ratsay",
+            aliases=[],
+            args=[],
+            handler=handle_ratsay,
+            help_text="ratsay <message> — print a message with the mascot",
+            dynamic_args=True,
         )
     )
 

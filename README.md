@@ -4,7 +4,24 @@
 [![Textual](https://img.shields.io/badge/UI-Textual-green.svg)](https://textual.textualize.io/)
 [![uv](https://img.shields.io/badge/Managed%20by-uv-purple.svg)](https://github.com/astral-sh/uv)
 
-**Your Roku remote, inside your terminal. Type to control your TV — no phone, no plastic, no excuses.**
+**Precision remote control for people who hate imprecision.**
+
+```
+ _______________________
+< What are we watching? >
+ -----------------------
+
+          ___
+         ( ~ )
+          |||
+        (\,;,/)
+        (o o)\//,     o
+         \ /     \,   |
+         `+'(  (   \  o
+            //  \   |_./
+          '~' '~----'
+```
+<p align="center"><em>Mascot based on ASCII art by <a href="https://ascii.co.uk/art/rat">ikas</a></em></p>
 
 ---
 
@@ -14,7 +31,7 @@ You're at your computer. A show is playing on the TV. You need to pause it.
 
 So you reach for your phone, unlock it, open the Roku app, wait for it to connect, and hit pause. Or you get up to find the physical remote. Or — be honest — you just let the show keep playing.
 
-None of this makes sense. You have a keyboard right in front of you. **roku-tui** is a Roku remote that lives inside your terminal. You type what you want, and it happens. No unlocking, no waiting, no getting up.
+None of this makes sense. You have a keyboard right in front of you. **roku-tui** is a Roku remote that lives inside your terminal. Type what you want, and it happens. No unlocking, no waiting, no getting up.
 
 ---
 
@@ -33,32 +50,30 @@ None of this makes sense. You have a keyboard right in front of you. **roku-tui*
   <b>Note:</b> These screenshots were rendered using the <code>gruvbox</code> theme.
 </p>
 
-> 💡 **First time here?** Press **F2** inside the app (or type `tour`) to start the **Guided Tour**. It's the fastest way to learn how to control your TV from your terminal.
+> 💡 **First time here?** Press **F2** inside the app (or type `tour`) to start the **Guided Tour** — the fastest way to see what roku-tui can do.
 
 ---
 
-## Features for Power Users & Casuals
-
-Whether you live in `tmux` or you're just looking for a beautiful way to control your TV, **roku-tui** is built for your workflow.
+## Features
 
 ### ⚡ Velocity & Automation
-- **Macros**: Record sequences and replay them with one command. Type `macro run morning` to go home and launch Netflix instantly.
-- **Headless Mode**: Control your TV from your shell or cron jobs. `uv run roku-tui -c "home; launch YouTube"` turns on the TV and sets the scene.
-- **Network Inspector**: A "God View" for your network. Watch every ECP HTTP request in real-time, with pretty-printed XML/JSON for every exchange.
-- **Command Chaining**: Chain commands with semicolons. `u 5; s` navigates up five times and selects, faster than any physical remote.
+- **Macros**: Record sequences and replay them with one command. `macro run morning` goes home and launches Netflix instantly.
+- **Headless Mode**: Control your TV from your shell or cron jobs. `uv run roku-tui -c "home; launch YouTube"` — no UI required.
+- **Network Inspector**: Watch every ECP HTTP request in real-time, with pretty-printed XML/JSON for every exchange.
+- **Command Chaining**: Chain commands with semicolons. `u 5; s` navigates up five and selects — faster than any physical remote.
 
 ### 🎨 Discovery & Aesthetics
-- **Fuzzy Launch**: Don't scroll through 100 apps. Type `launch net` and the app finds Netflix for you.
-- **YouTube Integration**: Search YouTube directly from the console (`yt search lo-fi beats`) and launch results by index (`yt launch 1`). No ads, no distractions.
-- **Beautiful Themes**: Switch between `roku-night` (Tokyo Night), `catppuccin`, `nord`, and `gruvbox` to match your terminal setup.
-- **Interactive Tour**: A step-by-step walkthrough built right into the UI. No manual required.
+- **Fuzzy Launch**: Type `launch net` and it finds Netflix. No scrolling through 100 apps.
+- **YouTube Integration**: Search YouTube from the console (`yt search lo-fi beats`) and launch by index (`yt launch 1`). No API key, no distractions.
+- **Beautiful Themes**: `roku-night` (Tokyo Night), `catppuccin`, `nord`, and `gruvbox` — match your terminal setup.
+- **Interactive Tour**: A step-by-step walkthrough built into the UI. Press `F2` or type `tour`.
 
 ---
 
 ## Quick Start
 
 ### Option 1: Download a Binary
-Grab the latest release for your platform from the [Releases page](https://github.com/hirekarl/roku_tui/releases). Download, run, and you're done.
+Grab the latest release for your platform from the [Releases page](https://github.com/hirekarl/roku_tui/releases). Download, run, done.
 
 ### Option 2: Run from Source
 Ensure you have [uv](https://github.com/astral-sh/uv) installed, then:
@@ -82,43 +97,38 @@ uv run roku-tui --mock
 
 ## Headless Mode & Automation
 
-Control your TV without opening the TUI by using the `-c` flag. This allows you to integrate **roku-tui** into your existing shell scripts or desktop automation.
+Control your TV without opening the TUI using the `-c` flag. Pipe it into shell scripts, cron jobs, or desktop automation:
 
 ```bash
-# Example: Create a shell alias for your TV
 alias tv-mute='uv run roku-tui --ip 192.168.1.50 -c "mute"'
 ```
 
-For a complete guide on scheduling morning news, vacation mode simulation, and shell integration, see our **[Automation & Cron Guide](docs/automation.md)**.
+For scheduling, vacation-mode simulation, and shell integration patterns, see the **[Automation & Cron Guide](docs/automation.md)**.
 
 ---
 
-## 📚 Deep Dives & Documentation
+## 📚 Documentation
 
-Explore these guides to get the most out of **roku-tui**:
-
-- **[Automation & Cron Guide](docs/automation.md)**: Schedule routines and automate your TV.
-- **[Macros: Automation & Sequences](docs/macros.md)**: Record and replay complex interactions.
-- **[Troubleshooting & Connectivity](docs/troubleshooting.md)**: Fix discovery and connection issues.
-- **[Customization & Themes](docs/themes.md)**: Personalize the UI with color palettes.
-- **[Development & Architecture](docs/development.md)**: How the app is built and structured.
-- **[Roku ECP Protocol](docs/ecp-protocol.md)**: Learn about the underlying network protocol.
+- **[Automation & Cron Guide](docs/automation.md)** — schedule routines and automate your TV
+- **[Macros: Automation & Sequences](docs/macros.md)** — record and replay complex interactions
+- **[Troubleshooting & Connectivity](docs/troubleshooting.md)** — fix discovery and connection issues
+- **[Customization & Themes](docs/themes.md)** — personalize the UI with color palettes
+- **[Development & Architecture](docs/development.md)** — how the app is built and structured
+- **[Roku ECP Protocol](docs/ecp-protocol.md)** — the underlying network protocol, explained
 
 ---
 
-## Design Philosophy: Our North Stars
+## Built for Two People
 
-**roku-tui** is designed to bridge the gap between high-velocity engineering tools and modern, aesthetic terminal applications. We build for two distinct "North Star" users:
+**roku-tui** is designed for exactly two users. Everything in the product traces back to one of them.
 
-### 🐧 Elias: The Power User
-- **Profile**: A senior SRE who lives in `tmux` and Neovim. Efficiency is his only metric.
-- **Usage**: Uses **Macros** to automate routines and relies on **Command Chaining** to navigate faster than humanly possible.
-- **Influence**: Elias's needs drove the implementation of the **SQLite-backed macro engine** and the **headless automation** logic.
+### 🐧 Elias — The Power User
+Lives in `tmux` and Neovim. Efficiency is his only metric. He uses macros to automate morning routines and command chaining to navigate faster than any physical remote. His needs drove the SQLite-backed macro engine, headless automation, and the network inspector.
 
-### 🎨 Michelle: The "TUI-Curious" Casual
-- **Profile**: A designer who loves aesthetics. She’s intimidated by "black screens" but loves beautiful, functional tools.
-- **Usage**: Discovered that typing `launch net` is easier than finding her remote. Uses `yt search` for work-day playlists.
-- **Influence**: Michelle’s needs led to the **Interactive Guided Tour**, the **Tokyo Night/Nord themes**, and the **Integrated YouTube Search**.
+### 🎨 Michelle — The TUI-Curious Casual
+A designer who loves aesthetics but not "black screens." She discovered that `launch net` is easier than finding her remote. Her needs drove the guided tour, the themed UI, and the YouTube integration.
+
+Both users are real constraints. When we add a feature, we ask whether it gets in Michelle's way or slows Elias down. If yes, we rethink it.
 
 ---
 
@@ -136,7 +146,7 @@ Explore these guides to get the most out of **roku-tui**:
 | `volume <up\|down\|mute>` | Volume control | `vol` |
 | `power` | Power | — |
 
-*Tip: Add a count to repeat: `up 3`, `volume down 5`.*
+*Tip: add a count to repeat — `up 3`, `volume down 5`.*
 
 ### Apps & YouTube
 | Command | Description | Aliases |
@@ -185,7 +195,7 @@ Explore these guides to get the most out of **roku-tui**:
 | `F2` | Interactive Guided Tour |
 | `F3` | About Screen |
 
-### Remote Tab (Hotkeys)
+### Remote Tab
 | Key | Action |
 |---|---|
 | Arrow keys | D-pad |
@@ -216,5 +226,7 @@ uv run pytest
 ## License & Credits
 
 **roku-tui** is maintained by **[Karl Johnson](https://www.linkedin.com/in/hirekarl/)** and was built for the [Pursuit AI-Native program](https://www.pursuit.org/ai-native-program).
+
+Mascot design based on ASCII art by **[ikas](https://ascii.co.uk/art/rat)**.
 
 This project is licensed under the [MIT License](LICENSE).

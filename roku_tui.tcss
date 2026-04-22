@@ -195,10 +195,15 @@ DiscoveryScreen {
 #discovery-body {
     width: 60;
     height: auto;
-    max-height: 20;
+    max-height: 32;
     background: $panel;
     border: tall $primary;
     padding: 1 2;
+}
+
+#discovery-mascot {
+    width: 100%;
+    margin-bottom: 1;
 }
 
 #discovery-title {
