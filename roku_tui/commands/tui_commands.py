@@ -15,7 +15,7 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
     """Register built-in TUI-specific commands like 'clear' and 'theme'."""
 
     async def _handle_clear(client: Any, args: list[str], context: Any) -> str:
-        app.action_clear_console()
+        context.action_clear_console()
         return ""
 
     registry.register(
@@ -29,7 +29,7 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
     )
 
     async def _handle_guide(client: Any, args: list[str], context: Any) -> str:
-        app.action_show_manual()
+        context.action_show_manual()
         return ""
 
     registry.register(
@@ -43,7 +43,7 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
     )
 
     async def _handle_tour(client: Any, args: list[str], context: Any) -> str:
-        app.action_show_tour()
+        context.action_show_tour()
         return ""
 
     registry.register(
@@ -58,16 +58,19 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
 
     async def _handle_theme(client: Any, args: list[str], context: Any) -> str:
         if not args:
+            # app.theme might not be available on headless context
+            current_theme = getattr(context, "theme", "roku-night")
             options = "  ".join(
-                f"[bold]{n}[/bold]" if n == app.theme else f"[dim]{n}[/dim]"
+                f"[bold]{n}[/bold]" if n == current_theme else f"[dim]{n}[/dim]"
                 for n in THEMES
             )
-            return f"Theme: [bold]{app.theme}[/bold]   {options}"
+            return f"Theme: [bold]{current_theme}[/bold]   {options}"
         name = args[0].lower()
         if name not in THEMES:
             avail = ", ".join(THEMES.keys())
             return f"[yellow]Unknown theme:[/yellow] {name}. Options: {avail}"
-        app.theme = name
+        if hasattr(context, "theme"):
+            context.theme = name
         return f"[green]✓[/green] Theme → [bold]{name}[/bold]"
 
     registry.register(
@@ -81,7 +84,7 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
     )
 
     async def _handle_about(client: Any, args: list[str], context: Any) -> str:
-        app.action_show_about()
+        context.action_show_about()
         return ""
 
     registry.register(

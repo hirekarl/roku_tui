@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from rich.table import Table
 
-from ..service import YouTubeClient
+from ..service_yt import YouTubeClient
 from .registry import Command, CommandRegistry
 from .tips import LONG_HELP
 

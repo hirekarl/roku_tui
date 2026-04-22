@@ -2,36 +2,28 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import difflib
 import sys
 import urllib.parse
 from pathlib import Path
 
-import platformdirs
 from rich.panel import Panel
+from rich.console import Console
 from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.events import Key
+from textual.message import Message
 from textual.widgets import Footer, Header, Input, TabbedContent, TabPane
+from textual.events import Key
 
 from .actions import RokuActions
-from .commands.db_commands import register_db_commands
-from .commands.handlers import register_all
-from .commands.registry import CommandRegistry
 from .commands.suggester import RokuSuggester
-from .commands.tui_commands import register_tui_commands
-from .constants import BINDINGS, HOTKEYS, RECORDING_SKIP, REMOTE_HOTKEYS
-from .db import Database
-from .ecp.client import EcpClient
-from .ecp.discovery import discover_rokus, probe_roku
-from .ecp.mock import MockEcpClient
-from .ecp.models import AppInfo
+from .service import RokuService
 from .themes import THEMES, TOKYO_NIGHT
 from .widgets.console_panel import ConsolePanel
 from .widgets.network_panel import NetworkPanel
-from .widgets.remote_panel import CMD_TO_ECP, RemotePanel
+from .widgets.remote_panel import RemotePanel, CMD_TO_ECP
 from .widgets.status_bar import StatusBar
+from .constants import HOTKEYS, REMOTE_HOTKEYS, RECORDING_SKIP, BINDINGS
 
 
 def _get_resource_path(relative_path: str) -> Path:
@@ -62,18 +54,39 @@ class RokuTuiApp(RokuActions, App[None]):
     def __init__(self, mock: bool = False, initial_ip: str | None = None):
         """Initialize the application."""
         super().__init__()
-        self.mock = mock
+        self.service = RokuService(mock=mock, output_callback=self._on_service_output)
         self.initial_ip = initial_ip
         self._kb_mode: bool = False
-        self._recording: list[str] | None = None
-        self.client: EcpClient | MockEcpClient | None = None
-        self.registry: CommandRegistry = CommandRegistry()
-        self.app_cache: list[AppInfo] = []
-        self._current_ip: str | None = None
-        self.db = Database(_get_db_path())
-        register_all(self.registry)
-        self.suggester = RokuSuggester(self.registry)
-        self._register_tui_commands()
+        self.suggester = RokuSuggester(self.service.registry)
+
+    @property
+    def client(self) -> Any:
+        return self.service.client
+
+    @property
+    def registry(self) -> Any:
+        return self.service.registry
+
+    @property
+    def db(self) -> Any:
+        return self.service.db
+
+    @property
+    def app_cache(self) -> Any:
+        return self.service.app_cache
+
+    @app_cache.setter
+    def app_cache(self, value: Any) -> None:
+        self.service.app_cache = value
+
+    @property
+    def _current_ip(self) -> str | None:
+        return self.service._current_ip
+
+    def _on_service_output(self, content: Any) -> None:
+        """Handle output from the RokuService."""
+        with contextlib.suppress(Exception):
+            self.query_one("#console-panel", ConsolePanel).output(content)
 
     def get_css_variables(self) -> dict[str, str]:
         """Inject Tokyo Night variables into the global CSS scope."""
@@ -100,46 +113,24 @@ class RokuTuiApp(RokuActions, App[None]):
         yield Footer()
 
     async def on_mount(self) -> None:
-        """Initialize themes, database, and start device discovery."""
+        """Initialize themes and start connection."""
         for t in THEMES.values():
             self.register_theme(t)
         self.theme = "roku-night"
-        await asyncio.to_thread(self.db.initialize)
-        register_db_commands(self.registry)
-        if self.mock:
-            self._init_mock()
+        
+        # Override service's default event handler to route to UI
+        if self.service.client:
+            self.service.client.on_network_event = self._on_network_event
+
+        if self.service.mock:
+            self._init_ui_mock()
         elif self.initial_ip:
             self._connect(self.initial_ip)
         else:
             self.action_show_discovery()
 
-    @work(thread=True)
-    def _start_discovery(self) -> None:
-        """Try last-known devices first, then fall back to SSDP discovery."""
-        console = self.query_one("#console-panel", ConsolePanel)
-        known_ips = self.db.known_device_ips()
-        if known_ips:
-            self.call_from_thread(
-                console.system_message, "[dim]Trying last-known devices...[/dim]"
-            )
-            for ip in known_ips:
-                if probe_roku(ip):
-                    self.call_from_thread(self._connect, f"http://{ip}:8060")
-                    return
-
-        self.call_from_thread(console.system_message, "[dim]Searching network...[/dim]")
-        urls = discover_rokus(timeout=3.0)
-        if urls:
-            self.call_from_thread(self._connect, urls[0])
-        else:
-            self.call_from_thread(
-                console.system_message, "[yellow]No Roku found.[/yellow]"
-            )
-
-    def _init_mock(self) -> None:
-        """Initialize mock mode with a simulated ECP client."""
-        self._current_ip = "mock-roku"
-        self.client = MockEcpClient(on_network_event=self._on_network_event)
+    def _init_ui_mock(self) -> None:
+        """Update UI for mock mode."""
         self.query_one("#status-bar", StatusBar).set_connected(
             "My Roku TV (Mock)", mock=True
         )
@@ -150,147 +141,77 @@ class RokuTuiApp(RokuActions, App[None]):
         self._prefetch_info()
 
     def _connect(self, url: str) -> None:
-        """Connect to a Roku device at the specified URL."""
-        if "://" not in url:
-            url = f"http://{url}:8060"
-        base_url = url.rstrip("/")
-        if not base_url.endswith(":8060"):
-            base_url = base_url.split(":8060")[0] + ":8060"
+        """Connect to a Roku device via the service."""
+        self.run_worker(self._async_connect(url))
 
-        self._current_ip = base_url.split("://")[-1].split(":")[0]
-        if self.client and hasattr(self.client, "close"):
-            self.run_worker(self.client.close())
-
-        self.client = EcpClient(
-            base_url=base_url, on_network_event=self._on_network_event
-        )
+    async def _async_connect(self, url: str) -> None:
+        await self.service.connect(url)
+        # Update client's callback to our UI-aware one
+        if self.service.client:
+            self.service.client.on_network_event = self._on_network_event
+            
         self.query_one("#remote-panel", RemotePanel).set_connected(True)
-        self._prefetch_info()
+        await self._prefetch_info()
 
     @work
     async def _prefetch_info(self) -> None:
-        """Prefetch device info and app list to warm the suggester cache."""
-        client = self.client
-        if not client or not self._current_ip:
+        """Update UI with device info and apps."""
+        client = self.service.client
+        if not client:
             return
-        device_id = None
         try:
             info = await client.query_device_info()
             if info:
-                self.query_one("#status-bar", StatusBar).set_connected(
-                    info.friendly_name
-                )
+                self.query_one("#status-bar", StatusBar).set_connected(info.friendly_name)
                 self.query_one("#console-panel", ConsolePanel).system_message(
                     f"[dim]Connected to[/dim] [bold]{info.friendly_name}[/bold]"
                 )
-                device_id = await asyncio.to_thread(
-                    self.db.upsert_device, info, self._current_ip
-                )
-                cached = await asyncio.to_thread(self.db.get_device_apps, device_id)
-                if cached:
-                    freq = await asyncio.to_thread(self.db.app_launch_frequencies)
-                    self.suggester.update_launch_frequencies(freq)
-                    self.suggester.update_app_names([a["app_name"] for a in cached])
-
-            apps = await client.query_apps()
-            self.app_cache = apps
-            if info and device_id:
-                await asyncio.to_thread(self.db.sync_device_apps, apps, device_id)
-            self.suggester.update_app_names([a.name for a in apps])
+            
+            freq = await asyncio.to_thread(self.db.app_launch_frequencies)
+            self.suggester.update_launch_frequencies(freq)
+            self.suggester.update_app_names([a.name for a in self.service.app_cache])
         except Exception:
-            with contextlib.suppress(Exception):
-                self.query_one("#console-panel", ConsolePanel).system_message(
-                    "[red]Connection failed.[/red]"
-                )
+            pass
+
+    def _on_network_event(self, event: NetworkEvent) -> None:
+        """Route network events to UI and service logic."""
+        self.post_message(self.NetworkEventReceived(event))
+        self.service._on_network_event(event)
 
     def on_roku_actions_network_event_received(
         self, msg: RokuActions.NetworkEventReceived
     ) -> None:
-        """Handle network event messages by updating the UI and database."""
+        """Handle network event messages in UI."""
         with contextlib.suppress(Exception):
             self.query_one("#network-panel", NetworkPanel).add_event(msg.event)
-
-        device_id = self._current_device_id()
-        with contextlib.suppress(Exception):
-            self.db.log_network_request(msg.event, device_id)
 
     async def on_console_panel_command_submitted(
         self, msg: ConsolePanel.CommandSubmitted
     ) -> None:
         """Handle command submission from the console panel."""
-        for part in [p.strip() for p in msg.line.split(";") if p.strip()]:
-            await self.dispatch(part)
+        await self.service.dispatch(msg.line)
 
     async def on_remote_panel_button_activated(
         self, msg: RemotePanel.ButtonActivated
     ) -> None:
         """Handle virtual button presses from the Remote panel."""
-        if self.client:
-            await self.client.keypress(msg.ecp_key)
+        if self.service.client:
+            await self.service.client.keypress(msg.ecp_key)
             self.db.log_command(
                 f"remote:{msg.ecp_key}",
                 success=True,
                 device_id=self._current_device_id(),
             )
 
+    async def dispatch(self, line: str) -> bool:
+        return await self.service.dispatch(line, context=self)
+
     async def _dispatch(self, line: str) -> bool:
-        """Parse and route a command string to its appropriate handler."""
-        console = self.query_one("#console-panel", ConsolePanel)
-        if self.client is None and line.split()[0] not in RECORDING_SKIP:
-            msg = Panel(
-                "[bold yellow]Not connected.[/bold yellow]\n\n"
-                "• Press [cyan]C[/cyan] to search",
-                title="[red]Error[/red]",
-                border_style="yellow",
-                expand=False,
-                padding=(1, 2),
-            )
-            console.output(msg)
-            return False
-
-        result = self.registry.parse(line)
-        if result is None:
-            cmd_name = line.split()[0]
-            suggestions = difflib.get_close_matches(
-                cmd_name, list(self.registry.all_names()), n=1, cutoff=0.6
-            )
-            hint = (
-                f" — did you mean [bold]{suggestions[0]}[/bold]?"
-                if suggestions
-                else " — try [bold]help[/bold]"
-            )
-            console.error(f"[red]Unknown command:[/red] [bold]{cmd_name}[/bold]{hint}")
-            return False
-
-        cmd, args = result
-        try:
-            output = await cmd.handler(self.client, args, context=self)
-            if output:
-                console.output(output)
-            if CMD_TO_ECP.get(cmd.name):
-                ecp_key = CMD_TO_ECP[cmd.name]
-                if cmd.name == "volume" and args:
-                    if args[0] == "up":
-                        ecp_key = "VolumeUp"
-                    elif args[0] == "down":
-                        ecp_key = "VolumeDown"
-                self.query_one("#remote-panel", RemotePanel).flash_by_key(ecp_key)
-            return True
-        except Exception as e:
-            console.error(f"[red]Error:[/red] {e}")
-            return False
-        finally:
-            dev_id = self._current_device_id()
-            self.db.log_command(line, success=True, device_id=dev_id)
-            if self._recording is not None and line.split()[0] not in RECORDING_SKIP:
-                self._recording.append(line)
+        """Legacy dispatch for any handlers still calling it."""
+        return await self.service._dispatch_single(line, context=self)
 
     def _current_device_id(self) -> int | None:
-        """Return the database ID of the currently connected device."""
-        try:
-            return self.db.get_device_id(self._current_ip) if self._current_ip else None
-        except Exception:
-            return None
+        return self.service._current_device_id()
 
     def toggle_keyboard_mode(self) -> None:
         """Toggle keyboard passthrough mode on or off."""
@@ -337,26 +258,17 @@ class RokuTuiApp(RokuActions, App[None]):
                 remote.flash_by_key(remote_ecp)
                 await self.client.keypress(remote_ecp)
 
-    def _register_tui_commands(self) -> None:
-        register_tui_commands(self.registry, self)
-
     def start_recording(self) -> None:
-        self._recording = []
+        self.service.start_recording()
 
     def stop_recording(self) -> list[str] | None:
-        lines, self._recording = self._recording, None
-        return lines
+        return self.service.stop_recording()
 
     def emit_message(self, text: str) -> None:
         self.query_one("#console-panel", ConsolePanel).system_message(text)
-
-    async def dispatch(self, line: str) -> bool:
-        return await self._dispatch(line)
 
     async def connect(self, ip: str) -> None:
         self._connect(ip)
 
     async def on_unmount(self) -> None:
-        if self.client:
-            await self.client.close()
-        self.db.close()
+        await self.service.close()
