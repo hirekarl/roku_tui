@@ -66,6 +66,38 @@ The right panel shows every HTTP request your Roku responds to, in real time —
 
 ---
 
+## The Unique Value Proposition (UVP)
+
+While there are other Roku CLI tools, **roku-tui** is the only one that treats your TV as a first-class citizen of the terminal. It isn't just a remote; it's a **diagnostic control center**.
+
+| Feature | **roku-tui** | Others |
+| :--- | :--- | :--- |
+| **Interface** | Dual-panel TUI (Textual) | Basic CLI or Curses |
+| **Network** | **Real-time ECP Logger** | None |
+| **Inspector** | **Pretty-print JSON/XML** | None |
+| **Macros** | **Capture & Replay** | Manual scripts only |
+| **Search** | Integrated YouTube Search | App launch only |
+
+---
+
+## Design Philosophy: Who is this for?
+
+The development of **roku-tui** was guided by two distinct personas, ensuring the app is both a high-velocity tool for experts and a welcoming gateway for new terminal users.
+
+### 🐧 Elias: The Power User (36)
+**"If I have to touch a mouse, I've already lost."**
+- **Profile:** A senior SRE who lives in `tmux` and Neovim. He values efficiency above all else.
+- **How he uses it:** Elias uses **Macros** to automate his "After Work" routine (Home → Mute → Launch YouTube). He relies on **Fuzzy Matching** and **Command Chaining** (`u 5; s`) to navigate menus faster than a physical remote ever could.
+- **Impact on Dev:** Elias's needs drove the implementation of the **SQLite-backed macro engine** and the **one-shot command chaining** logic.
+
+### 🎨 Michelle: The "TUI-Curious" Casual (28)
+**"I didn't know the terminal could look this good."**
+- **Profile:** A graphic designer who just installed `oh-my-zsh`. She's intimidated by "black screens with white text" but loves aesthetics.
+- **How she uses it:** Michelle started using the app as a novelty for the **Tokyo Night theme**. She quickly discovered that typing `launch net` is easier than finding her remote. The **Guided Tour (F2)** turned her from a casual button-clicker into someone who now uses `yt search` for her work-day playlists.
+- **Impact on Dev:** Michelle’s needs led to the creation of the **Interactive Guided Tour**, the **Tokyo Night/Nord themes**, and the **Integrated YouTube Search**—features that make the terminal feel like a modern application.
+
+---
+
 ## Quick Start
 
 **Option 1: Download a binary** (no setup required)
