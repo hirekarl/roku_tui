@@ -79,7 +79,20 @@ jobs:
         run: mv dist/${{ matrix.artifact_name }} dist/${{ matrix.asset_name }}
         shell: bash
 
+      - name: Package artifact (macOS)
+        if: runner.os == 'macOS'
+        run: tar -czf dist/${{ matrix.asset_name }}.tar.gz -C dist ${{ matrix.asset_name }}
+
+      - name: Upload temporary artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.asset_name }}.tar.gz
+          retention-days: 1
+
       - name: Upload temporary artifact
+        if: runner.os != 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
