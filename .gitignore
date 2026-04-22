@@ -270,4 +270,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,macos,python,visualstudiocode`n# Claude settings`n.claude/settings.local.json
+# End of https://www.toptal.com/developers/gitignore/api/windows,macos,python,visualstudiocode
+[DIR] .claude
+.claude/
+
+# Claude settings
+.claude/
