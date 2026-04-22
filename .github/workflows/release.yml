@@ -28,9 +28,13 @@ jobs:
             artifact_name: roku-tui.exe
             asset_name: roku-tui-windows-amd64.exe
           - os: macos-14
-            arch: universal
+            arch: arm64
             artifact_name: roku-tui
-            asset_name: roku-tui-macos-universal
+            asset_name: roku-tui-macos-arm64
+          - os: macos-14
+            arch: x86_64
+            artifact_name: roku-tui
+            asset_name: roku-tui-macos-x86_64
 
     steps:
       - name: Checkout code
@@ -47,15 +51,16 @@ jobs:
           enable-cache: true
           version: "latest"
 
-      - name: Install dependencies (macOS)
-        if: startsWith(matrix.os, 'macos-')
+      - name: Install dependencies (macOS x86_64)
+        if: matrix.os == 'macos-14' && matrix.arch == 'x86_64'
         run: |
-          uv venv
-          # Force universal2 wheels where available
-          uv pip install . pyinstaller --only-binary :all: --python-platform macos
+          uv python install cpython-3.12-macos-x86_64-none
+          uv venv --python cpython-3.12-macos-x86_64-none
+          uv sync
+          uv pip install pyinstaller
 
-      - name: Install dependencies (Other)
-        if: "!startsWith(matrix.os, 'macos-')"
+      - name: Install dependencies (standard)
+        if: "!(matrix.os == 'macos-14' && matrix.arch == 'x86_64')"
         run: |
           uv sync
           uv pip install pyinstaller
