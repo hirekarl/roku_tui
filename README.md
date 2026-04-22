@@ -22,12 +22,12 @@ None of this makes sense. You have a keyboard right in front of you.
 
 ## What It Looks Like
 
-![Console View](preview_console.png)
+![Console View](previews/preview_console.png)
 *The command console with real-time feedback and the network logger.*
 
 <p align="center">
-  <img src="preview_remote.png" width="49%" alt="Remote View" />
-  <img src="preview_http_inspector.png" width="49%" alt="HTTP Inspector View" />
+  <img src="previews/preview_remote.png" width="49%" alt="Remote View" />
+  <img src="previews/preview_http_inspector.png" width="49%" alt="HTTP Inspector View" />
 </p>
 <p align="center">
   <i>The virtual remote (left) and detailed network inspector modal (right).</i>
