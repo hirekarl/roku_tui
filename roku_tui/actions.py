@@ -65,17 +65,8 @@ class RokuActions:
 
         self.push_screen(NetworkInspector(msg.event))
 
-    def action_show_guide(self: RokuAppProtocol) -> None:
-        """Toggle the F1 quick reference card."""
-        from .widgets.help_screen import HelpScreen
-
-        if isinstance(self.screen, HelpScreen):
-            self.pop_screen()
-        else:
-            self.push_screen(HelpScreen())
-
     def action_show_manual(self: RokuAppProtocol) -> None:
-        """Toggle the F2 full user guide."""
+        """Toggle the F1 full user guide."""
         from .widgets.guide_screen import GuideScreen
 
         if isinstance(self.screen, GuideScreen):

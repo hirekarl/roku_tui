@@ -111,7 +111,7 @@ class TourScreen(ModalScreen[None]):
         Binding("escape", "dismiss", show=False),
         Binding("q", "dismiss", show=False),
         Binding("s", "dismiss", show=False),
-        Binding("f3", "dismiss", show=False),
+        Binding("f2", "dismiss", show=False),
         Binding("right,n", "next_step", "Next", show=False),
         Binding("left,p", "prev_step", "Prev", show=False),
     ]

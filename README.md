@@ -38,7 +38,7 @@ None of this makes sense. You have a keyboard right in front of you.
 
 Think of it like a search bar that controls your TV. You type what you want — `pause`, `launch Netflix`, `volume up 3` — and it happens instantly. Tab-completion means you rarely need to type more than a few characters.
 
-> 💡 **First time here?** Press **F3** inside the app (or type `tour`) to start the **Guided Tour**. It's the fastest way to learn how to control your TV from your terminal.
+> 💡 **First time here?** Press **F2** inside the app (or type `tour`) to start the **Guided Tour**. It's the fastest way to learn how to control your TV from your terminal.
 
 ---
 
@@ -210,9 +210,8 @@ The "obvious" move is to build a modern web app with gradients and animations. B
 | `Ctrl+N` | Toggle network inspector |
 | `Ctrl+L` | Clear console |
 | `Ctrl+Q` | Quit |
-| `F1` | Quick reference card |
-| `F2` | Full user guide |
-| `F3` | Interactive guided tour |
+| `F1` | User Manual (Guide) |
+| `F2` | Interactive Guided Tour |
 
 ### Remote tab (when not typing)
 | Key | Action |

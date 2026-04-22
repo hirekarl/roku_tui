@@ -30,12 +30,11 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - **Deep Links:** Support for launching specific content via `link` and `yt` commands.
 - **YouTube:** Direct YouTube search and launch without API keys using InnerTube.
 - **Macros:** Capture and replay sequences including deep link content.
-- **Guided Tour:** Interactive walkthrough of features via `F3` or `tour` command.
+- **Guided Tour:** Interactive walkthrough of features via `F2` or `tour` command.
 
 ## Key Bindings
-- **F1:** Quick Reference
-- **F2:** User Manual
-- **F3:** Guided Tour
+- **F1:** User Manual (Guide)
+- **F2:** Guided Tour (Interactive)
 - **Ctrl+T:** Console/Remote Tab
 - **Ctrl+N:** Network Panel
 - **Ctrl+L:** Clear Console

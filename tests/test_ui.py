@@ -8,7 +8,6 @@ from textual.widgets import TabbedContent
 from roku_tui.app import RokuTuiApp
 from roku_tui.widgets.console_panel import ConsolePanel
 from roku_tui.widgets.guide_screen import GuideScreen
-from roku_tui.widgets.help_screen import HelpScreen
 from roku_tui.widgets.tour_screen import TourScreen
 
 
@@ -23,48 +22,20 @@ def app(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> RokuTuiApp:
 # ── Modal lifecycle ────────────────────────────────────────────────────────────
 
 
-async def test_f1_opens_help_screen(app: RokuTuiApp) -> None:
+async def test_f1_opens_guide_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("f1")
-        await pilot.pause()
-        assert isinstance(app.screen, HelpScreen)
-
-
-async def test_f1_closes_help_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f1")
-        await pilot.pause()
-        await pilot.press("f1")
-        await pilot.pause()
-        assert not isinstance(app.screen, HelpScreen)
-
-
-async def test_escape_closes_help_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f1")
-        await pilot.pause()
-        await pilot.press("escape")
-        await pilot.pause()
-        assert not isinstance(app.screen, HelpScreen)
-
-
-async def test_f2_opens_guide_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f2")
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
 
 
-async def test_f2_closes_guide_screen(app: RokuTuiApp) -> None:
+async def test_f1_closes_guide_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f2")
+        await pilot.press("f1")
         await pilot.pause()
-        await pilot.press("f2")
+        await pilot.press("f1")
         await pilot.pause()
         assert not isinstance(app.screen, GuideScreen)
 
@@ -72,7 +43,7 @@ async def test_f2_closes_guide_screen(app: RokuTuiApp) -> None:
 async def test_escape_closes_guide_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f2")
+        await pilot.press("f1")
         await pilot.pause()
         await pilot.press("escape")
         await pilot.pause()
@@ -82,52 +53,17 @@ async def test_escape_closes_guide_screen(app: RokuTuiApp) -> None:
 async def test_q_closes_guide_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f2")
+        await pilot.press("f1")
         await pilot.pause()
         await pilot.press("q")
         await pilot.pause()
         assert not isinstance(app.screen, GuideScreen)
 
 
-async def test_screen_stack_depth_on_startup(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        assert len(app.screen_stack) == 1
-
-
-async def test_screen_stack_depth_with_help_modal(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f1")
-        await pilot.pause()
-        assert len(app.screen_stack) == 2
-
-
-async def test_screen_stack_depth_with_guide_modal(app: RokuTuiApp) -> None:
+async def test_f2_opens_tour_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("f2")
-        await pilot.pause()
-        assert len(app.screen_stack) == 2
-
-
-async def test_only_one_modal_pushed_per_key(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f2")
-        await pilot.pause()
-        await pilot.press("f2")  # closes
-        await pilot.pause()
-        await pilot.press("f2")  # reopens — should be exactly one modal
-        await pilot.pause()
-        assert len(app.screen_stack) == 2
-        assert isinstance(app.screen, GuideScreen)
-
-
-async def test_f3_opens_tour_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f3")
         await pilot.pause()
         assert isinstance(app.screen, TourScreen)
 
@@ -135,7 +71,7 @@ async def test_f3_opens_tour_screen(app: RokuTuiApp) -> None:
 async def test_tour_navigation(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f3")
+        await pilot.press("f2")
         await pilot.pause()
         assert isinstance(app.screen, TourScreen)
         tour = app.screen
@@ -161,7 +97,7 @@ async def test_tour_navigation(app: RokuTuiApp) -> None:
 async def test_tour_finish(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f3")
+        await pilot.press("f2")
         await pilot.pause()
         assert isinstance(app.screen, TourScreen)
         tour = app.screen
@@ -177,7 +113,7 @@ async def test_tour_finish(app: RokuTuiApp) -> None:
 async def test_tour_skip(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        await pilot.press("f3")
+        await pilot.press("f2")
         await pilot.pause()
         await pilot.press("s")
         await pilot.pause()
@@ -192,28 +128,42 @@ async def test_tour_command_opens_tour_screen(app: RokuTuiApp) -> None:
         assert isinstance(app.screen, TourScreen)
 
 
-# ── Modals do not leak ECP keypresses ─────────────────────────────────────────
-
-
-async def test_arrow_keys_not_sent_to_tv_in_help_modal(app: RokuTuiApp) -> None:
-    keypresses: list[str] = []
-
-    async def track(key: str) -> None:
-        keypresses.append(key)
-
+async def test_screen_stack_depth_on_startup(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
-        assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        assert len(app.screen_stack) == 1
+
+
+async def test_screen_stack_depth_with_guide_modal(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
         await pilot.press("f1")
         await pilot.pause()
-        assert isinstance(app.screen, HelpScreen)
-        await pilot.press("up")
-        await pilot.press("down")
-        await pilot.press("left")
-        await pilot.press("right")
+        assert len(app.screen_stack) == 2
+
+
+async def test_screen_stack_depth_with_tour_modal(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
         await pilot.pause()
-        assert keypresses == []
+        await pilot.press("f2")
+        await pilot.pause()
+        assert len(app.screen_stack) == 2
+
+
+async def test_only_one_modal_pushed_per_key(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f1")
+        await pilot.pause()
+        await pilot.press("f1")  # closes
+        await pilot.pause()
+        await pilot.press("f1")  # reopens — should be exactly one modal
+        await pilot.pause()
+        assert len(app.screen_stack) == 2
+        assert isinstance(app.screen, GuideScreen)
+
+
+# ── Modals do not leak ECP keypresses ─────────────────────────────────────────
 
 
 async def test_arrow_keys_not_sent_to_tv_in_guide_modal(app: RokuTuiApp) -> None:
@@ -226,9 +176,30 @@ async def test_arrow_keys_not_sent_to_tv_in_guide_modal(app: RokuTuiApp) -> None
         await pilot.pause()
         assert app.client is not None
         app.client.keypress = track  # type: ignore[method-assign]
-        await pilot.press("f2")
+        await pilot.press("f1")
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
+        await pilot.press("up")
+        await pilot.press("down")
+        await pilot.press("left")
+        await pilot.press("right")
+        await pilot.pause()
+        assert keypresses == []
+
+
+async def test_arrow_keys_not_sent_to_tv_in_tour_modal(app: RokuTuiApp) -> None:
+    keypresses: list[str] = []
+
+    async def track(key: str) -> None:
+        keypresses.append(key)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert app.client is not None
+        app.client.keypress = track  # type: ignore[method-assign]
+        await pilot.press("f2")
+        await pilot.pause()
+        assert isinstance(app.screen, TourScreen)
         await pilot.press("up")
         await pilot.press("down")
         await pilot.press("left")
@@ -373,7 +344,7 @@ async def test_remote_hotkeys_blocked_when_modal_open_over_remote_tab(
         app.client.keypress = track  # type: ignore[method-assign]
         await pilot.press("ctrl+t")  # switch to Remote
         await pilot.pause()
-        await pilot.press("f2")  # open guide modal
+        await pilot.press("f1")  # open guide modal
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
         await pilot.press("h")  # would be Home on Remote tab without modal
@@ -402,6 +373,9 @@ async def test_escape_exits_keyboard_mode(app: RokuTuiApp) -> None:
         assert app._kb_mode
         await pilot.press("escape")
         await pilot.pause()
+        assert not isinstance(
+            app.screen, GuideScreen
+        )  # Ensure escape didn't push something else
         assert not app._kb_mode
 
 

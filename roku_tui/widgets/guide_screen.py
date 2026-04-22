@@ -352,7 +352,7 @@ class GuideScreen(ModalScreen[None]):
     BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         Binding("escape", "dismiss", show=False),
         Binding("q", "dismiss", show=False),
-        Binding("f2", "dismiss", show=False),
+        Binding("f1", "dismiss", show=False),
     ]
 
     def compose(self) -> ComposeResult:
@@ -382,7 +382,7 @@ class GuideScreen(ModalScreen[None]):
                 yield Static(
                     "[dim][bold]↑↓[/bold] navigate sections"
                     " · [bold]Tab[/bold] switch panel"
-                    " · [bold]Q / ESC / F2[/bold] close[/dim]",
+                    " · [bold]Q / ESC / F1[/bold] close[/dim]",
                     id="guide-foot-text",
                     markup=True,
                 )
