@@ -22,19 +22,18 @@ None of this makes sense. You have a keyboard right in front of you.
 
 ## What It Looks Like
 
-```
-┌──────────────────────────────┬───────────────────────────────────┐
-│ Console                      │ Network Inspector                 │
-│                              │                                   │
-│ > launch Netflix             │ POST /keypress/Home   200  42ms   │
-│ -> Launched Netflix          │ GET  /query/apps      200  12ms   │
-│                              │                                   │
-│ > up 3                       │                                   │
-│ -> Up x3                     │                                   │
-│                              │                                   │
-│ [Tab] autocomplete           │                                   │
-└──────────────────────────────┴───────────────────────────────────┘
-```
+![Console View](preview_console.png)
+*The command console with real-time feedback and the network logger.*
+
+<p align="center">
+  <img src="preview_remote.png" width="49%" alt="Remote View" />
+  <img src="preview_http_inspector.png" width="49%" alt="HTTP Inspector View" />
+</p>
+<p align="center">
+  <i>The virtual remote (left) and detailed network inspector modal (right).</i>
+  <br>
+  <b>Note:</b> These screenshots were rendered using the <code>gruvbox</code> theme.
+</p>
 
 Think of it like a search bar that controls your TV. You type what you want — `pause`, `launch Netflix`, `volume up 3` — and it happens instantly. Tab-completion means you rarely need to type more than a few characters.
 
