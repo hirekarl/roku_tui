@@ -47,15 +47,17 @@ jobs:
           enable-cache: true
           version: "latest"
 
-      - name: Install dependencies
+      - name: Install dependencies (macOS)
+        if: startsWith(matrix.os, 'macos-')
         run: |
-          if [[ "${{ matrix.os }}" == macos-* ]]; then
-            # Force universal2 wheels where available
-            uv pip install . pyinstaller --only-binary :all: --platform macosx_10_9_universal2
-          else
-            uv sync
-            uv pip install pyinstaller
-          fi
+          # Force universal2 wheels where available
+          uv pip install . pyinstaller --only-binary :all: --python-platform macos
+
+      - name: Install dependencies (Other)
+        if: "!startsWith(matrix.os, 'macos-')"
+        run: |
+          uv sync
+          uv pip install pyinstaller
 
       - name: Build with PyInstaller
         run: |
