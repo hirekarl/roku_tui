@@ -314,6 +314,10 @@ The local database is stored in your OS user data directory (`~/.local/share/rok
 
 ---
 
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
 ## Credits
 
 **roku-tui** is maintained by **[Karl Johnson](https://www.linkedin.com/in/hirekarl/)** and was built for the [Pursuit AI-Native program](https://www.pursuit.org/ai-native-program).
