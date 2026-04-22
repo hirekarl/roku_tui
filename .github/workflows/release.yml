@@ -65,7 +65,13 @@ jobs:
           uv sync
           uv pip install pyinstaller
 
+      - name: Build with PyInstaller (macOS x86_64)
+        if: matrix.os == 'macos-14' && matrix.arch == 'x86_64'
+        run: |
+          .venv/bin/python -m PyInstaller roku_tui.spec
+
       - name: Build with PyInstaller
+        if: "!(matrix.os == 'macos-14' && matrix.arch == 'x86_64')"
         run: |
           uv run pyinstaller roku_tui.spec
 
