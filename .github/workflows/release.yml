@@ -50,6 +50,7 @@ jobs:
       - name: Install dependencies (macOS)
         if: startsWith(matrix.os, 'macos-')
         run: |
+          uv venv
           # Force universal2 wheels where available
           uv pip install . pyinstaller --only-binary :all: --python-platform macos
 
