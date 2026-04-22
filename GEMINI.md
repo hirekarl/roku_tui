@@ -137,6 +137,7 @@ Full plan at: `~/.claude/plans/wise-floating-pond.md`
 
 ### Engineering Standards
 
+- **Releases:** Follow the "Release Ceremony" in `CONTRIBUTING.md`. Never tag a release unless specifically performing the ceremony for a stable state of `main`.
 - **Type Safety:** `mypy --strict` compliance required. Use `Row[Any]` for DB rows.
 - **Quality Control:** Pre-commit hooks (`ruff`, `mypy`, `pytest`) — run `uv run pre-commit install` to set up. GitHub CI runs on every push/PR; releases trigger on `v*` tags.
 - **Linting:** Ruff for both linting and formatting.
