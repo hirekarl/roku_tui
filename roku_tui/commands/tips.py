@@ -12,7 +12,7 @@ TIPS: list[str] = [
     "Deep link: [bold]link save alias app id[/bold] → [bold]launch alias[/bold]",
     "[bold]Ctrl+T[/bold] switches between the Console and the Remote tab.",
     "[bold]macro record[/bold] → run commands → [bold]macro stop <name>[/bold]",
-    "Open the full user manual with [bold]F2[/bold] or [bold]guide[/bold].",
+    "Open the full user manual with [bold]F1[/bold] or [bold]guide[/bold].",
     "Navigate command history with [bold]↑[/bold] and [bold]↓[/bold] in the console.",
     "Themes: [bold]nord[/bold]  [bold]catppuccin[/bold]  [bold]gruvbox[/bold]",
     "[bold]help <command>[/bold] shows detailed docs — try [bold]help yt[/bold]",
@@ -45,10 +45,26 @@ LONG_HELP: dict[str, str] = {
   [bold]yt save[/bold] [dim]<alias> <video_id>[/dim]
     Save a video as a named shortcut. Launch any time with [bold]launch <alias>[/bold].
 
-    [dim]Example:[/dim]  yt save lofi jfKfPfyJRdk
+    [dim]Example:[/dim]  yt lofi jfKfPfyJRdk
     [dim]Then:[/dim]     launch lofi
 """,
     "youtube": "See [bold]help yt[/bold].",
+    "apps": """\
+[bold #7aa2f7]apps[/bold #7aa2f7] [dim]/ channels[/dim] — list installed apps
+
+  Displays a table of all apps installed on the connected Roku device,
+  including their App ID, Name, and Version.
+
+  Use these names or IDs with the [bold]launch[/bold] command.
+""",
+    "channels": "See [bold]help apps[/bold].",
+    "active": """\
+[bold #7aa2f7]active[/bold #7aa2f7] [dim]/ now[/dim] — show currently active app
+
+  Identifies the app that is currently in the foreground on the Roku.
+  Displays the app name and its App ID.
+""",
+    "now": "See [bold]help active[/bold].",
     "macro": """\
 [bold #7aa2f7]macro[/bold #7aa2f7] — record and replay command sequences
 
@@ -249,6 +265,60 @@ LONG_HELP: dict[str, str] = {
   Navigate sections with [bold]↑ / ↓[/bold], scroll content with arrow keys or mouse.
   Press [bold]Q[/bold] or [bold]ESC[/bold] to close.
 
+  Also available via [bold]F1[/bold].
+""",
+    "help": """\
+[bold #7aa2f7]help[/bold #7aa2f7] [dim]/ ?[/dim] — show command help
+
+  [bold]help[/bold]
+    Lists all available commands grouped by category.
+
+  [bold]help[/bold] [dim]<command>[/dim]
+    Shows detailed documentation and examples for a specific command.
+
+    [dim]Example:[/dim]  help yt
+    [dim]Example:[/dim]  help macro
+""",
+    "tour": """\
+[bold #7aa2f7]tour[/bold #7aa2f7] — start the interactive guided tour
+
+  Starts a multi-step interactive walkthrough of the roku-tui interface.
+  It highlights key features like the Console, Remote, and Network panels.
+
   Also available via [bold]F2[/bold].
+""",
+    "about": """\
+[bold #7aa2f7]about[/bold #7aa2f7] — show project information
+
+  Displays a modal with information about roku-tui, including the version,
+  author, and a nice ASCII rat mascot.
+
+  Also available via [bold]F3[/bold].
+""",
+    "clear": """\
+[bold #7aa2f7]clear[/bold #7aa2f7] [dim]/ cls[/dim] — clear console history
+
+  Wipes all output from the console panel. Does not affect command history.
+
+  Also available via [bold]Ctrl+L[/bold].
+""",
+    "version": """\
+[bold #7aa2f7]version[/bold #7aa2f7] [dim]/ v[/dim] — show current version
+
+  Displays the current version of roku-tui.
+""",
+    "ratsay": """\
+[bold #7aa2f7]ratsay[/bold #7aa2f7] — print a message with the mascot
+
+  [bold]ratsay[/bold] [dim]<message>[/dim]
+    Prints the rat mascot with a speech bubble containing your message.
+    Works just like cowsay. If no message is provided, the rat will
+    have something random to say.
+
+    [dim]Example:[/dim]  ratsay Hello from Roku!
+    [dim]Example:[/dim]  ratsay
+
+  This command is particularly useful in headless mode ([bold]-c[/bold])
+  to add some character to your automation scripts.
 """,
 }

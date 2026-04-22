@@ -71,7 +71,8 @@ _HELP_SECTIONS: list[tuple[str, list[str]]] = [
     ("Device", ["info", "connect", "devices"]),
     ("Macros & History", ["macro", "history", "stats", "sleep"]),
     ("Text Input", ["type", "kb"]),
-    ("Session", ["guide", "help", "clear"]),
+    ("Session", ["guide", "tour", "about", "theme", "clear", "help", "version"]),
+    ("Mascot", ["ratsay"]),
 ]
 
 VOLUME_MAP: dict[str, str] = {
