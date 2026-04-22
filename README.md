@@ -126,6 +126,42 @@ uv run roku-tui --ip 192.168.1.42
 
 ---
 
+## Headless Mode & Automation
+
+You can control your TV without opening the TUI by using the `-c` (or `--command`) flag. This allows you to chain commands together with semicolons and run them directly from your shell or a cron job.
+
+### Common Cron Scenarios
+
+**1. The Morning News Routine**
+At 7:00 AM on weekdays, turn the TV on and launch YouTube so it's ready for you.
+```cron
+0 7 * * 1-5 /usr/local/bin/uv run roku-tui --ip 192.168.1.50 -c "home; launch YouTube"
+```
+
+**2. The "Home Occupied" Simulator**
+Deter potential intruders while on vacation by simulating activity. This turns the TV on and launches Netflix at 6:00 PM, then powers it down at 10:00 PM.
+```cron
+# 6:00 PM - Turn on and launch Netflix
+0 18 * * * /usr/local/bin/uv run roku-tui --ip 192.168.1.50 -c "home; launch Netflix"
+
+# 10:00 PM - Turn off
+0 22 * * * /usr/local/bin/uv run roku-tui --ip 192.168.1.50 -c "power"
+```
+
+### Advanced Applications
+
+*   **Shell Aliases:** Add `alias tv-mute='roku-tui --ip 192.168.1.50 -c "mute"'` to your `.zshrc` or `.bashrc`. Now you can silence your TV from any terminal prompt without leaving your work.
+*   **IoT/Home Automation Bridge:** Use **roku-tui** as a bridge for simple smart home scripts. For example, a "Movie Night" shell script could dim your smart lights and then call `roku-tui -c "launch Netflix; volume down 5"` to set the perfect atmosphere.
+
+### Pro-Tips for Automation Success
+
+1.  **Use Explicit IPs:** Always use `--ip 192.168.1.X` in scripts to bypass the auto-discovery phase, making your automation faster and more reliable.
+2.  **Absolute Paths:** When using cron, use the full absolute path to the `uv` or `roku-tui` binary (find it with `which uv`).
+3.  **Use `sleep` for UI Timing:** If you are launching an app and want to "press" something inside it, use the `sleep` command in your chain: `-c "launch Netflix; sleep 10; select"`.
+4.  **Redirect Output:** Cron environments are silent. Redirect to a log file to debug your jobs: `... -c "home" >> /tmp/roku_cron.log 2>&1`.
+
+---
+
 ## For the Developers
 
 The prompt for this project was: **"Take a UI you use daily and improve it."**
