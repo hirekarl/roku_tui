@@ -13,6 +13,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - Test: `uv run pytest`
 
 ## Standards & Practices
+- **Workflow:** ALL changes MUST follow the process in `CONTRIBUTING.md` (Branching -> Quality Control -> Merge -> Release Ceremony).
 - **Style:** Google-style docstrings, PEP-8 compliance, strict type hints (`mypy --strict`).
 - **Pre-commit:** Hooks installed for `ruff`, `mypy`, and `pytest`. Run `uv run pre-commit install` to set up.
 - **Releases:** Follow the "Release Ceremony" in `CONTRIBUTING.md`. Never tag a release unless performing the ceremony for a stable state of `main`.
