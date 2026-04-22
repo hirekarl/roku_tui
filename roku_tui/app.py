@@ -5,25 +5,27 @@ import contextlib
 import sys
 import urllib.parse
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-from rich.panel import Panel
-from rich.console import Console
+import platformdirs
 from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.message import Message
-from textual.widgets import Footer, Header, Input, TabbedContent, TabPane
 from textual.events import Key
+from textual.widgets import Footer, Header, Input, TabbedContent, TabPane
 
 from .actions import RokuActions
 from .commands.suggester import RokuSuggester
+from .constants import BINDINGS, HOTKEYS, REMOTE_HOTKEYS
 from .service import RokuService
 from .themes import THEMES, TOKYO_NIGHT
 from .widgets.console_panel import ConsolePanel
 from .widgets.network_panel import NetworkPanel
-from .widgets.remote_panel import RemotePanel, CMD_TO_ECP
+from .widgets.remote_panel import RemotePanel
 from .widgets.status_bar import StatusBar
-from .constants import HOTKEYS, REMOTE_HOTKEYS, RECORDING_SKIP, BINDINGS
+
+if TYPE_CHECKING:
+    from .ecp.models import NetworkEvent
 
 
 def _get_resource_path(relative_path: str) -> Path:
@@ -62,6 +64,10 @@ class RokuTuiApp(RokuActions, App[None]):
     @property
     def client(self) -> Any:
         return self.service.client
+
+    @client.setter
+    def client(self, value: Any) -> None:
+        self.service.client = value
 
     @property
     def registry(self) -> Any:
@@ -117,17 +123,20 @@ class RokuTuiApp(RokuActions, App[None]):
         for t in THEMES.values():
             self.register_theme(t)
         self.theme = "roku-night"
-        
+
         # Override service's default event handler to route to UI
         if self.service.client:
-            self.service.client.on_network_event = self._on_network_event
+            client: Any = self.service.client
+            client.on_network_event = self._on_network_event
 
         if self.service.mock:
             self._init_ui_mock()
         elif self.initial_ip:
             self._connect(self.initial_ip)
         else:
-            self.action_show_discovery()
+            # action_show_discovery is from RokuActions mixin
+            app: Any = self
+            app.action_show_discovery()
 
     def _init_ui_mock(self) -> None:
         """Update UI for mock mode."""
@@ -148,10 +157,11 @@ class RokuTuiApp(RokuActions, App[None]):
         await self.service.connect(url)
         # Update client's callback to our UI-aware one
         if self.service.client:
-            self.service.client.on_network_event = self._on_network_event
-            
+            client: Any = self.service.client
+            client.on_network_event = self._on_network_event
+
         self.query_one("#remote-panel", RemotePanel).set_connected(True)
-        await self._prefetch_info()
+        self._prefetch_info()
 
     @work
     async def _prefetch_info(self) -> None:
@@ -162,11 +172,13 @@ class RokuTuiApp(RokuActions, App[None]):
         try:
             info = await client.query_device_info()
             if info:
-                self.query_one("#status-bar", StatusBar).set_connected(info.friendly_name)
+                self.query_one("#status-bar", StatusBar).set_connected(
+                    info.friendly_name
+                )
                 self.query_one("#console-panel", ConsolePanel).system_message(
                     f"[dim]Connected to[/dim] [bold]{info.friendly_name}[/bold]"
                 )
-            
+
             freq = await asyncio.to_thread(self.db.app_launch_frequencies)
             self.suggester.update_launch_frequencies(freq)
             self.suggester.update_app_names([a.name for a in self.service.app_cache])
@@ -189,7 +201,7 @@ class RokuTuiApp(RokuActions, App[None]):
         self, msg: ConsolePanel.CommandSubmitted
     ) -> None:
         """Handle command submission from the console panel."""
-        await self.service.dispatch(msg.line)
+        await self.service.dispatch(msg.line, context=self)
 
     async def on_remote_panel_button_activated(
         self, msg: RemotePanel.ButtonActivated

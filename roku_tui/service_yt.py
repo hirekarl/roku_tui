@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import httpx
 
+
 class YouTubeClient:
     """Simple client to search YouTube without an API key using the InnerTube API."""
 

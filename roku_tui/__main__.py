@@ -16,7 +16,7 @@ async def run_headless(command: str, ip: str | None = None, mock: bool = False) 
                 print("Error: Could not find a Roku device on the network.")
                 sys.exit(1)
             await service.connect(target_ip)
-            
+
         await service.dispatch(command)
     finally:
         await service.close()
@@ -39,12 +39,13 @@ def main() -> None:
         help="Roku IP address (skips SSDP discovery)",
     )
     parser.add_argument(
-        "-c", "--command",
+        "-c",
+        "--command",
         help="Execute commands (semicolon-separated) and exit (for automation)",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.command:
         try:
             asyncio.run(run_headless(args.command, ip=args.ip, mock=args.mock))

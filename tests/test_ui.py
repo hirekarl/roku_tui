@@ -106,7 +106,7 @@ async def test_arrow_keys_not_sent_to_tv_in_guide_modal(app: RokuTuiApp) -> None
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("f1")
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
@@ -160,7 +160,7 @@ async def test_up_arrow_sends_ecp_on_remote_tab(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")
         await pilot.pause()
         await pilot.press("up")
@@ -177,7 +177,7 @@ async def test_space_sends_play_on_remote_tab(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")
         await pilot.pause()
         await pilot.press("space")
@@ -194,7 +194,7 @@ async def test_backspace_sends_back_on_remote_tab(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")
         await pilot.pause()
         await pilot.press("backspace")
@@ -214,7 +214,7 @@ async def test_h_sends_home_on_remote_tab(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")
         await pilot.pause()
         await pilot.press("h")
@@ -231,7 +231,7 @@ async def test_m_sends_mute_on_remote_tab(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")
         await pilot.pause()
         await pilot.press("m")
@@ -251,7 +251,7 @@ async def test_remote_hotkeys_blocked_when_modal_open_over_remote_tab(
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await pilot.press("ctrl+t")  # switch to Remote
         await pilot.pause()
         await pilot.press("f1")  # open guide modal
@@ -295,7 +295,7 @@ async def test_printable_key_in_kb_mode_sends_lit_keypress(app: RokuTuiApp) -> N
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await app.dispatch("kb")
         await pilot.pause()
         assert app._kb_mode
@@ -313,7 +313,7 @@ async def test_enter_in_kb_mode_sends_select(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("enter")
@@ -330,7 +330,7 @@ async def test_backspace_in_kb_mode_sends_backspace(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("backspace")
@@ -348,7 +348,7 @@ async def test_arrow_key_in_kb_mode_does_not_send_ecp_nav(app: RokuTuiApp) -> No
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         await app.dispatch("kb")
         await pilot.pause()
         await pilot.press("up")
@@ -368,7 +368,7 @@ async def test_semicolon_chain_dispatches_all_commands(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         app.post_message(ConsolePanel.CommandSubmitted("up; down; left"))
         await pilot.pause()
         assert keypresses == ["Up", "Down", "Left"]
@@ -384,7 +384,7 @@ async def test_semicolon_chain_stops_on_unknown_command(app: RokuTuiApp) -> None
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
+        app.client.keypress = track
         app.post_message(ConsolePanel.CommandSubmitted("up; zzz_bad; down"))
         await pilot.pause()
         # up and down both run; bad command in the middle just errors
