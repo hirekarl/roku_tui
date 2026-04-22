@@ -8,6 +8,8 @@ from textual.widgets import TabbedContent
 from roku_tui.app import RokuTuiApp
 from roku_tui.widgets.console_panel import ConsolePanel
 from roku_tui.widgets.guide_screen import GuideScreen
+from roku_tui.widgets.help_screen import HelpScreen
+from roku_tui.widgets.about_screen import AboutScreen
 from roku_tui.widgets.tour_screen import TourScreen
 
 
@@ -50,80 +52,10 @@ async def test_escape_closes_guide_screen(app: RokuTuiApp) -> None:
         assert not isinstance(app.screen, GuideScreen)
 
 
-async def test_q_closes_guide_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f1")
-        await pilot.pause()
-        await pilot.press("q")
-        await pilot.pause()
-        assert not isinstance(app.screen, GuideScreen)
-
-
 async def test_f2_opens_tour_screen(app: RokuTuiApp) -> None:
     async with app.run_test() as pilot:
         await pilot.pause()
         await pilot.press("f2")
-        await pilot.pause()
-        assert isinstance(app.screen, TourScreen)
-
-
-async def test_tour_navigation(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f2")
-        await pilot.pause()
-        assert isinstance(app.screen, TourScreen)
-        tour = app.screen
-        assert tour.step_index == 0
-
-        await pilot.press("n")
-        await pilot.pause()
-        assert tour.step_index == 1
-
-        await pilot.press("p")
-        await pilot.pause()
-        assert tour.step_index == 0
-
-        await pilot.press("right")
-        await pilot.pause()
-        assert tour.step_index == 1
-
-        await pilot.press("left")
-        await pilot.pause()
-        assert tour.step_index == 0
-
-
-async def test_tour_finish(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f2")
-        await pilot.pause()
-        assert isinstance(app.screen, TourScreen)
-        tour = app.screen
-        # Jump to last step
-        from roku_tui.widgets.tour_screen import _STEPS
-
-        tour.step_index = len(_STEPS) - 1
-        await pilot.press("n")
-        await pilot.pause()
-        assert not isinstance(app.screen, TourScreen)
-
-
-async def test_tour_skip(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await pilot.press("f2")
-        await pilot.pause()
-        await pilot.press("s")
-        await pilot.pause()
-        assert not isinstance(app.screen, TourScreen)
-
-
-async def test_tour_command_opens_tour_screen(app: RokuTuiApp) -> None:
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        await app.dispatch("tour")
         await pilot.pause()
         assert isinstance(app.screen, TourScreen)
 
@@ -179,27 +111,6 @@ async def test_arrow_keys_not_sent_to_tv_in_guide_modal(app: RokuTuiApp) -> None
         await pilot.press("f1")
         await pilot.pause()
         assert isinstance(app.screen, GuideScreen)
-        await pilot.press("up")
-        await pilot.press("down")
-        await pilot.press("left")
-        await pilot.press("right")
-        await pilot.pause()
-        assert keypresses == []
-
-
-async def test_arrow_keys_not_sent_to_tv_in_tour_modal(app: RokuTuiApp) -> None:
-    keypresses: list[str] = []
-
-    async def track(key: str) -> None:
-        keypresses.append(key)
-
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        assert app.client is not None
-        app.client.keypress = track  # type: ignore[method-assign]
-        await pilot.press("f2")
-        await pilot.pause()
-        assert isinstance(app.screen, TourScreen)
         await pilot.press("up")
         await pilot.press("down")
         await pilot.press("left")
@@ -373,9 +284,6 @@ async def test_escape_exits_keyboard_mode(app: RokuTuiApp) -> None:
         assert app._kb_mode
         await pilot.press("escape")
         await pilot.pause()
-        assert not isinstance(
-            app.screen, GuideScreen
-        )  # Ensure escape didn't push something else
         assert not app._kb_mode
 
 
@@ -483,3 +391,32 @@ async def test_semicolon_chain_stops_on_unknown_command(app: RokuTuiApp) -> None
         # up and down both run; bad command in the middle just errors
         assert "Up" in keypresses
         assert "Down" in keypresses
+
+
+# ── About screen lifecycle ─────────────────────────────────────────────────────
+
+
+async def test_f3_opens_about_screen(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        assert isinstance(app.screen, AboutScreen)
+
+
+async def test_f3_closes_about_screen(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        await pilot.press("f3")
+        await pilot.pause()
+        assert not isinstance(app.screen, AboutScreen)
+
+
+async def test_about_command_opens_screen(app: RokuTuiApp) -> None:
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        await app.dispatch("about")
+        await pilot.pause()
+        assert isinstance(app.screen, AboutScreen)

@@ -44,6 +44,8 @@ uv run textual console
 - **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses fixed width for data visibility.
 - **Top** — `StatusBar`: connected device info.
 - **F1** — `HelpScreen` modal.
+- **F2** — `GuideScreen` manual.
+- **F3** — `AboutScreen` project info.
 
 ### Command Flow
 

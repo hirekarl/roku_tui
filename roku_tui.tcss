@@ -424,6 +424,55 @@ RemotePanel.disconnected #remote-empty-state {
     height: 3;
 }
 
+/* ── Help & About Screens ────────────────────────────────────────────────── */
+
+HelpScreen, AboutScreen {
+    align: center middle;
+}
+
+#help-body {
+    width: 60;
+    height: auto;
+    background: $panel;
+    border: tall $primary;
+}
+
+.about-body {
+    width: 64;
+}
+
+#help-title {
+    width: 100%;
+    content-align: center middle;
+    color: $primary;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#help-cols {
+    height: auto;
+    padding: 0 2;
+}
+
+.help-col {
+    width: 1fr;
+}
+
+#about-content {
+    padding: 0 4 1 4;
+}
+
+#help-foot {
+    height: 3;
+    align: center middle;
+    padding: 0 2;
+}
+
+#help-foot-text {
+    width: 1fr;
+    color: $comment;
+}
+
 /* ── Modal Close Button ──────────────────────────────────────────────────── */
 
 .modal-close {

@@ -58,6 +58,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "roku_tui/widgets/help_screen.py" = ["E501"]  # Rich markup template strings
+"roku_tui/widgets/about_screen.py" = ["E501"]  # Rich markup template strings
 
 [tool.ruff.lint.isort]
 known-first-party = ["roku_tui"]

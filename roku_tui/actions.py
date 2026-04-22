@@ -80,6 +80,15 @@ class RokuActions:
 
         self.push_screen(TourScreen())
 
+    def action_show_about(self: RokuAppProtocol) -> None:
+        """Show the 'About' project screen."""
+        from .widgets.about_screen import AboutScreen
+
+        if isinstance(self.screen, AboutScreen):
+            self.pop_screen()
+        else:
+            self.push_screen(AboutScreen())
+
     def action_toggle_tab(self: RokuAppProtocol) -> None:
         """Toggle between Console and Remote tabs (Ctrl+T)."""
         tabs = self.query_one("#main-tabs", TabbedContent)

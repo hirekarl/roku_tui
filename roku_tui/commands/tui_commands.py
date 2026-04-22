@@ -42,6 +42,20 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
         )
     )
 
+    async def _handle_tour(client: Any, args: list[str], context: Any) -> str:
+        app.action_show_tour()
+        return ""
+
+    registry.register(
+        Command(
+            name="tour",
+            aliases=[],
+            args=[],
+            handler=_handle_tour,
+            help_text="Start the interactive guided tour",
+        )
+    )
+
     async def _handle_theme(client: Any, args: list[str], context: Any) -> str:
         if not args:
             options = "  ".join(
@@ -66,17 +80,17 @@ def register_tui_commands(registry: CommandRegistry, app: RokuTuiApp) -> None:
         )
     )
 
-    async def _handle_tour(client: Any, args: list[str], context: Any) -> str:
-        app.action_show_tour()
+    async def _handle_about(client: Any, args: list[str], context: Any) -> str:
+        app.action_show_about()
         return ""
 
     registry.register(
         Command(
-            name="tour",
+            name="about",
             aliases=[],
             args=[],
-            handler=_handle_tour,
-            help_text="Start the interactive guided tour",
+            handler=_handle_about,
+            help_text="Show information about the project",
         )
     )
 
