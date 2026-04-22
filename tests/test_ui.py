@@ -6,10 +6,9 @@ import pytest
 from textual.widgets import TabbedContent
 
 from roku_tui.app import RokuTuiApp
+from roku_tui.widgets.about_screen import AboutScreen
 from roku_tui.widgets.console_panel import ConsolePanel
 from roku_tui.widgets.guide_screen import GuideScreen
-from roku_tui.widgets.help_screen import HelpScreen
-from roku_tui.widgets.about_screen import AboutScreen
 from roku_tui.widgets.tour_screen import TourScreen
 
 
