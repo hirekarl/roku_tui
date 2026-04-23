@@ -37,6 +37,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - **Ctrl+Q:** Quit
 
 ## Codebase Structure
+- `docs/release_notes/`: Markdown summaries of each release.
 - `roku_tui/app.py`: Main `App` class and top-level UI orchestration.
 - `roku_tui/service.py`: Core logic for command dispatch and connection management (UI-agnostic).
 - `roku_tui/service_yt.py`: YouTube InnerTube API client.

@@ -40,7 +40,8 @@ async def handle_launch(client: Any, args: list[str], context: Any) -> str:
     if not app_cache and client:
         app_cache = await client.query_apps()
         context.app_cache = app_cache
-        context.suggester.update_app_names([a.name for a in app_cache])
+        if hasattr(context, "suggester") and context.suggester:
+            context.suggester.update_app_names([a.name for a in app_cache])
 
     names = [a.name for a in app_cache]
     matches = difflib.get_close_matches(
@@ -73,7 +74,8 @@ async def handle_apps(client: Any, args: list[str], context: Any) -> Table | str
         return "[yellow]Not connected.[/yellow]"
     apps = await client.query_apps()
     context.app_cache = apps
-    context.suggester.update_app_names([a.name for a in apps])
+    if hasattr(context, "suggester") and context.suggester:
+        context.suggester.update_app_names([a.name for a in apps])
     table = Table(
         "ID",
         "Name",

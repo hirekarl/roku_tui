@@ -56,16 +56,17 @@ When the codebase is stable and you are ready to share a new version, follow the
 2. **Bump Version:** Update the version string in TWO files:
    - `pyproject.toml`
    - `roku_tui/__init__.py`
-3. **Commit the Bump:**
+3. **Write Release Notes:** Create a new Markdown file in `docs/release_notes/v0.x.y.md` summarizing the changes.
+4. **Commit the Bump:**
    ```bash
-   git add pyproject.toml roku_tui/__init__.py
+   git add pyproject.toml roku_tui/__init__.py docs/release_notes/v0.x.y.md
    git commit -m "chore: release v0.x.y"
    ```
-4. **Tag the Release:**
+5. **Tag the Release:**
    ```bash
    git tag v0.x.y
    ```
-5. **Push Everything:**
+6. **Push Everything:**
    ```bash
    git push origin main --tags
    ```

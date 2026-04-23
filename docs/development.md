@@ -23,7 +23,7 @@ The application is built on a "Service-First" architecture. All Roku interaction
 The app does not use a massive `if/else` block for commands. Instead, it uses a `CommandRegistry` (`roku_tui/commands/registry.py`).
 
 1.  **Definition**: Every command is a `Command` dataclass containing a name, aliases, a handler function, and help text.
-2.  **Registration**: Commands are registered in `handlers.py`, `db_commands.py`, and `tui_commands.py`.
+2.  **Registration**: Commands are registered in `roku_tui/commands/handlers/__init__.py`, `db_commands.py`, and `tui_commands.py`.
 3.  **Dispatch**: When a user types a command, the registry parses the string, looks up the handler, and executes it asynchronously.
 
 ---
@@ -40,9 +40,9 @@ The `EcpClient` (`roku_tui/ecp/client.py`) is an asynchronous HTTP client built 
 
 ## 🛠️ Adding a New Command
 
-1.  Open `roku_tui/commands/handlers.py`.
+1.  Open `roku_tui/commands/handlers/` and find the relevant category (e.g., `navigation.py` or `apps.py`), or create a new file if needed.
 2.  Write an `async def handle_my_command(...)` function.
-3.  Add it to the `register_all` function at the bottom of the file.
+3.  Add it to the `register_all` function in `roku_tui/commands/handlers/__init__.py`.
 4.  (Optional) Add detailed documentation to `roku_tui/commands/tips.py`.
 
 ---

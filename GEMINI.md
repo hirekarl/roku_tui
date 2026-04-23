@@ -43,7 +43,7 @@ uv run textual console
 - **Left panel (Fluid)** — `TabbedContent` with `ConsolePanel` and `RemotePanel`. Uses `width: 1fr`.
 - **Right panel (44 chars)** — `NetworkPanel`: live HTTP request/response log. Uses fixed width for data visibility.
 - **Top** — `StatusBar`: connected device info.
-- **F1** — `HelpScreen` modal (user manual).
+- **F1** — `GuideScreen` modal (user manual).
 - **F2** — `TourScreen` modal (interactive guided tour).
 - **F3** — `AboutScreen` modal (project info + mascot).
 
@@ -54,7 +54,7 @@ User input → ConsolePanel → CommandSubmitted message
   → RokuTuiApp.dispatch()
   → RokuTuiApp._dispatch()          # internal logic
   → CommandRegistry.parse()         # lookup by name or alias
-  → handler (async)                 # in handlers.py or db_commands.py
+  → handler (async)                 # in commands/handlers/ modules
   → EcpClient / MockEcpClient       # HTTP to Roku port 8060
   → NetworkEvent callback           # routed to NetworkPanel + DB
   → output rendered in ConsolePanel
@@ -70,7 +70,7 @@ User input → ConsolePanel → CommandSubmitted message
 | `themes.py` | Centralized Textual `Theme` definitions. |
 | `mascot.py` | Rat mascot ASCII art and `ratsay()` speech-bubble formatter. |
 | `commands/tui_commands.py` | UI-specific commands (`theme`, `guide`, `clear`). |
-| `commands/handlers.py` | Navigation, app control, and fun handlers (incl. `ratsay`). |
+| `commands/handlers/` | Modular command handlers (navigation, apps, fun, etc.). |
 | `commands/db_commands.py` | Macro management, history, and stats. |
 | `commands/suggester.py` | Tab completion logic. |
 | `ecp/client.py` | Async HTTP client for Roku ECP. |

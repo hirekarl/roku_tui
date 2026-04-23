@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 from textual.widgets import TabbedContent
@@ -372,6 +373,35 @@ async def test_semicolon_chain_dispatches_all_commands(app: RokuTuiApp) -> None:
         app.post_message(ConsolePanel.CommandSubmitted("up; down; left"))
         await pilot.pause()
         assert keypresses == ["Up", "Down", "Left"]
+
+
+async def test_demo_command_chain(app: RokuTuiApp) -> None:
+    """Test the specific chain used in the demo: home; launch netflix."""
+    keypresses: list[str] = []
+    launches: list[str] = []
+
+    async def track_keypress(key: str) -> None:
+        keypresses.append(key)
+
+    async def track_launch(app_id: str, params: dict[str, Any] | None = None) -> None:
+        launches.append(app_id)
+
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        assert app.client is not None
+        app.client.keypress = track_keypress
+        app.client.launch = track_launch
+
+        # Warm the app cache so launch netflix finds it
+        from roku_tui.ecp.mock import MOCK_APPS
+
+        app.service.app_cache = list(MOCK_APPS)
+
+        app.post_message(ConsolePanel.CommandSubmitted("home; launch netflix"))
+        await pilot.pause()
+
+        assert "Home" in keypresses
+        assert "2285" in launches  # Netflix ID is 2285 in MOCK_APPS
 
 
 async def test_semicolon_chain_stops_on_unknown_command(app: RokuTuiApp) -> None:
