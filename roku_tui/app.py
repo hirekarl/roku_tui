@@ -4,8 +4,8 @@ import asyncio
 import contextlib
 import sys
 import urllib.parse
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from pathlib import Path, PurePath
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import platformdirs
 from textual import work
@@ -34,6 +34,7 @@ def _get_resource_path(relative_path: str) -> Path:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = Path(sys._MEIPASS)  # type: ignore[attr-defined]
     except Exception:
+        # If not frozen, use the project root (parent of roku_tui package)
         base_path = Path(__file__).resolve().parent.parent
 
     return base_path / relative_path
@@ -49,7 +50,18 @@ def _get_db_path() -> Path:
 class RokuTuiApp(RokuActions, App[None]):
     """The main Textual application class for roku-tui."""
 
-    CSS_PATH = _get_resource_path("roku_tui.tcss")
+    CSS_PATH: ClassVar[list[str | PurePath]] = [
+        _get_resource_path("roku_tui/styles/global.tcss"),
+        _get_resource_path("roku_tui/styles/status_bar.tcss"),
+        _get_resource_path("roku_tui/styles/tabs.tcss"),
+        _get_resource_path("roku_tui/styles/console.tcss"),
+        _get_resource_path("roku_tui/styles/discovery.tcss"),
+        _get_resource_path("roku_tui/styles/remote.tcss"),
+        _get_resource_path("roku_tui/styles/modals.tcss"),
+        _get_resource_path("roku_tui/styles/guide.tcss"),
+        _get_resource_path("roku_tui/styles/inspector.tcss"),
+        _get_resource_path("roku_tui/styles/tour.tcss"),
+    ]
     TITLE = "roku-tui"
     BINDINGS = BINDINGS
 

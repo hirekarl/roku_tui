@@ -1,0 +1,120 @@
+/* ── Network Panel ───────────────────────────────────────────────────────── */
+
+#network-panel {
+    width: 44;
+    min-width: 44;
+    max-width: 44;
+    height: 100%;
+    layout: vertical;
+    background: $panel;
+}
+
+#network-panel.hidden {
+    display: none;
+}
+
+#network-title {
+    height: 1;
+    background: $bg-dark;
+    color: $secondary;
+    text-style: bold;
+    padding: 0 1;
+}
+
+#network-filter {
+    height: 1;
+    background: $bg-dark;
+    color: $foreground;
+    border: none;
+    padding: 0 1;
+    margin: 0;
+}
+
+#network-filter:focus {
+    background: $bg-highlight;
+}
+
+#network-log {
+    height: 1fr;
+    background: $panel;
+    padding: 0;
+    scrollbar-color: $muted-border;
+    scrollbar-background: $panel;
+    scrollbar-size: 1 1;
+    border: none;
+}
+
+#network-log > .datatable--header {
+    display: none;
+}
+
+#network-log > .datatable--cursor {
+    background: $bg-highlight;
+    color: $foreground;
+}
+
+/* ── Network Inspector ───────────────────────────────────────────────────── */
+
+NetworkInspector {
+    align: center middle;
+}
+
+#inspector-body {
+    width: 90;
+    height: 90%;
+    background: $panel;
+    border: tall $muted-border;
+}
+
+#inspector-title {
+    height: 1;
+    background: $bg-dark;
+    color: $primary;
+    text-style: bold;
+    padding: 0 2;
+}
+
+#inspector-header {
+    height: auto;
+    padding: 1 2;
+    background: $bg-dark;
+    border-bottom: solid $muted-border;
+}
+
+#inspector-content {
+    height: 1fr;
+    layout: vertical;
+}
+
+.inspector-section-title {
+    padding: 1 2 0 2;
+    color: $secondary;
+    text-style: bold;
+}
+
+.inspector-text {
+    padding: 0 2 1 2;
+    height: auto;
+}
+
+#inspector-payload-container {
+    height: auto;
+    border-top: solid $muted-border;
+}
+
+#inspector-payload {
+    height: auto;
+    min-height: 5;
+    background: black;
+    margin: 1 2;
+    padding: 0 1;
+}
+
+#inspector-foot {
+    height: 3;
+    background: $bg-dark;
+    color: $comment;
+    padding: 0 2;
+    border-top: solid $muted-border;
+    align: left middle;
+}

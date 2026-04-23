@@ -1,0 +1,28 @@
+/* ── Global ──────────────────────────────────────────────────────────────── */
+
+Screen {
+    background: $background;
+    color: $foreground;
+}
+
+Header {
+    background: $panel;
+    color: $primary;
+    text-style: bold;
+    height: 1;
+}
+
+Footer {
+    background: $panel;
+    color: $comment;
+    height: 1;
+}
+
+#main-area {
+    layout: horizontal;
+    height: 1fr;
+}
+
+.hidden {
+    display: none;
+}

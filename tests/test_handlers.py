@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 from roku_tui.commands.handlers import (
-    _parse_count,
     handle_connect,
     handle_launch,
     handle_volume,
+    parse_count,
     register_all,
 )
 from roku_tui.commands.registry import CommandRegistry
@@ -48,27 +48,27 @@ class MockContext:
         return None
 
 
-# ── _parse_count ──────────────────────────────────────────────────────────────
+# ── parse_count ──────────────────────────────────────────────────────────────
 
 
 def test_parse_count_digit() -> None:
-    assert _parse_count(["3"]) == 3
+    assert parse_count(["3"]) == 3
 
 
 def test_parse_count_non_digit_defaults_to_one() -> None:
-    assert _parse_count(["up"]) == 1
+    assert parse_count(["up"]) == 1
 
 
 def test_parse_count_empty_args_defaults_to_one() -> None:
-    assert _parse_count([]) == 1
+    assert parse_count([]) == 1
 
 
 def test_parse_count_capped_at_max() -> None:
-    assert _parse_count(["999"]) == 30
+    assert parse_count(["999"]) == 30
 
 
 def test_parse_count_at_offset() -> None:
-    assert _parse_count(["up", "5"], offset=1) == 5
+    assert parse_count(["up", "5"], offset=1) == 5
 
 
 # ── handle_volume ─────────────────────────────────────────────────────────────

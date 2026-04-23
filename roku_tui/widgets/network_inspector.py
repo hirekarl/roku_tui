@@ -10,7 +10,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import ScrollableContainer, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label, RichLog, Static
+from textual.widgets import Button, Label, Static
 
 from ..ecp.models import NetworkEvent
 
@@ -61,7 +61,7 @@ class NetworkInspector(ModalScreen[None]):
 
                 with Vertical(id="inspector-payload-container"):
                     yield Label("Response Body", classes="inspector-section-title")
-                    yield RichLog(id="inspector-payload", highlight=True, wrap=True)
+                    yield Static(id="inspector-payload")
 
             with Vertical(id="inspector-foot"):
                 yield Button(
@@ -73,13 +73,13 @@ class NetworkInspector(ModalScreen[None]):
 
     def on_mount(self) -> None:
         """Pretty-print the body once the log is mounted."""
-        log = self.query_one("#inspector-payload", RichLog)
+        content = self.query_one("#inspector-payload", Static)
         if self.event.error:
-            log.write(Text(f"Error: {self.event.error}", style="bold red"))
+            content.update(Text(f"Error: {self.event.error}", style="bold red"))
         elif not self.event.body:
-            log.write(Text("No response body.", style="dim italic"))
+            content.update(Text("No response body.", style="dim italic"))
         else:
-            log.write(self._format_body(self.event.body))
+            content.update(self._format_body(self.event.body))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "inspector-close":

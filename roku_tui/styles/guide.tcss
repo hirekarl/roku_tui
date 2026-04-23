@@ -1,0 +1,83 @@
+/* ── Guide Screen ────────────────────────────────────────────────────────── */
+
+GuideScreen {
+    align: center middle;
+}
+
+#guide-body {
+    width: 94;
+    height: 90%;
+    background: $panel;
+    border: tall $muted-border;
+}
+
+#guide-title {
+    height: 1;
+    background: $bg-dark;
+    color: $primary;
+    text-style: bold;
+    padding: 0 2;
+}
+
+#guide-main {
+    height: 1fr;
+    layout: horizontal;
+}
+
+#guide-sidebar {
+    width: 22;
+    height: 100%;
+    background: $bg-dark;
+    border-right: solid $muted-border;
+}
+
+#guide-sidebar-title {
+    height: 1;
+    padding: 0 1;
+    color: $comment;
+    border-bottom: solid $muted-border;
+}
+
+#guide-nav {
+    height: 1fr;
+    background: $bg-dark;
+    border: none;
+}
+
+#guide-nav > ListItem {
+    background: $bg-dark;
+    color: $foreground;
+    padding: 0 1;
+}
+
+#guide-nav > ListItem.--highlight {
+    background: $primary;
+    color: $background;
+    text-style: bold;
+}
+
+#guide-scroll {
+    width: 1fr;
+    height: 100%;
+    padding: 1 2;
+    scrollbar-color: $muted-border;
+    scrollbar-background: black;
+    scrollbar-size: 1 1;
+}
+
+#guide-content {
+    width: 1fr;
+}
+
+#guide-foot {
+    height: 3;
+    background: $bg-dark;
+    color: $comment;
+    padding: 0 2;
+    border-top: solid $muted-border;
+    align: left middle;
+}
+
+#guide-foot-text {
+    width: 1fr;
+}

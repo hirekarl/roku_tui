@@ -1,0 +1,119 @@
+/* ── Remote Panel ────────────────────────────────────────────────────────── */
+
+#remote-panel {
+    layout: vertical;
+    background: black;
+    height: 100%;
+}
+
+#remote-scroll {
+    width: 100%;
+    height: 100%;
+    background: black;
+    scrollbar-color: $muted-border;
+    scrollbar-background: black;
+    scrollbar-size: 1 1;
+}
+
+#remote-content {
+    width: 100%;
+    height: auto;
+    align: center top;
+}
+
+#remote-grid-container {
+    width: 100%;
+    height: auto;
+    background: black;
+    align: center middle;
+}
+
+#remote-body {
+    width: 33;
+    height: auto;
+    layout: grid;
+    grid-size: 3;
+    grid-columns: 1fr 1fr 1fr;
+    grid-rows: 3 3 3 3 3 3;
+    grid-gutter: 0 1;
+    margin: 1 0;
+}
+
+.remote-row {
+    display: none;
+}
+
+.dpad {
+    display: none;
+}
+
+#remote-legend-row {
+    height: auto;
+    align: center middle;
+    padding: 1 0 2 0;
+}
+
+#remote-legend {
+    width: 33;
+    color: $foreground;
+}
+
+/* Base button style for the remote */
+#remote-body > Button {
+    width: 100%;
+    height: 3;
+    border: none;
+    background: $surface;
+    color: $foreground;
+    padding: 0;
+    margin: 0;
+    text-style: bold;
+}
+
+#remote-body > Button:hover {
+    background: $bg-highlight;
+    color: $primary;
+}
+
+#remote-body > .btn-power { color: $error; }
+#remote-body > .btn-nav   { color: $foreground; }
+#remote-body > .btn-dpad  { color: $primary; }
+#remote-body > .btn-ok    { background: $secondary; color: $background; }
+#remote-body > .btn-media { color: $accent; }
+#remote-body > .btn-volume { color: $success; }
+
+/* The pulse effect - using primary for a sharp contrast pulse */
+#remote-body > Button.btn-flash {
+    background: $primary;
+    color: $background;
+}
+
+/* Placeholder for empty grid cells */
+.remote-empty {
+    width: 100%;
+    height: 3;
+}
+
+/* Remote Panel Empty State */
+#remote-wrapper {
+    width: 100%;
+    height: auto;
+    align: center top;
+}
+
+#remote-empty-state {
+    display: none;
+    width: 100%;
+    height: 20;
+    content-align: center middle;
+    color: $comment;
+    text-align: center;
+}
+
+RemotePanel.disconnected #remote-grid-container {
+    display: none;
+}
+
+RemotePanel.disconnected #remote-empty-state {
+    display: block;
+}

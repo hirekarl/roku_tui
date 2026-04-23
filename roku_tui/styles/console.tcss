@@ -1,0 +1,73 @@
+/* ── Console Panel ───────────────────────────────────────────────────────── */
+
+#console-panel {
+    height: 100%;
+    layout: vertical;
+    background: black;
+}
+
+#history-scroll {
+    height: 1fr;
+    background: black;
+    padding: 1 2;
+    scrollbar-color: $muted-border;
+    scrollbar-background: black;
+    scrollbar-size: 1 1;
+}
+
+.history-entry {
+    padding: 0 0 1 0;
+    color: $foreground;
+}
+
+.banner {
+    color: $foreground;
+}
+
+.spacer {
+    height: 1;
+}
+
+.cmd-echo {
+    color: $primary;
+}
+
+.cmd-output {
+    color: $foreground;
+    padding: 0 0 1 2;
+}
+
+.cmd-error {
+    color: $error;
+}
+
+.cmd-system {
+    color: $foreground;
+    text-style: italic;
+}
+
+#command-input {
+    dock: bottom;
+    height: 3;
+    background: black;
+    color: $foreground;
+    border: tall $muted-border;
+    padding: 0 1;
+    margin: 0 0 0 0;
+}
+
+#command-input:focus {
+    border: tall $primary;
+}
+
+#command-input.keyboard-mode {
+    border: tall $accent;
+}
+
+#command-hint {
+    height: 1;
+    color: $comment;
+    padding: 0 2;
+    margin: 0;
+    background: black;
+}

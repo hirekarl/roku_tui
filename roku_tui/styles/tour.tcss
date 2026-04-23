@@ -1,0 +1,100 @@
+/* ── Tour Screen ─────────────────────────────────────────────────────────── */
+
+TourScreen {
+    align: center middle;
+}
+
+#tour-body {
+    width: 60;
+    height: auto;
+    background: $panel;
+    border: tall $primary;
+    padding: 1 2;
+}
+
+#tour-header {
+    height: 1;
+    margin-bottom: 1;
+}
+
+#tour-title {
+    width: 1fr;
+    color: $primary;
+    text-style: bold;
+}
+
+#tour-progress {
+    width: auto;
+    color: $comment;
+}
+
+#tour-step-title {
+    width: 100%;
+    margin-bottom: 1;
+    color: $secondary;
+    text-style: bold;
+}
+
+#tour-step-body {
+    width: 100%;
+    margin-bottom: 1;
+}
+
+#tour-extra {
+    height: auto;
+    margin-bottom: 1;
+    padding: 1;
+    background: $bg-dark;
+}
+
+#tour-try-it {
+    width: 100%;
+}
+
+#tour-hint {
+    width: 100%;
+    margin-top: 1;
+}
+
+#tour-nav {
+    height: 3;
+    align: center middle;
+}
+
+#tour-dots {
+    width: 1fr;
+    content-align: center middle;
+    color: $primary;
+}
+
+#tour-prev, #tour-next {
+    width: 14;
+    height: 3;
+    border: none;
+    background: $bg-highlight;
+    color: $foreground;
+}
+
+#tour-prev:hover, #tour-next:hover {
+    background: $primary;
+    color: $background;
+}
+
+#tour-prev:disabled {
+    color: $comment;
+    background: $bg-dark;
+}
+
+#tour-skip {
+    width: 100%;
+    height: 1;
+    margin-top: 1;
+    background: transparent;
+    color: $comment;
+    border: none;
+    text-style: underline;
+}
+
+#tour-skip:hover {
+    color: $error;
+}

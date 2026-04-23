@@ -1,0 +1,51 @@
+/* ── Tabbed Content ──────────────────────────────────────────────────────── */
+
+TabbedContent {
+    width: 1fr;
+    height: 100%;
+    background: black;
+    border-right: tall $bg-highlight;
+}
+
+TabbedContent.full-width {
+    width: 100%;
+    border-right: none;
+}
+
+TabbedContent > Tabs {
+    background: black;
+    height: 3;
+    padding: 0 1;
+    border-bottom: solid $bg-highlight;
+}
+
+TabbedContent > Tabs > Tab {
+    background: black;
+    color: $comment;
+    padding: 1 4;
+    height: 100%;
+    border: none;
+}
+
+TabbedContent > Tabs > Tab.-active {
+    background: black;
+    color: $primary;
+    text-style: bold;
+    border-top: tall $primary;
+}
+
+TabbedContent > Tabs > Tab:hover {
+    background: $bg-highlight;
+    color: $foreground;
+}
+
+TabbedContent > ContentSwitcher {
+    height: 1fr;
+    background: black;
+}
+
+TabPane {
+    padding: 0;
+    height: 1fr;
+    background: black;
+}

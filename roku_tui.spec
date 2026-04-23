@@ -7,7 +7,7 @@ a = Analysis(
     ['entry.py'],
     pathex=[],
     binaries=[],
-    datas=[('roku_tui.tcss', '.')],
+    datas=[('roku_tui/styles', 'roku_tui/styles')],
     hiddenimports=collect_submodules('textual'),
     hookspath=[],
     hooksconfig={},
