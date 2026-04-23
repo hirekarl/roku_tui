@@ -110,7 +110,12 @@ async def test_console_panel_hint_updates(
     panel.on_input_changed(Input.Changed(Input(), "launch"))
     assert "Launch" in hints[-1]
 
-    # 2. Type command with space
+    # 2. Type command with space (trailing space means we are entering args)
     panel.on_input_changed(Input.Changed(Input(), "launch "))
     assert "Usage" in hints[-1]
     assert "[app]" in hints[-1]
+
+    # 3. Chained command feedback
+    # "home; l" - cursor at end
+    panel.on_input_changed(Input.Changed(Input(), "home; l"))
+    assert "Launch" in hints[-1]

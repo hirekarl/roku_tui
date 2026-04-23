@@ -26,30 +26,33 @@ class CommandHighlighter(RegexHighlighter):
         self.registry = registry
 
     def highlight(self, text: Text) -> None:
-        """Apply highlighting to the command input."""
+        """Apply highlighting to the command input, supporting chained commands."""
         str_text = text.plain
         if not str_text:
             return
 
-        parts = str_text.split(maxsplit=1)
-        if not parts:
-            return
+        # Split into chained parts, but keep track of indices for styling
+        parts = str_text.split(";")
+        cursor = 0
+        for _i, part in enumerate(parts):
+            stripped = part.lstrip()
+            # Calculate leading whitespace for offset
+            leading_ws = len(part) - len(stripped)
+            cmd_part = stripped.split(maxsplit=1)
 
-        cmd_name = parts[0]
-        cmd = self.registry.lookup(cmd_name)
+            if cmd_part:
+                cmd_name = cmd_part[0]
+                cmd = self.registry.lookup(cmd_name)
+                start = cursor + leading_ws
 
-        if cmd:
-            # Check if it's a primary name or an alias
-            if cmd_name == cmd.name:
-                style = "bold #7aa2f7"  # Primary blue
-            else:
-                style = "bold #bb9af7"  # Secondary purple
+                if cmd:
+                    style = "bold #7aa2f7" if cmd_name == cmd.name else "bold #bb9af7"
+                    text.stylize(style, start, start + len(cmd_name))
+                else:
+                    text.stylize("bold #f7768e", start, start + len(cmd_name))
 
-            # Apply style to the first word (the command/alias)
-            text.stylize(style, 0, len(cmd_name))
-        else:
-            # Unknown command - highlight in red
-            text.stylize("bold #f7768e", 0, len(cmd_name))
+            # Move cursor past this part and the semicolon
+            cursor += len(part) + 1
 
 
 class ConsolePanel(Widget):
@@ -109,19 +112,54 @@ class ConsolePanel(Widget):
         self._append(banner, "banner")
 
     def on_input_changed(self, event: Input.Changed) -> None:
-        """Update inline hints as the user types."""
-        val = event.value.strip()
-        if not val:
+        """Update inline hints as the user types, supporting chained commands."""
+        # Use cursor position to determine which command part to show hints for
+        # In tests, cursor_position might fail if not attached to an app
+        try:
+            cursor_pos = event.input.cursor_position
+        except Exception:
+            cursor_pos = len(event.value)
+
+        full_val = event.value
+
+        if not full_val.strip():
             self._set_hint(f"[dim]Tip:[/dim] {random_tip()}")
             return
 
-        parts = val.split()
-        cmd_name = parts[0].lower()
+        # Find the start and end of the command part the cursor is currently in
+        # We split by semicolons
+        parts = full_val.split(";")
+
+        # Determine which part the cursor is in
+        current_part_idx = 0
+        char_count = 0
+        for i, part in enumerate(parts):
+            char_count += len(part)
+            if cursor_pos <= char_count:
+                current_part_idx = i
+                break
+            char_count += 1  # for the semicolon
+        else:
+            current_part_idx = len(parts) - 1
+
+        raw_part = parts[current_part_idx]
+        current_part = raw_part.strip()
+
+        if not current_part:
+            # If the current part is empty (e.g. just typed a semicolon), show tip
+            self._set_hint(f"[dim]Tip:[/dim] {random_tip()}")
+            return
+
+        parts_list = current_part.split()
+        cmd_name = parts_list[0].lower()
         cmd = self.registry.lookup(cmd_name)
 
         if cmd:
-            # If they just typed the command name, show help text
-            if len(parts) == 1 and not event.value.endswith(" "):
+            # If they just typed the command name AND no space follows it, show help
+            # Check trailing space in the RAW part (but lstrip it first)
+            has_space_after_cmd = len(parts_list) > 1 or raw_part.lstrip().endswith(" ")
+
+            if not has_space_after_cmd:
                 self._set_hint(cmd.help_text)
             else:
                 # Show expected arguments
