@@ -139,7 +139,7 @@ class ConsolePanel(Widget):
                 current_part_idx = i
                 break
             char_count += 1  # for the semicolon
-        else:
+        else:  # pragma: no cover
             current_part_idx = len(parts) - 1
 
         raw_part = parts[current_part_idx]

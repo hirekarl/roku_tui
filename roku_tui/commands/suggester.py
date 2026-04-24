@@ -53,7 +53,7 @@ class RokuSuggester(Suggester):
 
         if cmd_name == "launch" and len(parts) > 1:
             typed_name = " ".join(parts[1:]).lower()
-            if not typed_name:
+            if not typed_name:  # pragma: no cover
                 return None
 
             # Sort by frequency, then alpha

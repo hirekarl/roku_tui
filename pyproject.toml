@@ -87,6 +87,11 @@ module = ["roku_tui.widgets.*", "roku_tui.commands.*"]
 # Textual widget methods use Any-typed context patterns by design
 disallow_any_explicit = false
 
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+# Test files use unittest.mock patterns incompatible with strict mypy
+ignore_errors = true
+
 # ── Pytest ───────────────────────────────────────────────────────────────────
 
 [tool.pytest.ini_options]
