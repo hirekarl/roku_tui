@@ -233,8 +233,8 @@ async def test_console_panel_on_key_enter_refocuses_input() -> None:
     app = _App()
     async with app.run_test() as pilot:
         await pilot.pause()
-        # Focus the button so the input no longer has focus
-        await pilot.click("#other-btn")
+        # Focus the button directly — avoids viewport bounds requirement
+        app.query_one("#other-btn", Button).focus()
         await pilot.pause()
         panel = app.query_one(ConsolePanel)
         inp = app.query_one("#command-input", Input)

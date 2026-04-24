@@ -192,13 +192,16 @@ async def test_connect_spawns_worker(app: RokuTuiApp) -> None:
 
 
 async def test_async_connect_calls_service(app: RokuTuiApp) -> None:
-    """_connect() dispatches a worker that calls service.connect."""
+    """_async_connect() calls service.connect and stops before worker leak."""
     async with app.run_test() as pilot:
         await pilot.pause()
-        with patch.object(app.service, "connect", new_callable=AsyncMock) as mock_conn:
-            app._connect("192.168.1.50")
-            await pilot.pause()
+        with (
+            patch.object(app.service, "connect", new_callable=AsyncMock) as mock_conn,
+            patch.object(app, "_prefetch_info"),
+        ):
+            await app._async_connect("192.168.1.50")
             mock_conn.assert_called_once_with("192.168.1.50")
+        await pilot.pause()
 
 
 async def test_prefetch_info_no_client() -> None:
