@@ -108,7 +108,7 @@ User input → ConsolePanel → CommandSubmitted message
 - **Linting:** Ruff for both linting and formatting.
 - **Async:** Use Textual workers (`@work`) for non-blocking UI tasks.
 - **Documentation:** Google-style docstrings for all functions/classes.
-- **Testing:** Always maintain 100% passing rate in `pytest`.
+- **Testing:** Maintain 100% passing rate in `pytest` and 100% line coverage (`uv run pytest --cov=roku_tui --cov-report=term-missing`).
 - **Message handlers:** Textual handler names follow `on_{defining_class_snake_case}_{message_name}` — the namespace comes from the class where the `Message` subclass is *defined*, not the class that posts or receives it.
 
 ## Styling

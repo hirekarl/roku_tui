@@ -11,6 +11,7 @@ A Textual TUI for Roku remote control and ECP network traffic logging.
 - Format: `uv run ruff format .`
 - Type Check: `uv run mypy .`
 - Test: `uv run pytest`
+- Test (with coverage): `uv run pytest --cov=roku_tui --cov-report=term-missing`
 
 ## Standards & Practices
 - **Workflow:** ALL changes MUST follow the process in `CONTRIBUTING.md` (Branching -> Quality Control -> Merge -> Release Ceremony).
