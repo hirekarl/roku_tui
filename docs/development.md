@@ -49,7 +49,14 @@ The `EcpClient` (`roku_tui/ecp/client.py`) is an asynchronous HTTP client built 
 
 ## 🧪 Testing Strategy
 
-We use `pytest` for all verification.
-- **Unit Tests**: Test logic in `handlers.py` and `service.py` using the `MockEcpClient`.
-- **UI Tests**: Use Textual's `App.run_test()` to simulate keypresses and verify widget states.
-- **Integration Tests**: Verify the end-to-end flow from command input to database persistence.
+We use `pytest` for all verification, targeting **100% line coverage** across the codebase.
+
+- **Unit Tests**: Test handler logic, registry lookups, and service methods using `MockEcpClient` to capture ECP HTTP calls.
+- **UI Tests**: Use Textual's `App.run_test()` / `pilot` API to simulate keypresses and assert widget state.
+- **Integration Tests**: Verify the end-to-end flow from command input through ECP dispatch to database persistence.
+
+Test files live in `tests/` and mirror the source layout (e.g., `test_apps_handlers_extra.py` covers `commands/handlers/apps.py`). Run the full suite with:
+
+```bash
+uv run pytest --cov=roku_tui --cov-report=term-missing
+```
