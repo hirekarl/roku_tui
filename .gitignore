@@ -276,3 +276,6 @@ $RECYCLE.BIN/
 
 # Claude settings
 .claude/
+
+# Local reflections
+docs/reflections/
