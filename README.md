@@ -50,6 +50,10 @@ None of this makes sense. You have a keyboard right in front of you. **roku-tui*
   <b>Note:</b> These screenshots were rendered using the <code>gruvbox</code> theme.
 </p>
 
+### 🎬 Video Walkthrough
+
+[![Watch the presentation](thumbnail.png)](https://www.youtube.com/watch?v=MYDZx5nm8_M)
+
 > 💡 **First time here?** Press **F2** inside the app (or type `tour`) to start the **Guided Tour** — the fastest way to see what roku-tui can do.
 
 ---
